@@ -1,0 +1,13 @@
+.appWrapperHeader {
+    grid-area: h;
+    background-color: rgb(107, 164, 99);
+    padding: 5px;
+    justify-items: center;
+    justify-content: center;
+}
+
+.contentCenter {
+    display: table-cell;
+    vertical-align: middle;
+    border: 1px solid black;
+}

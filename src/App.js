@@ -4,6 +4,9 @@ import { connect } from 'react-redux';
 import { initializeApp } from './BLL/appReducer'
 import Preloader from './COMPONENT/Common/Preloader';
 import Login from './COMPONENT/Login/Login';
+import Header from './COMPONENT/Header/Header';
+import Navbar from './COMPONENT/Navbar/Navbar';
+import Footer from './COMPONENT/Footer/Footer';
 
 class App extends React.Component {
 
@@ -12,18 +15,22 @@ class App extends React.Component {
   }
 
   render() {
-    
+
     if (!this.props.initialized) {
       return <Preloader />
     }
-    debugger
-    if (this.props.isAuth) {
-      return <div>Залогиненен</div>
+    if (!this.props.isAuth) {
+      return <Login />
     }
 
     return (
-      <div>
-        <Login/>
+      <div className='app-wrapper'>
+        <Header />
+        <Navbar />
+        <div className='app-wrapper-content'>
+          <h1>Welcome</h1>
+        </div>
+        <Footer />
       </div>
     )
   }

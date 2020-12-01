@@ -7,7 +7,10 @@ const instance = Axios.create({
 
 export const authAPI = {
     me() {
-        console.log(instance.get('auth/me'))
         return instance.get('auth/me')
+    },
+    login(email, pass) {
+        return instance.post('auth/login', {email, pass})
     }
 }
+

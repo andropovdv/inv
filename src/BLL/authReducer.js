@@ -1,4 +1,5 @@
 
+import { stopSubmit } from 'redux-form';
 import { authAPI } from '../DAL/authAPI';
 const SET_USER_DATA = 'SET_USER_DATA';
 
@@ -12,7 +13,6 @@ let initialState = {
 const authReducer = (state = initialState, action) => {
     switch (action.type) {
         case SET_USER_DATA:
-            debugger
             return {
                 ...state,
                 ...action.payload
@@ -28,10 +28,23 @@ export const setAuthData = (userID, name, email, isAuth) => (
 
 export const getAuthData = () => (dispatch) => {
     return authAPI.me().then(responce => {
-        debugger
         if (responce.data.status) {
             let { userID, name, email } = responce.data.result;
             dispatch(setAuthData(userID, name, email, true))
+        }
+    })
+}
+
+export const login = (email, pass) => (dispatch) => {
+    authAPI.login(email, pass).then(responce => {
+        if (responce.data.status) {
+            dispatch(getAuthData());
+        } else {
+            let message = responce.data.message.length > 0
+                ? responce.data.message
+                : "Some Error";
+
+            dispatch(stopSubmit("login", { _error: message }))
         }
     })
 }

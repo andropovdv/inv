@@ -1,37 +1,30 @@
 import React from 'react';
-import { Field, reduxForm } from 'redux-form';
 import s from './Login.module.css';
+import { connect } from 'react-redux';
+import { LoginReduxForm } from './LoginForm';
+import { login } from '../../BLL/authReducer';
 
-const Login = () => {
+const Login = (props) => {
+
+    const onSubmit = (formData) => {
+        props.login(formData.email, formData.pass);
+    }
+
     return (
         <div>
             <div className={s.modal}>
                 LOGIN
-                <LoginReduxForm />
+                <LoginReduxForm onSubmit={onSubmit} />
             </div>
             <div className={s.bg}></div>
         </div>
     )
 }
 
-export default Login;
+const mapStateToProps = (state) => ({
+    isAuth: state.auth.isAuth
+})
+
+export default connect(mapStateToProps, { login })(Login)
 
 
-const LoginForm = (props) => {
-    return (
-        <form>
-            <div>
-                <Field placeholder={'e-mail'} name={'email'} component={"input"} />
-            </div>
-            <div>
-                <Field placeholder={"password"} name={"password"} component={"input"}
-                    type={"password"} />
-            </div>
-            <div>
-                <button>Login</button>
-            </div>
-        </form>
-    )
-}
-
-const LoginReduxForm = reduxForm({ form: 'login' })(LoginForm)
