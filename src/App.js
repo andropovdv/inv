@@ -7,6 +7,9 @@ import Login from './COMPONENT/Login/Login';
 import Header from './COMPONENT/Header/Header';
 import Navbar from './COMPONENT/Navbar/Navbar';
 import Footer from './COMPONENT/Footer/Footer';
+import { Route } from 'react-router-dom';
+import Vendors from './COMPONENT/Vendors/Vendors';
+import Cover from './COMPONENT/Cover/Cover';
 
 class App extends React.Component {
 
@@ -28,7 +31,8 @@ class App extends React.Component {
         <Header />
         <Navbar />
         <div className='app-wrapper-content'>
-          <h1>Welcome</h1>
+          <Route exact path='/' render = {() => <Cover />} />
+          <Route path='/Vendors' render = {() => <Vendors />} />
         </div>
         <Footer />
       </div>

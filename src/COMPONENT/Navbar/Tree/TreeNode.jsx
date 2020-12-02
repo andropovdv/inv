@@ -15,7 +15,7 @@ const TreeNode = (props) => {
 
     return (
         <li className={`${s.d_tree_node}`}>
-            <div onClick={(e) => setChildVisible((v) => !v)}>
+            <div onClick={(e) => setChildVisible((v) => !v)} key={props.node.key}>
                 {hasChild && (
                     <div className={s.d_tree_toggler}>
                         {childVisible

@@ -43,8 +43,15 @@ export const login = (email, pass) => (dispatch) => {
             let message = responce.data.message.length > 0
                 ? responce.data.message
                 : "Some Error";
-
             dispatch(stopSubmit("login", { _error: message }))
+        }
+    })
+}
+
+export const logout = () => (dispatch) => {
+    authAPI.logout().then(responce => {
+        if (responce.data.status) {
+            dispatch(setAuthData(null, null, null, false))
         }
     })
 }

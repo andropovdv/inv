@@ -1,16 +1,21 @@
 import Axios from 'axios';
 
 const instance = Axios.create({
-    baseURL: 'http://localhost:4000/',
+    baseURL: 'http://localhost:4000/auth/',
     withCredentials: true
 });
 
 export const authAPI = {
     me() {
-        return instance.get('auth/me')
+        return instance.get('me')
     },
     login(email, pass) {
-        return instance.post('auth/login', {email, pass})
+        return instance.post('login', {email, pass})
+    },
+    logout() {
+        return instance.post('logout')
     }
 }
+
+
 

@@ -16,12 +16,17 @@ const navData = [
             },
             {
                 key: '0-1',
-                to: '/MBoards',
+                to: '/Vendors',
+                label: 'Производители',
+            },
+            {
+                key: '0-1',
+                to: '/Cpus',
                 label: 'Процессоры',
             },
             {
                 key: '0-2',
-                to: '/Cpus',
+                to: '/MBoards',
                 label: 'Материнские платы',
             }
         ]
