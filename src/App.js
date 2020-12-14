@@ -10,6 +10,7 @@ import Footer from './COMPONENT/Footer/Footer';
 import { Route } from 'react-router-dom';
 import Vendors from './COMPONENT/Vendors/Vendors';
 import Cover from './COMPONENT/Cover/Cover';
+import Cpus from './COMPONENT/Cpus/Cpus';
 
 class App extends React.Component {
 
@@ -33,6 +34,7 @@ class App extends React.Component {
         <div className='app-wrapper-content'>
           <Route exact path='/' render = {() => <Cover />} />
           <Route path='/Vendors' render = {() => <Vendors />} />
+          <Route path='/Cpus' render = {() => <Cpus />} />
         </div>
         <Footer />
       </div>

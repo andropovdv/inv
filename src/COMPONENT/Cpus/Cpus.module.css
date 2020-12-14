@@ -1,4 +1,4 @@
-.vendorWrapper {
+.cpuWrapper {
     display: grid;
     grid-template-areas: "h h" "c i";
     grid-template-rows: 1fr 9fr;
@@ -6,16 +6,29 @@
     grid-gap: 5px;
 }
 
-.vendorContent {
+.cpuContent {
     grid-area: c;
     background-color: lightgrey;
     padding: 5px;
 }
 
-.vendorLabel {
+.cpuLabel {
     grid-area: h;
     background-color: lightgrey;
     padding: 5px;
+}
+.buttonArea {
+    padding-bottom: 5px;
+}
+
+.errorMessage {
+    color: red;
+}
+
+.selectedCpu {
+    color: black;
+    font-weight: bold;
+    background: gray;
 }
 
 div[disabled] {
@@ -25,19 +38,10 @@ div[disabled] {
     background: #CCC;
 }
 
-.buttonArea {
-    padding-bottom: 5px;
-}
-
-.selectedVendor {
-    color: black;
-    font-weight: bold;
-    background: gray;
-}
-
 .table2 {
     border-spacing: 0px;
     width: 500px;
+
     table-layout: fixed;
 }
 
@@ -63,30 +67,4 @@ div[disabled] {
     /* padding: 9px 8px; */
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-/* /Modal */
-
-.modal {
-    z-index: 9999;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-width: 250px;
-    min-height: 100px;
-    padding: 15px;
-    border-radius: 10px;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    border: 2px green solid;
-}
-
-.bg {
-    z-index: 9998;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.3);
 }

@@ -5,10 +5,9 @@ import {
     getVendorsData, setCurrentVendor,
     updateVendorData, deleteVendorData, addVendorData
 } from '../../BLL/vendorReducer';
-import Preloader from '../Common/Preloader';
 import VendorItem from './VendorItem';
 import VendorModal from './VendorModal';
-import { VendorReduxForm } from './VendorForm';
+import VendorReduxForm from './VendorForm';
 
 class Vendor extends React.Component {
 
@@ -24,7 +23,7 @@ class Vendor extends React.Component {
 
     updateVendor = (values) => {
         let updateVendor = {
-            id_vendor: this.props.currentVendorId,
+            id_vendor: this.props.currentVendor.id_vendor,
             name: values.name,
             full_name: values.full_name,
             url: values.url
@@ -44,7 +43,7 @@ class Vendor extends React.Component {
     }
 
     deleteVendor = (idVendor) => {
-        let result = window.confirm(`Вы действительно хотите удалить ${this.props.currentVendorName}`)
+        let result = window.confirm(`Вы действительно хотите удалить ${this.props.currentVendor.name}`)
         if (result) {
             let vendor = {
                 "id_vendor": idVendor
@@ -71,7 +70,6 @@ class Vendor extends React.Component {
     }
 
     clickLeft = () => {
-        debugger
         this.props.getVendorsData(this.props.pagination.current - 1);
     }
 
@@ -99,22 +97,26 @@ class Vendor extends React.Component {
                         </button>
 
                     </div>
-                    {this.props.isLoading && <Preloader/>}
-                    <table className={s.table2}>
-                        <tbody>
-                            <tr><th>Name</th><th>Full Name</th><th></th><th></th></tr>
-                            {this.props.vendors.map(v =>
-                                <VendorItem
-                                    id_vendor={v.id_vendor}
-                                    name={v.name}
-                                    full_name={v.full_name}
-                                    setCurrentVendor={this.props.setCurrentVendor}
-                                    currentVendorId={this.props.currentVendorId}
-                                    state={this.state}
-                                    openModal={this.openModalEdit}
-                                    deleteVendor={this.deleteVendor} />)}
-                        </tbody>
-                    </table>
+                    {/* {this.props.isLoading && <Preloader/>} */}
+                    <div disabled={this.props.isLoading}>
+                        <table className={s.table2}>
+                            <tbody>
+                                <tr><th>Name</th><th>Full Name</th><th></th><th></th></tr>
+                                {this.props.vendors.map(v =>
+                                    <VendorItem
+                                        id_vendor={v.id_vendor}
+                                        name={v.name}
+                                        full_name={v.full_name}
+                                        url={v.url}
+                                        setCurrentVendor={this.props.setCurrentVendor}
+                                        currentVendor={this.props.currentVendor}
+                                        currentVendorId={this.props.currentVendorId}
+                                        state={this.state}
+                                        openModal={this.openModalEdit}
+                                        deleteVendor={this.deleteVendor} />)}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div>
                     <VendorModal isOpen={this.state.isVisibleModal}
@@ -136,6 +138,7 @@ class Vendor extends React.Component {
 
 let mapStateToProps = (state) => ({
     vendors: state.vendor.vendors,
+    currentVendor: state.vendor.currentVendor,
     isLoading: state.vendor.isLoading,
     currentVendorId: state.vendor.currentVendorId,
     currentVendorName: state.vendor.currentVendorName,

@@ -3,15 +3,25 @@ import s from './Vendors.module.css';
 
 const VendorItem = (props) => {
 
+    const selectVendor = () => {
+        let currenVendor = {
+            id_vendor: props.id_vendor,
+            name: props.name,
+            full_name: props.full_name,
+            url: props.url
+        };
+        props.setCurrentVendor(currenVendor);
+    }
+
     return (
-        <tr onClick={() => { props.setCurrentVendor(props.id_vendor, props.name, props.full_name) }}
-            className={props.currentVendorId === props.id_vendor && s.selectedVendor}>
+        <tr onClick={selectVendor}
+            className={props.currentVendor.id_vendor === props.id_vendor && s.selectedVendor}>
             <td>{props.name}</td>
             <td>{props.full_name}</td>
-            <td><button disabled={props.currentVendorId === props.id_vendor ? false : true}
+            <td><button disabled={props.currentVendor.id_vendor === props.id_vendor ? false : true}
                 onClick={() => {props.openModal()} }>Редактировать</button></td>
-            <td><button disabled={props.currentVendorId === props.id_vendor ? false : true}
-                onClick={() => {props.deleteVendor(props.currentVendorId)} }>Удалить</button></td>
+            <td><button disabled={props.currentVendor.id_vendor === props.id_vendor ? false : true}
+                onClick={() => {props.deleteVendor(props.currentVendor.id_vendor)} }>Удалить</button></td>
         </tr>
     );
 };

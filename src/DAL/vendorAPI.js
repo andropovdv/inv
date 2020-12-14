@@ -22,6 +22,9 @@ const vendorAPI = {
     },
     add(vendor) {
         return instance.post('add', vendor)
+    },
+    allToScroll() {
+        return instanceV2.get('all');
     }
 }
 

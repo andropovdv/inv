@@ -1,14 +1,18 @@
-import vendorAPI from '../DAL/vendorsAPI';
+import vendorAPI from '../DAL/vendorAPI';
 
 const VENDOR_IS_LOADING = 'VENDOR_IS LOADING';
 const SET_VENDORS = 'SET_VENDORS';
+const SET_VENDORS_ALL = 'SET_VENDORS_ALL';
 const SET_CURRENT_VENDOR = 'SET_CURRENT_VENDOR';
 
 
 let initialState = {
     vendors: [],
+    currentVendor: {},
+    vendorsAll: [],
     pagination: {},
     isLoading: true,
+
     currentVendorId: null,
     currentVendorName: null,
     currentVendorFullName: null
@@ -29,12 +33,16 @@ const vendorReducer = (state = initialState, action) => {
                 pagination: {...action.pagination}
             };
         }
+        case SET_VENDORS_ALL: {
+            return {
+                ...state,
+                vendorsAll: [...action.vendors]
+            }
+        }
         case SET_CURRENT_VENDOR: {
             return {
                 ...state,
-                currentVendorId: action.id_vendor,
-                currentVendorName: action.name,
-                currentVendorFullName: action.full_name
+                currentVendor: {...action.currentVendor}
             };
         }
         default:
@@ -51,9 +59,12 @@ export const setVendorsData = (vendors, pagination) => {
     return { type: SET_VENDORS, vendors, pagination }
 }
 
-export const setCurrentVendor = (id_vendor, name, full_name) => {
+export const setVendorsAllData = (vendors) => {
+    return { type: SET_VENDORS_ALL, vendors}
+}
+export const setCurrentVendor = (currentVendor) => {
     return {
-        type: SET_CURRENT_VENDOR, id_vendor: id_vendor, name: name, full_name: full_name
+        type: SET_CURRENT_VENDOR, currentVendor
     }
 }
 
@@ -64,6 +75,16 @@ export const getVendorsData = (page) => (dispatch) => {
     vendorAPI.all(page).then(res => {
         dispatch(toggleIsLoading(false))
         dispatch(setVendorsData(res.data.vendors, res.data.pagination))
+    })
+}
+
+export const getVendorAllData = (vendors) => (dispatch) => {
+    dispatch(toggleIsLoading(true));
+    vendorAPI.allToScroll().then(res => {
+        if (res.data.status) {
+            dispatch(toggleIsLoading(false))
+            dispatch(setVendorsAllData(res.data.vendors))
+        }
     })
 }
 

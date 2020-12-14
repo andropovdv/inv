@@ -5,11 +5,13 @@ import { reducer as formReducer } from 'redux-form';
 import authReducer from './authReducer';
 import appReducer from './appReducer';
 import vendorReducer from './vendorReducer';
+import cpuReducer from './cpuReducer';
 
 let reducers = combineReducers({
     app: appReducer,
     auth: authReducer,
     vendor: vendorReducer,
+    cpu: cpuReducer,
     form: formReducer
 });
 

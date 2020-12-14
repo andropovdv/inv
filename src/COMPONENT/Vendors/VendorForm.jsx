@@ -3,18 +3,18 @@ import { Field, reduxForm } from 'redux-form';
 import { required } from '../../Utils/validators';
 import { InputArea } from '../Common/FormsControls/FormsControls';
 import s from '../Common/FormsControls/FormsControls.module.css'
+import { connect } from 'react-redux';
 
 
-const VendorForm = (props) => {
+let VendorReduxForm = (props) => {
     return (
         <form onSubmit={props.handleSubmit}>
             <div>
                 <Field placeholder={'Краткое'} name={'name'} component={InputArea}
-                    validate={[required]} defaultValue={props.currentVendorName} autoFocus={true}/>
+                    validate={[required]} autoFocus={true} />
             </div>
             <div>
-                <Field placeholder={"Полное"} name={"full_name"} component={InputArea}
-                    defaultValue={props.currentVendorFullName} />
+                <Field placeholder={"Полное"} name={"full_name"} component={InputArea} />
             </div>
             <div>
                 <Field placeholder={"url"} name={"url"} component={InputArea} />
@@ -28,4 +28,10 @@ const VendorForm = (props) => {
         </form>
     );
 };
-export const VendorReduxForm = reduxForm({ form: 'vendor' })(VendorForm);
+
+
+VendorReduxForm = reduxForm({ form: 'vendor' })(VendorReduxForm);
+
+VendorReduxForm = connect(state => ({ initialValues: state.vendor.currentVendor }), null)(VendorReduxForm);
+
+export default VendorReduxForm;
