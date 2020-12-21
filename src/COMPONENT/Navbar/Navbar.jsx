@@ -12,7 +12,13 @@ const navData = [
                 key: '0-0',
                 label: 'Типы разъемов',
                 to: "",
-                children: []
+                children: [
+                    {
+                        key: '0-0-1',
+                        label: 'Тип разъема процессора',
+                        to: '/CpuSocket'
+                    }
+                ]
             },
             {
                 key: '0-1',

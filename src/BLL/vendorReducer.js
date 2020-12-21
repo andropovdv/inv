@@ -4,6 +4,7 @@ const VENDOR_IS_LOADING = 'VENDOR_IS LOADING';
 const SET_VENDORS = 'SET_VENDORS';
 const SET_VENDORS_ALL = 'SET_VENDORS_ALL';
 const SET_CURRENT_VENDOR = 'SET_CURRENT_VENDOR';
+const SET_ERROR_VENDOR = 'SET_ERROR_VENDOR';
 
 
 let initialState = {
@@ -12,10 +13,10 @@ let initialState = {
     vendorsAll: [],
     pagination: {},
     isLoading: true,
-
-    currentVendorId: null,
-    currentVendorName: null,
-    currentVendorFullName: null
+    errorCode: 0
+    // currentVendorId: null,
+    // currentVendorName: null,
+    // currentVendorFullName: null
 }
 
 const vendorReducer = (state = initialState, action) => {
@@ -30,7 +31,7 @@ const vendorReducer = (state = initialState, action) => {
             return {
                 ...state,
                 vendors: [...action.vendors],
-                pagination: {...action.pagination}
+                pagination: { ...action.pagination }
             };
         }
         case SET_VENDORS_ALL: {
@@ -42,8 +43,14 @@ const vendorReducer = (state = initialState, action) => {
         case SET_CURRENT_VENDOR: {
             return {
                 ...state,
-                currentVendor: {...action.currentVendor}
+                currentVendor: { ...action.currentVendor }
             };
+        }
+        case SET_ERROR_VENDOR: {
+            return {
+                ...state,
+                errorCode: action.code
+            }
         }
         default:
             return state;
@@ -60,12 +67,16 @@ export const setVendorsData = (vendors, pagination) => {
 }
 
 export const setVendorsAllData = (vendors) => {
-    return { type: SET_VENDORS_ALL, vendors}
+    return { type: SET_VENDORS_ALL, vendors }
 }
 export const setCurrentVendor = (currentVendor) => {
     return {
         type: SET_CURRENT_VENDOR, currentVendor
     }
+}
+
+export const setError = (code) => {
+    return { type: SET_ERROR_VENDOR, code }
 }
 
 
@@ -105,10 +116,14 @@ export const deleteVendorData = (idVendor) => (dispatch) => {
 }
 
 export const addVendorData = (vendor) => (dispatch) => {
+    dispatch(toggleIsLoading(true));
     vendorAPI.add(vendor).then(res => {
         if (res.data.status) {
             dispatch(getVendorsData());
+        } else {
+            dispatch(setError(res.data.errorCode))
         }
+        dispatch(toggleIsLoading(false))
     })
 }
 export default vendorReducer;

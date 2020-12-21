@@ -15,13 +15,13 @@ const vendorAPI = {
         return instanceV2.get(`?page=${page}`);
     },
     update(vendor) {
-        return instance.put('update', vendor)
+        return instanceV2.put('update', vendor)
     },
     delete(vendor) {
         return instance.post('delete', vendor)
     },
     add(vendor) {
-        return instance.post('add', vendor)
+        return instanceV2.post('add', vendor)
     },
     allToScroll() {
         return instanceV2.get('all');

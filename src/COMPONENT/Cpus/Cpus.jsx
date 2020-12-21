@@ -43,6 +43,7 @@ class Cpus extends React.Component {
         let cpu = {
             vendor: values.vendor,
             model: values.model,
+            name_typeSocketCpu: values.name_typeSocketCpu
         }
         this.props.addCpusData(cpu)
         this.setState({ isVisibleModal: false })
@@ -51,7 +52,8 @@ class Cpus extends React.Component {
         let updateCpu = {
             id_cpu: this.props.currentCpu.id_cpu,
             vendor: values.vendor,
-            model: values.model
+            model: values.model,
+            name_typeSocketCpu: values.name_typeSocketCpu
         }
         this.props.updateCpusData(updateCpu);
         this.setState({ isVisibleModal: false });
@@ -77,17 +79,16 @@ class Cpus extends React.Component {
 
 
     render() {
-        let errorMesage;
+        let errorMessage;
         if (parseInt(this.props.errorCode, 10) === 10) {
             // errorMesage = <div className={s.errorMesage}>already have</div>
-            errorMesage = <AddEditTwo onClose={this.closeModal}
+            errorMessage = <AddEditTwo onClose={this.closeModal}
                 isOpen={true}
                 header={'Информация:'}>
                 <div className={s.errorMessage}>already have</div>
             </AddEditTwo>
 
         }
-        debugger
         return (
             <div className={s.cpuWrapper}>
                 <div className={s.cpuLabel}>
@@ -105,7 +106,7 @@ class Cpus extends React.Component {
                             Следующая</button>
                     </div>
                     <div>
-                        {errorMesage}
+                        {errorMessage}
                     </div>
                     <div disabled={this.props.isLoading}>
                         <table className={s.table2}>
@@ -119,11 +120,16 @@ class Cpus extends React.Component {
                                         id_vendor={c.id_vendor}
                                         vendor={c.name}
                                         model={c.model}
+                                        socketCpu={c.name_typeSocketCpu}
                                         openModal={this.openModalEdit}
                                         deleteCpu={this.deleteCpu} />)}
                             </tbody>
                         </table>
                     </div>
+                </div>
+                <div className={s.cpuInfo}>
+                    Подробная информация
+                    <p><b>{this.props.currentCpu.name_typeSocketCpu}</b></p>
                 </div>
                 <div>
                     <AddEditTwo onClose={this.closeModal}

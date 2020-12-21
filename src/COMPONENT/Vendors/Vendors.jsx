@@ -2,12 +2,13 @@ import React from 'react';
 import s from './Vendors.module.css';
 import { connect } from 'react-redux'
 import {
-    getVendorsData, setCurrentVendor,
+    getVendorsData, setCurrentVendor, setError,
     updateVendorData, deleteVendorData, addVendorData
 } from '../../BLL/vendorReducer';
 import VendorItem from './VendorItem';
 import VendorModal from './VendorModal';
 import VendorReduxForm from './VendorForm';
+import AddEditTwo from '../Common/ModalWindows/AddEditTwo/AddEditTwo';
 
 class Vendor extends React.Component {
 
@@ -66,7 +67,8 @@ class Vendor extends React.Component {
     }
 
     closeModal = () => {
-        this.setState({ isVisibleModal: false })
+        this.setState({ isVisibleModal: false });
+        this.props.setError(0);
     }
 
     clickLeft = () => {
@@ -78,6 +80,14 @@ class Vendor extends React.Component {
     }
 
     render() {
+        let errorMessage;
+        
+        if (parseInt(this.props.errorCode, 10) === 10) {
+            errorMessage = <AddEditTwo onClose={this.closeModal}
+                isOpen={true} header={'Информация:'}>
+                <div className={s.errorMessage}>already have</div>
+            </AddEditTwo>
+        }
         return (
             <div className={s.vendorWrapper}>
                 <div className={s.vendorLabel}>
@@ -98,6 +108,7 @@ class Vendor extends React.Component {
 
                     </div>
                     {/* {this.props.isLoading && <Preloader/>} */}
+                    <div>{errorMessage}</div>
                     <div disabled={this.props.isLoading}>
                         <table className={s.table2}>
                             <tbody>
@@ -140,17 +151,18 @@ let mapStateToProps = (state) => ({
     vendors: state.vendor.vendors,
     currentVendor: state.vendor.currentVendor,
     isLoading: state.vendor.isLoading,
-    currentVendorId: state.vendor.currentVendorId,
-    currentVendorName: state.vendor.currentVendorName,
-    currentVendorFullName: state.vendor.currentVendorFullName,
-    pagination: state.vendor.pagination
+    // currentVendorId: state.vendor.currentVendorId,
+    // currentVendorName: state.vendor.currentVendorName,
+    // currentVendorFullName: state.vendor.currentVendorFullName,
+    pagination: state.vendor.pagination,
+    errorCode: state.vendor.errorCode
 })
 
 
 export default connect(mapStateToProps,
     {
         getVendorsData, setCurrentVendor, updateVendorData,
-        deleteVendorData, addVendorData
+        deleteVendorData, addVendorData, setError
     })(Vendor);
 
 

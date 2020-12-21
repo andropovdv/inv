@@ -13,12 +13,12 @@ class VendorScrollContainer extends React.Component {
     render() {
         const { input } = this.props
         return (
-            <div disabled={this.props.isLoading}>
+            <span disabled={this.props.isLoading}>
                 {/* {this.props.isLoading ? <Preloader /> : null} */}
                 <select {...input}>
                     {this.props.vendorsAll.map(v => <VendorScroll key={v.id_vendor} index={v.id_vendor} vendor={v.name} />)}
                 </select>
-            </div>
+            </span>
         )
     }
 }

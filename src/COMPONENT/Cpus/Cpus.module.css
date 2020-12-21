@@ -12,11 +12,18 @@
     padding: 5px;
 }
 
+.cpuInfo {
+    grid-area: i;
+    background-color: aqua;
+    padding: 5px;
+}
+
 .cpuLabel {
     grid-area: h;
     background-color: lightgrey;
     padding: 5px;
 }
+
 .buttonArea {
     padding-bottom: 5px;
 }
@@ -24,6 +31,8 @@
 .errorMessage {
     color: red;
 }
+
+.divInline { display: inline; }
 
 .selectedCpu {
     color: black;

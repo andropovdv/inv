@@ -35,7 +35,6 @@ const cpuReducer = (state = initialState, action) => {
             }
         }
         case SET_ERROR_CPU: {
-            debugger
             return {
                 ...state,
                 errorCode: action.code
@@ -78,6 +77,7 @@ export const updateCpusData = (cpu) => (dispatch) => {
     cpuAPI.update(cpu).then(res => {
         if (res.data.status) {
             dispatch(getCpusData())
+            dispatch(setCurrentCpu(cpu))
         }
     })
 }

@@ -6,12 +6,14 @@ import authReducer from './authReducer';
 import appReducer from './appReducer';
 import vendorReducer from './vendorReducer';
 import cpuReducer from './cpuReducer';
+import typeSocketCpuReducer from './typeSocketCpuReducer';
 
 let reducers = combineReducers({
     app: appReducer,
     auth: authReducer,
     vendor: vendorReducer,
     cpu: cpuReducer,
+    typeCpuSocket: typeSocketCpuReducer,
     form: formReducer
 });
 

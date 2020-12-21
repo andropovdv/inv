@@ -7,8 +7,8 @@ const CpuItem = (props) => {
         let currentCpu = {
             id_cpu: props.id_cpu,
             vendor: props.vendor,
-            // id_vendor: props.id_vendor,
-            model: props.model
+            model: props.model,
+            name_typeSocketCpu: props.socketCpu
         }
         props.setCurrentCpu(currentCpu)
     }

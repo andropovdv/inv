@@ -11,6 +11,7 @@ import { Route } from 'react-router-dom';
 import Vendors from './COMPONENT/Vendors/Vendors';
 import Cover from './COMPONENT/Cover/Cover';
 import Cpus from './COMPONENT/Cpus/Cpus';
+import CpuSocketTypeContainer from './COMPONENT/CpuSocketType/CpuSocketTypeContainer';
 
 class App extends React.Component {
 
@@ -35,6 +36,7 @@ class App extends React.Component {
           <Route exact path='/' render = {() => <Cover />} />
           <Route path='/Vendors' render = {() => <Vendors />} />
           <Route path='/Cpus' render = {() => <Cpus />} />
+          <Route path='/CpuSocket' render = {() => <CpuSocketTypeContainer />} />
         </div>
         <Footer />
       </div>
