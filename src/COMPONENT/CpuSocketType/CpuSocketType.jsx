@@ -3,13 +3,16 @@ import s from './CpuSocketType.module.css';
 import CpuSoketItem from './CpuSocketItem';
 import AddEditTwo from '../Common/ModalWindows/AddEditTwo/AddEditTwo';
 import CpuSocketReduxForm from './CpuSocketForm';
+import ModalCpuSocketContainer from '../Common/ModalWindows/ModalCpuSocket/ModalCpuSocketContainer';
 
 const CpuSocketType = (props) => {
+
+
     let errorMessage;
     if (parseInt(props.errorCode, 10) === 10) {
         errorMessage = <AddEditTwo onClose={props.onClose}
             isOpen={true} header={'Информация:'}>
-                <div className={s.errorMessage}>already have</div>
+            <div className={s.errorMessage}>already have</div>
         </AddEditTwo>
     }
     return (
@@ -47,10 +50,14 @@ const CpuSocketType = (props) => {
                         isOpen={props.isVisable}
                         onClose={props.onClose}
                         header={props.header}>
+                        <button onClick={() => props.openModalTest()}>Добавить</button>
                         <div>
                             <CpuSocketReduxForm onSubmit={props.typeModal ? props.updateTypeSocket : props.addTypeSocket} />
                         </div>
                     </AddEditTwo>
+                    {props.cpuSocketVisibility
+                        ? <ModalCpuSocketContainer />
+                        : null}
                 </div>
             </div>
             <div>

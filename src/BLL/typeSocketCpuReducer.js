@@ -110,10 +110,11 @@ export const addSocketCpuData = (addTypeSocket) => (dispatch) => {
     typeSocketCpuAPI.add(addTypeSocket).then(res => {
         if (res.data.status) {
             dispatch(getSocketCpuData());
+            dispatch(getAllSocketCpuData());
         } else {
             dispatch(setError(res.data.errorCode))
         }
-        dispatch(toggleIsLoading(false))
+        dispatch(toggleIsLoading(false));
     })
 }
 

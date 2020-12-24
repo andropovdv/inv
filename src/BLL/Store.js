@@ -7,10 +7,12 @@ import appReducer from './appReducer';
 import vendorReducer from './vendorReducer';
 import cpuReducer from './cpuReducer';
 import typeSocketCpuReducer from './typeSocketCpuReducer';
+import modalWindowReducer from './modalWindowReducer';
 
 let reducers = combineReducers({
     app: appReducer,
     auth: authReducer,
+    modalWindow: modalWindowReducer,
     vendor: vendorReducer,
     cpu: cpuReducer,
     typeCpuSocket: typeSocketCpuReducer,

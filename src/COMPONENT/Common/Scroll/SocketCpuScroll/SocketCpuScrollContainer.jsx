@@ -8,6 +8,12 @@ class SocketCpuScrollContainer extends React.Component {
         this.props.getAllSocketCpuData();
     }
 
+    // componentDidUpdate(prevProps, prevState) {
+    //     if (prevProps.cpuSocketsAll !== this.props.cpuSocketsAll) {
+    //         console.log('они разные')
+    //     }
+    // }
+
     render() {
         const { input } = this.props;
         return (

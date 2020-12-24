@@ -120,6 +120,7 @@ export const addVendorData = (vendor) => (dispatch) => {
     vendorAPI.add(vendor).then(res => {
         if (res.data.status) {
             dispatch(getVendorsData());
+            dispatch(getVendorAllData())
         } else {
             dispatch(setError(res.data.errorCode))
         }

@@ -14,7 +14,6 @@ const AddEditTwo = (props) => {
 
     return (
         <div>
-            <div className={ss.bg} onClick={(e) => close(e)} />
             <div className={ss.modal}>
                 <div className={ss.modalDialog}>
                     <div className={ss.modalContent}>

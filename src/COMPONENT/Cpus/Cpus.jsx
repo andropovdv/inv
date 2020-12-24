@@ -1,162 +1,90 @@
 import React from 'react'
 import s from './Cpus.module.css'
-import { connect } from 'react-redux';
-import {
-    getCpusData, setCurrentCpu,
-    updateCpusData, deleteCpusData,
-    addCpusData, setError
-} from '../../BLL/cpuReducer';
 import CpuItem from './CpuItem';
 import AddEditTwo from '../Common/ModalWindows/AddEditTwo/AddEditTwo';
 import CpuReduxForm from './CpuForm';
+import ModalCpuSocketContainer from '../Common/ModalWindows/ModalCpuSocket/ModalCpuSocketContainer';
+import ModalVendorContainer from '../Common/ModalWindows/ModalVendor/ModalVendorContainer';
 
-class Cpus extends React.Component {
+const Cpus = (props) => {
 
-    state = {
-        isVisibleModal: false,
-        headerModal: '',
-        typeModal: false
-    }
-
-    componentDidMount() {
-        this.props.getCpusData();
-    }
-
-    closeModal = () => {
-        this.setState({ isVisibleModal: false })
-        this.props.setError(0);
-    }
-
-    openModalNew = () => {
-        this.props.setCurrentCpu(null, null, null)
-        this.setState({ typeModal: false });
-        this.setState({ headerModal: 'Добавляем' })
-        this.setState({ isVisibleModal: true })
+    let errorMessage;
+    if (parseInt(props.errorCode, 10) === 10) {
+        errorMessage = <AddEditTwo onClose={props.closeModal}
+            isOpen={true}
+            header={'Информация:'}>
+            <div className={s.errorMessage}>already have</div>
+        </AddEditTwo>
 
     }
-    openModalEdit = () => {
-        this.setState({ typeModal: true })
-        this.setState({ headerModal: 'Редактируем:' })
-        this.setState({ isVisibleModal: true })
-    }
-    addCpu = (values) => {
-        let cpu = {
-            vendor: values.vendor,
-            model: values.model,
-            name_typeSocketCpu: values.name_typeSocketCpu
-        }
-        this.props.addCpusData(cpu)
-        this.setState({ isVisibleModal: false })
-    }
-    updateCpu = (values) => {
-        let updateCpu = {
-            id_cpu: this.props.currentCpu.id_cpu,
-            vendor: values.vendor,
-            model: values.model,
-            name_typeSocketCpu: values.name_typeSocketCpu
-        }
-        this.props.updateCpusData(updateCpu);
-        this.setState({ isVisibleModal: false });
-    }
-    deleteCpu = (id_cpu) => {
-        let result =
-            window.confirm(`Вы действительно хотите удалить 
-            ${this.props.currentCpu.vendor} ${this.props.currentCpu.model}`);
-        let cpu = {
-            id_cpu: id_cpu
-        }
-        if (result) {
-            this.props.deleteCpusData(cpu);
-        }
-    }
-    prevPage = () => {
-        this.props.getCpusData(this.props.pagination.current - 1)
-    }
-    nextPage = () => {
-        this.props.getCpusData(this.props.pagination.current + 1)
-    }
-
-
-
-    render() {
-        let errorMessage;
-        if (parseInt(this.props.errorCode, 10) === 10) {
-            // errorMesage = <div className={s.errorMesage}>already have</div>
-            errorMessage = <AddEditTwo onClose={this.closeModal}
-                isOpen={true}
-                header={'Информация:'}>
-                <div className={s.errorMessage}>already have</div>
-            </AddEditTwo>
-
-        }
-        return (
-            <div className={s.cpuWrapper}>
-                <div className={s.cpuLabel}>
-                    Процессоры:
+    return (
+        <div className={s.cpuWrapper}>
+            <div className={s.cpuLabel}>
+                Процессоры:
                 </div>
-                <div className={s.cpuContent}>
-                    <div className={s.buttonArea}>
-                        <button onClick={this.openModalNew}>Добавить процессор</button>
-                        <button onClick={this.prevPage}
-                            disabled={typeof this.props.pagination.prev !== 'undefined' ? false : true}>
-                            Предыдущая</button>
-                        {this.props.pagination.current + 1}из{this.props.pagination.numPages}
-                        <button onClick={this.nextPage}
-                            disabled={typeof this.props.pagination.next !== 'undefined' ? false : true}>
-                            Следующая</button>
-                    </div>
-                    <div>
-                        {errorMessage}
-                    </div>
-                    <div disabled={this.props.isLoading}>
-                        <table className={s.table2}>
-                            <tbody>
-                                <tr><th>Vendor</th><th>Model</th><th></th><th></th></tr>
-                                {this.props.cpus.map(c =>
-                                    <CpuItem
-                                        key={c.id_cpu}
-                                        {...this.props}
-                                        id_cpu={c.id_cpu}
-                                        id_vendor={c.id_vendor}
-                                        vendor={c.name}
-                                        model={c.model}
-                                        socketCpu={c.name_typeSocketCpu}
-                                        openModal={this.openModalEdit}
-                                        deleteCpu={this.deleteCpu} />)}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div className={s.cpuInfo}>
-                    Подробная информация
-                    <p><b>{this.props.currentCpu.name_typeSocketCpu}</b></p>
+            <div className={s.cpuContent}>
+                <div className={s.buttonArea}>
+                    <button onClick={() => props.openModalNew()}>Добавить процессор</button>
+                    <button onClick={() => props.prevPage()}
+                        disabled={typeof props.pagination.prev !== 'undefined' ? false : true}>
+                        Предыдущая</button>
+                    {props.pagination.current + 1}из{props.pagination.numPages}
+                    <button onClick={() => props.nextPage()}
+                        disabled={typeof props.pagination.next !== 'undefined' ? false : true}>
+                        Следующая</button>
                 </div>
                 <div>
-                    <AddEditTwo onClose={this.closeModal}
-                        isOpen={this.state.isVisibleModal}
-                        header={this.state.headerModal}>
-                        <div>
-                            <CpuReduxForm
-                                onSubmit={this.state.typeModal ? this.updateCpu : this.addCpu}
-                                typeModal={this.state.typeModal}
-                                {...this.props} />
-                        </div>
-                    </AddEditTwo>
+                    {errorMessage}
+                </div>
+                <div disabled={props.isLoading}>
+                    <table className={s.table2}>
+                        <tbody>
+                            <tr><th>Vendor</th><th>Model</th><th></th><th></th></tr>
+                            {props.cpus.map(c =>
+                                <CpuItem
+                                    key={c.id_cpu}
+                                    {...props}
+                                    id_cpu={c.id_cpu}
+                                    id_vendor={c.id_vendor}
+                                    vendor={c.name}
+                                    model={c.model}
+                                    socketCpu={c.name_typeSocketCpu}
+                                    openModal={props.openModalEdit}
+                                    deleteCpu={props.deleteCpu} />)}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        )
-    }
+            <div className={s.cpuInfo}>
+                Подробная информация
+                    <p><b>{props.currentCpu.name_typeSocketCpu}</b></p>
+            </div>
+            <div>
+                <AddEditTwo onClose={props.closeModal}
+                    isOpen={props.isVisable}
+                    header={props.header}>
+                    <CpuReduxForm
+                        onSubmit={props.typeModal ? props.updateCpu : props.addCpu}
+                        typeModal={props.typeModal}
+                        {...props} />
+                </AddEditTwo>
+
+            </div>
+            <div>
+                {/* <ModalCpuContainer /> */}
+                <div>
+                    {props.cpuSocketVisibility
+                        ? <ModalCpuSocketContainer />
+                        : null}
+                </div>
+                <div>
+                    {props.vendorVisibility
+                        ? <ModalVendorContainer />
+                        : null}
+                </div>
+            </div>
+        </div>
+    )
 }
 
-let mapStateToProps = (state) => ({
-    cpus: state.cpu.cpus,
-    pagination: state.cpu.pagination,
-    currentCpu: state.cpu.currentCpu,
-    isLoading: state.cpu.isLoading,
-    errorCode: state.cpu.errorCode
-})
-
-export default connect(mapStateToProps, {
-    getCpusData, setCurrentCpu,
-    updateCpusData, deleteCpusData, addCpusData, setError
-})(Cpus)
+export default Cpus;

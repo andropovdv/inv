@@ -6,6 +6,7 @@ import {
     deleteSoketCpuData
 } from '../../BLL/typeSocketCpuReducer';
 import CpuSocketType from './CpuSocketType';
+import { setCpuSoketVisibility } from '../../BLL/modalWindowReducer';
 
 class CpuSocketTypeContainer extends React.Component {
 
@@ -17,6 +18,10 @@ class CpuSocketTypeContainer extends React.Component {
 
     componentDidMount() {
         this.props.getSocketCpuData()
+    }
+
+    openModalTest = () => {
+        this.props.setCpuSoketVisibility(true)
     }
 
     openModalEdit = () => {
@@ -86,7 +91,8 @@ class CpuSocketTypeContainer extends React.Component {
                     addTypeSocket={this.addTypeSocket}
                     deleteTypeSocket={this.deleteTypeSocket}
                     prevPage={this.prevPage}
-                    nextPage={this.nextPage} />
+                    nextPage={this.nextPage}
+                    openModalTest={this.openModalTest} />
             </div>
         )
     }
@@ -97,7 +103,8 @@ let mapStateToProps = (state) => ({
     pagination: state.typeCpuSocket.pagination,
     currentType: state.typeCpuSocket.currentType,
     isLoading: state.typeCpuSocket.isLoading,
-    errorCode: state.typeCpuSocket.errorCode
+    errorCode: state.typeCpuSocket.errorCode,
+    cpuSocketVisibility: state.modalWindow.cpuSocketVisibility
 })
 
 export default connect(mapStateToProps, {
@@ -106,6 +113,7 @@ export default connect(mapStateToProps, {
     setError,
     updateSocketCpuData,
     addSocketCpuData,
-    deleteSoketCpuData
+    deleteSoketCpuData,
+    setCpuSoketVisibility
 })(CpuSocketTypeContainer)
 

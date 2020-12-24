@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 
 
 let VendorReduxForm = (props) => {
+    debugger
     return (
         <form onSubmit={props.handleSubmit}>
             <div>

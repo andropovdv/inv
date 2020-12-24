@@ -12,14 +12,13 @@ const VendorItem = (props) => {
         };
         props.setCurrentVendor(currenVendor);
     }
-
     return (
-        <tr onClick={selectVendor}
+        <tr key={props.id_vendor} onClick={selectVendor}
             className={props.currentVendor.id_vendor === props.id_vendor && s.selectedVendor}>
             <td>{props.name}</td>
             <td>{props.full_name}</td>
             <td><button disabled={props.currentVendor.id_vendor === props.id_vendor ? false : true}
-                onClick={() => {props.openModal()} }>Редактировать</button></td>
+                onClick={() => {props.openModalEdit()} }>Редактировать</button></td>
             <td><button disabled={props.currentVendor.id_vendor === props.id_vendor ? false : true}
                 onClick={() => {props.deleteVendor(props.currentVendor.id_vendor)} }>Удалить</button></td>
         </tr>
