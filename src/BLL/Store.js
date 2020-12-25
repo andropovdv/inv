@@ -8,6 +8,7 @@ import vendorReducer from './vendorReducer';
 import cpuReducer from './cpuReducer';
 import typeSocketCpuReducer from './typeSocketCpuReducer';
 import modalWindowReducer from './modalWindowReducer';
+import typeOfRamReducer from './typeOfRamReducer';
 
 let reducers = combineReducers({
     app: appReducer,
@@ -16,6 +17,7 @@ let reducers = combineReducers({
     vendor: vendorReducer,
     cpu: cpuReducer,
     typeCpuSocket: typeSocketCpuReducer,
+    typeOfRam: typeOfRamReducer,
     form: formReducer
 });
 

@@ -12,6 +12,7 @@ import Cover from './COMPONENT/Cover/Cover';
 import CpuSocketTypeContainer from './COMPONENT/CpuSocketType/CpuSocketTypeContainer';
 import CpusContainer from './COMPONENT/Cpus/CpusContainer';
 import VendorsContainer from './COMPONENT/Vendors/VendorsContainer';
+import TypeOfRamContainer from './COMPONENT/TypeOfRam/TypeOfRamContainer';
 
 class App extends React.Component {
 
@@ -37,6 +38,7 @@ class App extends React.Component {
           <Route path='/Vendors' render = {() => <VendorsContainer />} />
           <Route path='/Cpus' render = {() => <CpusContainer />} />
           <Route path='/CpuSocket' render = {() => <CpuSocketTypeContainer />} />
+          <Route path='/TypeOfRam' render = {() => <TypeOfRamContainer />} />
         </div>
         <Footer />
       </div>

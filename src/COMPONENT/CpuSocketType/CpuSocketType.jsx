@@ -60,9 +60,6 @@ const CpuSocketType = (props) => {
                         : null}
                 </div>
             </div>
-            <div>
-
-            </div>
         </div>
     )
 }

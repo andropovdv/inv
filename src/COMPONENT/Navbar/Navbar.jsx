@@ -17,7 +17,12 @@ const navData = [
                         key: '0-0-1',
                         label: 'Тип разъема процессора',
                         to: '/CpuSocket'
-                    }
+                    },
+                    {
+                        key: '0-0-2',
+                        label: 'Тип оперативной памяти',
+                        to: '/TypeOfRam'
+                    },
                 ]
             },
             {
