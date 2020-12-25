@@ -2,6 +2,7 @@ import typeOfRamAPI from '../DAL/typeOfRamAPI';
 
 const SET_TYPE_OF_RAM = 'SET_TYPE_OF_RAM';
 const SET_CURRENT_TYPE_OF_RAM = 'SET_CURRENT_TYPE_OF_RAM';
+const SET_ERROR_TYPE_OF_RAM = 'SET_ERROR_TYPE_OF_RAM';
 const TYPE_OF_RAM_IS_LOADING = 'TYPE_OF_RAM_IS_LOADING';
 
 let initialState = {
@@ -21,6 +22,12 @@ const typeOfRamReducer = (state = initialState, action) => {
                 isLoading: action.isLoading
             }
         }
+        case SET_ERROR_TYPE_OF_RAM: {
+            return {
+                ...state,
+                errorCode: action.error
+            }
+        }
         case SET_TYPE_OF_RAM: {
             return {
                 ...state,
@@ -31,7 +38,7 @@ const typeOfRamReducer = (state = initialState, action) => {
         case SET_CURRENT_TYPE_OF_RAM: {
             return {
                 ...state,
-                currentType: {...action.current}
+                currentType: { ...action.current }
             }
         }
         default:
@@ -52,6 +59,10 @@ export const setCurrentTypeOfRam = (current) => {
 export const toggleIsLoading = (isLoading) => {
     return { type: TYPE_OF_RAM_IS_LOADING, isLoading }
 }
+
+export const setErrorCode = (error) => {
+    return { type: SET_ERROR_TYPE_OF_RAM, error }
+}
 //thunk
 
 export const getTypeOfRamData = (page) => (dispatch) => {
@@ -59,6 +70,38 @@ export const getTypeOfRamData = (page) => (dispatch) => {
     typeOfRamAPI.all(page).then(res => {
         dispatch(setTypeOfRamData(res.data.typeOfRam, res.data.pagination));
         dispatch(toggleIsLoading(false));
+    })
+}
+
+export const addTypeOfRamData = (typeOfRam) => (dispatch) => {
+    dispatch(toggleIsLoading(true));
+    typeOfRamAPI.add(typeOfRam).then(res => {
+        if (res.data.status) {
+            dispatch(getTypeOfRamData());
+        } else {
+            dispatch(setErrorCode(res.data.errorCode));
+        }
+        dispatch(toggleIsLoading(false));
+    })
+}
+
+export const updateTypeOfRamData = (typeOfRam) => (dispatch) => {
+    dispatch(toggleIsLoading(true));
+    typeOfRamAPI.update(typeOfRam).then(res => {
+        if (res.data.status) {
+            dispatch(getTypeOfRamData());
+        }
+        dispatch(toggleIsLoading(false));
+    })
+}
+
+export const deleteTypeOfRamData = (id) => (dispatch) => {
+    dispatch(toggleIsLoading(true));
+    typeOfRamAPI.delete(id).then(res => {
+        if (res.data.status) {
+            dispatch(getTypeOfRamData());
+        }
+        dispatch(toggleIsLoading(false))
     })
 }
 

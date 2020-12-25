@@ -47,7 +47,6 @@ class VendorsContainer extends React.Component {
             full_name: values.full_name,
             url: values.url
         }
-        debugger
         this.props.addVendorData(vendorNew);
         this.setState({ isVisable: false })
     }

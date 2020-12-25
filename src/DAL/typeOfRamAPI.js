@@ -8,6 +8,15 @@ const instance = Axios.create({
 const typeOfRam = {
     all(page) {
         return instance.get(`?page=${page}`)
+    },
+    add(typeOfRam) {
+        return instance.post('/', typeOfRam)
+    },
+    update(typeOfRam) {
+        return instance.put('/', typeOfRam)
+    },
+    delete(id) {
+        return instance.delete(`/${id}`)
     }
 }
 
