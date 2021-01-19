@@ -1,5 +1,5 @@
 import React from 'react'
-import './App.css';
+// import './App.css';
 import { connect } from 'react-redux';
 import { initializeApp } from './BLL/appReducer'
 import Preloader from './COMPONENT/Common/Preloader';
@@ -13,6 +13,14 @@ import CpuSocketTypeContainer from './COMPONENT/CpuSocketType/CpuSocketTypeConta
 import CpusContainer from './COMPONENT/Cpus/CpusContainer';
 import VendorsContainer from './COMPONENT/Vendors/VendorsContainer';
 import TypeOfRamContainer from './COMPONENT/TypeOfRam/TypeOfRamContainer';
+import TypeOfGraphSlotContainer from './COMPONENT/TypeOfGraphSlot/TypeOfGraphSlotContainer';
+import FormFactorContainer from './COMPONENT/FormFactor/FormFactorContainer';
+import GraphCardContainer from './COMPONENT/GraphCard/GraphCardContainer';
+import First from './COMPONENT/First';
+
+
+
+
 
 class App extends React.Component {
 
@@ -29,18 +37,27 @@ class App extends React.Component {
       return <Login />
     }
 
+
     return (
       <div className='app-wrapper'>
+        <First/>
+        {/* 
         <Header />
-        <Navbar />
+        <Node />
+        <nav>
+          <Navbar />
+        </nav>
         <div className='app-wrapper-content'>
-          <Route exact path='/' render = {() => <Cover />} />
-          <Route path='/Vendors' render = {() => <VendorsContainer />} />
-          <Route path='/Cpus' render = {() => <CpusContainer />} />
-          <Route path='/CpuSocket' render = {() => <CpuSocketTypeContainer />} />
-          <Route path='/TypeOfRam' render = {() => <TypeOfRamContainer />} />
+          <Route exact path='/' render={() => <Cover />} />
+          <Route path='/Vendors' render={() => <VendorsContainer />} />
+          <Route path='/Cpus' render={() => <CpusContainer />} />
+          <Route path='/CpuSocket' render={() => <CpuSocketTypeContainer />} />
+          <Route path='/TypeOfRam' render={() => <TypeOfRamContainer />} />
+          <Route path='/TypeOfGraphSlot' render={() => <TypeOfGraphSlotContainer />} />
+          <Route path='/FormFactor' render={() => <FormFactorContainer />} />
+          <Route path='/GraphCard' render={() => <GraphCardContainer />} />
         </div>
-        <Footer />
+        <Footer /> */}
       </div>
     )
   }

@@ -14,9 +14,6 @@ let initialState = {
     pagination: {},
     isLoading: true,
     errorCode: 0
-    // currentVendorId: null,
-    // currentVendorName: null,
-    // currentVendorFullName: null
 }
 
 const vendorReducer = (state = initialState, action) => {

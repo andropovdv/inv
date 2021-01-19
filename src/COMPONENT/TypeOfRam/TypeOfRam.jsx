@@ -34,10 +34,12 @@ const TypeOfRam = (props) => {
             <div className={s.typeRamContent}>
                 <div className={s.buttonArea}>
                     <button onClick={clickAdd}>Добавить</button>
-                    <button disabled={typeof props.pagination.prev !== 'undefined' ? false : true}
+                    <button onClick={() => props.prevPage()}
+                    disabled={typeof props.pagination.prev !== 'undefined' ? false : true}
                     >Предыдущая</button>
                     {props.pagination.current +1}из{props.pagination.numPages}
-                    <button disabled={typeof props.pagination.next !== 'undefined' ? false : true}
+                    <button onClick={() => props.nextPage()}
+                    disabled={typeof props.pagination.next !== 'undefined' ? false : true}
                     >Следующая</button>
                 </div>
                 <div disabled={props.isLoading}>

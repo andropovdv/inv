@@ -1,6 +1,7 @@
 import typeOfRamAPI from '../DAL/typeOfRamAPI';
 
 const SET_TYPE_OF_RAM = 'SET_TYPE_OF_RAM';
+const SET_ALL_TYPE_OF_RAM = 'SET_ALL_TYPE_OF_RAM';
 const SET_CURRENT_TYPE_OF_RAM = 'SET_CURRENT_TYPE_OF_RAM';
 const SET_ERROR_TYPE_OF_RAM = 'SET_ERROR_TYPE_OF_RAM';
 const TYPE_OF_RAM_IS_LOADING = 'TYPE_OF_RAM_IS_LOADING';
@@ -20,6 +21,12 @@ const typeOfRamReducer = (state = initialState, action) => {
             return {
                 ...state,
                 isLoading: action.isLoading
+            }
+        }
+        case SET_ALL_TYPE_OF_RAM: {
+            return {
+                ...state,
+                typeOfRamAll: [...action.allTypeOfRam]
             }
         }
         case SET_ERROR_TYPE_OF_RAM: {
@@ -63,6 +70,10 @@ export const toggleIsLoading = (isLoading) => {
 export const setErrorCode = (error) => {
     return { type: SET_ERROR_TYPE_OF_RAM, error }
 }
+
+export const setAllTypeOfRam = (allTypeOfRam) => {
+    return { type: SET_ALL_TYPE_OF_RAM, allTypeOfRam }
+}
 //thunk
 
 export const getTypeOfRamData = (page) => (dispatch) => {
@@ -73,11 +84,20 @@ export const getTypeOfRamData = (page) => (dispatch) => {
     })
 }
 
+export const getAllTypeOfRam = () => (dispatch) => {
+    dispatch(toggleIsLoading(true));
+    typeOfRamAPI.allToScroll().then(res => {
+        dispatch(setAllTypeOfRam(res.data.typeOfRam))
+    })
+    dispatch(toggleIsLoading(false))
+}
+
 export const addTypeOfRamData = (typeOfRam) => (dispatch) => {
     dispatch(toggleIsLoading(true));
     typeOfRamAPI.add(typeOfRam).then(res => {
         if (res.data.status) {
             dispatch(getTypeOfRamData());
+            dispatch(getAllTypeOfRam());
         } else {
             dispatch(setErrorCode(res.data.errorCode));
         }

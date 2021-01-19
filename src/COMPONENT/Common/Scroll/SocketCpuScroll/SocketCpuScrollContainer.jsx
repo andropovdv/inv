@@ -8,11 +8,6 @@ class SocketCpuScrollContainer extends React.Component {
         this.props.getAllSocketCpuData();
     }
 
-    // componentDidUpdate(prevProps, prevState) {
-    //     if (prevProps.cpuSocketsAll !== this.props.cpuSocketsAll) {
-    //         console.log('они разные')
-    //     }
-    // }
 
     render() {
         const { input } = this.props;
@@ -20,8 +15,8 @@ class SocketCpuScrollContainer extends React.Component {
             <span disabled={this.props.isLoading}>
                 <select {...input}>
                     <option>/</option>
-                {this.props.cpuSocketsAll.map(s => 
-                   <option key={s.id_typeSocketCpu} value={s.name_typeSocketCpu}>{s.name_typeSocketCpu}</option>)}
+                    {this.props.cpuSocketsAll.map(s =>
+                        <option key={s.id_typeSocketCpu} value={s.name_typeSocketCpu}>{s.name_typeSocketCpu}</option>)}
                 </select>
             </span>
         )

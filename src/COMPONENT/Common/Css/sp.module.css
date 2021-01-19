@@ -1,0 +1,77 @@
+.spWrapper {
+    display: grid;
+    grid-template-areas: "h h" "c i";
+    grid-template-rows: 1fr 9fr;
+    grid-template-columns: 9fr 4fr;
+    grid-gap: 5px;
+}
+
+.spLabel {
+    grid-area: h;
+    background-color: lightgray;
+    padding: 5px;
+}
+
+.spContent {
+    grid-area: c;
+    background-color: lightgrey;
+    padding: 5px;
+}
+
+.spInfo {
+    grid-area: i;
+    background-color: aqua;
+    padding: 5px;
+}
+
+div[disabled] {
+    pointer-events: none;
+    /* for "disabled" effect */
+    opacity: 0.5;
+    background: #CCC;
+}
+
+.buttonArea {
+    padding-bottom: 5px;
+}
+
+.table2 {
+    border-spacing: 0px;
+    width: 500px;
+}
+
+.table2 th {
+    font-weight: normal;
+    color: #039;
+    border-bottom: 2px solid #6678b1;
+}
+
+.table2 tr:hover td {
+    color: #234b9c;
+}
+
+.table2 tr:nth-child(odd) {
+    background-color: #9298969b;
+}
+
+.table2 td {
+    border-bottom: 1px solid #ccc;
+    color: black;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table2 td.but {
+    width: 180px;
+    border-bottom: 1px solid #ccc;
+    color: black;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.selectedRow {
+    color: black;
+    font-weight: bold;
+    background: gray;
+}

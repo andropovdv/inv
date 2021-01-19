@@ -10,7 +10,6 @@ const TypeOfRamItem = (props) => {
         }
         props.setCurrentTypeOfRam(current)
     }
-
     return (
         <tr onClick={setCurrent}
             className={props.currentType.id_typeRam === props.id ? s.selectedType : undefined}>

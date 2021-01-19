@@ -9,6 +9,9 @@ import cpuReducer from './cpuReducer';
 import typeSocketCpuReducer from './typeSocketCpuReducer';
 import modalWindowReducer from './modalWindowReducer';
 import typeOfRamReducer from './typeOfRamReducer';
+import typeOfGraphSlotReducer from './typeOfGraphSlotReducer';
+import formFactorReducer from './formFactorReducer';
+import graphCardReducer from './graphCardReducer';
 
 let reducers = combineReducers({
     app: appReducer,
@@ -18,6 +21,9 @@ let reducers = combineReducers({
     cpu: cpuReducer,
     typeCpuSocket: typeSocketCpuReducer,
     typeOfRam: typeOfRamReducer,
+    typeOfGraphSlot: typeOfGraphSlotReducer,
+    formFactor: formFactorReducer,
+    graphCard: graphCardReducer,
     form: formReducer
 });
 

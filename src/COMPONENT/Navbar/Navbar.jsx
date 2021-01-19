@@ -1,6 +1,19 @@
+import { CssBaseline, Drawer, Hidden } from '@material-ui/core';
 import React from 'react';
+// import classes from './Navbar.module.css';
 import s from './Navbar.module.css'
 import Tree from './Tree/Tree';
+
+import { makeStyles } from '@material-ui/core/styles';
+import Node from './Tree/Node';
+
+const drawerWidth = 250;
+
+const useStyles = makeStyles((theme) => ({
+    drawerPaper: {
+        width: drawerWidth
+    }
+}))
 
 const navData = [
     {
@@ -23,6 +36,16 @@ const navData = [
                         label: 'Тип оперативной памяти',
                         to: '/TypeOfRam'
                     },
+                    {
+                        key: '0-0-3',
+                        label: 'Тип графического разъема',
+                        to: '/TypeOfGraphSlot'
+                    },
+                    {
+                        key: '0-0-4',
+                        label: 'Форм фактор',
+                        to: '/FormFactor'
+                    },
                 ]
             },
             {
@@ -39,7 +62,12 @@ const navData = [
                 key: '0-2',
                 to: '/MBoards',
                 label: 'Материнские платы',
-            }
+            },
+            {
+                key: '0-3',
+                to: '/GraphCard',
+                label: 'Графические платы',
+            },
         ]
     },
     {
@@ -56,13 +84,38 @@ const navData = [
     }
 ];
 
-const Navbar = () => {
+const Navbar = (props) => {
+    const classes = useStyles();
     return (
-        <div className={s.appWrapperNavbar}>
-            <div className={s.contentCenter}>
-                <Tree data={navData} />
-            </div>
-        </div>
+        <>
+            <CssBaseline />
+            <Hidden smUp implementation="css">
+                <Drawer
+                    open={props.openLeft}
+                    onClose={props.handleClose}
+                    classes={{
+                        paper: classes.drawerPaper
+                    }}
+                >
+                    <Node />
+                </Drawer>
+            </Hidden>
+            <Hidden xsDown implementation="css">
+                <Drawer
+                    open
+                    classes={{
+                        paper: classes.drawerPaper
+                    }}
+                    variant="permanent">
+                    <div><Node /></div>
+                </Drawer>
+            </Hidden>
+        </>
+        // <div className={s.appWrapperNavbar}>
+        //     <div className={s.contentCenter}>
+        //         <Tree data={navData} />
+        //     </div>
+        // </div>
     )
 }
 

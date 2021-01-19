@@ -17,6 +17,9 @@ const typeOfRam = {
     },
     delete(id) {
         return instance.delete(`/${id}`)
+    },
+    allToScroll() {
+        return instance.get('/all')
     }
 }
 

@@ -9,7 +9,8 @@ const TypeOfRamForm = (props) => {
         <>
             <form onSubmit={props.handleSubmit}>
                 <div>
-                    <Field name={'typeOfRam'} placeholder={'Наименование'} component={InputArea}/>
+                    <Field name={'typeOfRam'} placeholder={'Наименование'} 
+                    component={InputArea} autoFocus={true}/>
                 </div>
                 <div>
                     <button>Записать</button>

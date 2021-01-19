@@ -1,3 +1,4 @@
+import { Button } from '@material-ui/core';
 import React from 'react';
 import { connect } from 'react-redux';
 import { logout } from './../../BLL/authReducer';
@@ -5,7 +6,7 @@ import { logout } from './../../BLL/authReducer';
 const UserStatus = (props) => {
     return (
         <div>
-            {props.name} <button onClick={props.logout}>Logout</button> 
+            {props.name} <Button variant="outlined" color="inherit" onClick={props.logout}>Logout</Button> 
         </div>
     )
 }

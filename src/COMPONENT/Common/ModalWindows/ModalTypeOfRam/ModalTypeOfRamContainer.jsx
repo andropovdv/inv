@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Modal from '../Modal';
+// import Modal from '../Modal';
 import { setTypeOfRamVisibility } from '../../../../BLL/modalWindowReducer';
 import { addTypeOfRamData, updateTypeOfRamData } from '../../../../BLL/typeOfRamReducer';
 import TypeOfRamReduxForm from './TypeOfRamForm';
+import ModalTest from '../ModalTest';
 
 class ModalTypeOfRamContainer extends React.Component {
 
@@ -31,9 +32,12 @@ class ModalTypeOfRamContainer extends React.Component {
     render() {
         return (
             <div>
-                <Modal header={this.props.header} closeModal={this.closeModal}>
+                <ModalTest header={this.props.header} closeModal={this.closeModal}>
                     <TypeOfRamReduxForm onSubmit={this.props.type ? this.editTypeOfRam : this.addTypeOfRam}/>
-                </Modal>
+                </ModalTest>
+                {/* <Modal header={this.props.header} closeModal={this.closeModal}>
+                    <TypeOfRamReduxForm onSubmit={this.props.type ? this.editTypeOfRam : this.addTypeOfRam}/>
+                </Modal> */}
             </div>
         )
     }

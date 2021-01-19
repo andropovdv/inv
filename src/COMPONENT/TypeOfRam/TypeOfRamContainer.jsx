@@ -42,7 +42,9 @@ class TypeOfRamContainer extends React.Component {
             <TypeOfRam
                 {...this.props}
                 createModal={this.createModal}
-                delete={this.deleteTypeOfRam} />
+                delete={this.deleteTypeOfRam}
+                prevPage={this.prevPage}
+                nextPage={this.nextPage} />
         )
     }
 }

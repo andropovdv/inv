@@ -16,3 +16,8 @@
   background-color: lightgrey;
   padding: 5px;
 }
+
+.root {
+  flex-grow: 1;
+  display: flex;
+}
