@@ -33,3 +33,27 @@ export const InputAreaMaterial = ({ label, input, meta: { touched, invalid, erro
         </>
     )
 }
+
+export const InputAreaOutlined = ({ label, input, meta: { touched, invalid, error }, ...custorm }) => {
+    const hasError = touched && error;
+    return (
+        <>
+            <TextField
+                size="small"
+                variant="outlined"
+                autocomplete="off"
+                margin="normal"
+                fullWidth
+                label={label}
+                placeholder={label}
+                error={touched && invalid}
+                helperText={touched && invalid}
+                {...input}
+                {...custorm}
+            />
+            {hasError &&
+                <FormHelperText>{error}</FormHelperText>
+            }
+        </>
+    )
+}

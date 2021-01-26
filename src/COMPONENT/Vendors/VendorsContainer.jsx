@@ -5,23 +5,34 @@ import {
     deleteVendorData, addVendorData, setError
 } from '../../BLL/vendorReducer';
 import Vendors from "./Vendors";
+import VendorUI from './VendorUI';
+import { setVendorVisibility } from '../../BLL/modalWindowReducer';
 
 
 class VendorsContainer extends React.Component {
 
-    state = {
-        isVisable: false,
-        header: '',
-        typeModal: false
-    }
+    // state = {
+    //     isVisable: false,
+    //     header: '',
+    //     typeModal: false
+    // }
 
     componentDidMount() {
         this.props.getVendorsData();
     }
 
-    closeModal = () => {
-        this.setState({ isVisable: false });
-        this.props.setError(0);
+    // closeModal = () => {
+    //     this.setState({ isVisable: false });
+    //     this.props.setError(0);
+    // }
+
+    createDialog = (toggle) => {
+        if (toggle) {
+            this.props.setCurrentVendor(null, null, null, null, null);
+            this.props.setVendorVisibility(true);
+        } else {
+            this.props.setVendorVisibility(true);
+        }
     }
 
     openModalNew = () => {
@@ -48,7 +59,7 @@ class VendorsContainer extends React.Component {
             url: values.url
         }
         this.props.addVendorData(vendorNew);
-        this.setState({ isVisable: false })
+        this.props.setVendorVisibility(false);
     }
 
     updateVendor = (values) => {
@@ -58,31 +69,29 @@ class VendorsContainer extends React.Component {
             full_name: values.full_name,
             url: values.url
         }
+        debugger
         this.props.updateVendorData(vendorUp);
-        this.setState({ isVisable: false })
+        this.props.setVendorVisibility(false);
     }
 
-    deleteVendor = (id) => {
-        let result = window.confirm(`Вы действительно хотите удалить ${this.props.currentVendor.name}`)
-        if (result) {
-            // let vendor = { "id_vendor": id }
-            this.props.deleteVendorData({ "id_vendor": id });
-        }
-        // this.props.deleteVendorData({ "id_vendor": id });
-    }
-
-    prevPage = () => {
-        this.props.getVendorsData(this.props.pagination.current - 1)
-    }
-
-    nextPage = () => {
-        this.props.getVendorsData(this.props.pagination.current + 1)
+    deleteVendor = () => {
+        this.props.deleteVendorData({ "id_vendor": this.props.currentVendor.id_vendor });
+        this.props.setVendorVisibility(false);
     }
 
     render() {
         return (
             <div>
-                <Vendors
+                <VendorUI
+                    {...this.props}
+                    prevPage={this.prevPage}
+                    nextPage={this.nextPage}
+                    createDialog={this.createDialog}
+                    updateVendor={this.updateVendor}
+                    addVendor={this.addVendor}
+                    deleteVendor={this.deleteVendor}
+                />
+                {/* <Vendors
                     {...this.props}
                     closeModal={this.closeModal}
                     openModalNew={this.openModalNew}
@@ -93,7 +102,7 @@ class VendorsContainer extends React.Component {
                     isVisable={this.state.isVisable}
                     updateVendor={this.updateVendor}
                     addVendor={this.addVendor}
-                    deleteVendor={this.deleteVendor} />
+                    deleteVendor={this.deleteVendor} /> */}
             </div>
         )
     }
@@ -104,11 +113,12 @@ let mapsStateToProps = (state) => ({
     currentVendor: state.vendor.currentVendor,
     isLoading: state.vendor.isLoading,
     pagination: state.vendor.pagination,
-    errorCode: state.vendor.errorCode
+    errorCode: state.vendor.errorCode,
+    vendorVisibility: state.modalWindow.vendorVisibility
 })
 
 export default connect(mapsStateToProps,
     {
         getVendorsData, setCurrentVendor, updateVendorData,
-        deleteVendorData, addVendorData, setError
+        deleteVendorData, addVendorData, setError, setVendorVisibility
     })(VendorsContainer)

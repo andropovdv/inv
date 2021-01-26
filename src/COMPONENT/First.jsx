@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Header from './Header/Header';
 import Navbar from './Navbar/Navbar';
-import { CssBaseline } from '@material-ui/core';
+import { CssBaseline, Typography } from '@material-ui/core';
 import { Route } from 'react-router-dom';
 import VendorsContainer from './Vendors/VendorsContainer';
 
@@ -21,7 +21,11 @@ const useStyles = makeStyles((theme) => ({
     },
     mainContent: {
         flexGrow: 1,
-        padding: theme.spacing(3)
+        padding: theme.spacing(3),
+        [theme.breakpoints.up('sm')]: {
+            width: `calc(100% - ${drawerWidth}px)`,
+            marginLeft: drawerWidth
+          }
     },
     toolBar: theme.mixins.toolbar,
 }))
@@ -46,7 +50,7 @@ const First = (props) => {
         <div className={classes.root}>
             <CssBaseline />
             <Header handleOpen={handleOpen} />
-            <nav className={classes.drawer}>
+            <nav>
                 <Navbar
                     openLeft={openLeft}
                     handleClose={handleClose}
@@ -54,6 +58,7 @@ const First = (props) => {
             </nav>
             <main className={classes.mainContent}>
                 <div className={classes.toolBar}/>
+                {/* <Typography variant="h6" align="left">Производители:</Typography> */}
                 <Route path='/Vendors' render={() => <VendorsContainer />} />
             </main>
         </div>

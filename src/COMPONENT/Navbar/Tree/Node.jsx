@@ -3,7 +3,6 @@ import NodeView from './NodeView'
 import { makeStyles } from '@material-ui/core/styles'
 import { Divider } from '@material-ui/core';
 
-const drawerWidth = 250;
 const useStyles = makeStyles((theme) => ({
     toolBar: theme.mixins.toolbar
 }))
@@ -11,34 +10,75 @@ const useStyles = makeStyles((theme) => ({
 const items = {
     "nodes": [
         {
-            "id": "abc_172.22.22.214",
-            "name": "abc",
+            "id": "01",
+            "name": "Справочники",
             "nodes": [
                 {
-                    "id": "abc_172.22.22.214.if.1",
-                    "name": "Нода 1"
+                    "id": "011",
+                    "name": "Типы разъемов",
+                    "nodes": [
+                        {
+                            "id": "0111",
+                            "name": "Разъем процессора",
+                            "to": "/Vendors"
+                        },
+                        {
+                            "id": "0112",
+                            "name": "Разъем RAM",
+                            "to": "/Vendors"
+                        },
+                        {
+                            "id": "0113",
+                            "name": "Разъем графического адаптера",
+                            "to": "/Vendors"
+                        },
+                        {
+                            "id": "0114",
+                            "name": "Форм-фактор",
+                            "to": "/Vendors"
+                        }
+                    ]
                 },
                 {
                     "id": "abc_172.22.22.214.if.3",
-                    "name": "Нода 2"
+                    "name": "Производители",
+                    "to": "/Vendors"
                 },
                 {
                     "id": "abc_172.22.22.214.if.2",
-                    "name": "Нода 3"
-                }
+                    "name": "Процессоры",
+                    "to": "/Vendors"
+                },
+                {
+                    "id": "abc_172.22.22.214.if.2",
+                    "name": "Материнские платы",
+                    "to": "/Vendors"
+                },
+                {
+                    "id": "abc_172.22.22.214.if.2",
+                    "name": "Графические платы",
+                    "to": "/Vendors"
+                },
+                {
+                    "id": "abc_172.22.22.214.if.2",
+                    "name": "Процессоры",
+                    "to": "/Vendors"
+                },
             ]
         },
         {
             "id": "MON_LOGS_192.168.1.53",
-            "name": "MON_LOGS",
+            "name": "Операции",
             "nodes": [
                 {
                     "id": "MON_LOGS_192.168.1.53.if.1",
-                    "name": "lo"
+                    "name": "lo",
+                    "to": "/Vendors"
                 },
                 {
                     "id": "MON_LOGS_192.168.1.53.if.2",
-                    "name": "eth0"
+                    "name": "eth0",
+                    "to": "/Vendors"
                 }
             ]
         }
@@ -53,7 +93,7 @@ const Node = () => {
     return (
         <div>
             <div className={classes.toolBar}>v.0.0.0.1.5</div>
-            <Divider/>
+            <Divider />
             {items.nodes.map((element, index) => <NodeView key={index} element={element} />)}
         </div>
     )

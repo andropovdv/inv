@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 const Header = (props) => {
     const classes = useStyles();
     return (
-        <div className={classes.root}>
+        <div >
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
                 <Container>

@@ -67,6 +67,7 @@ export const setVendorsAllData = (vendors) => {
     return { type: SET_VENDORS_ALL, vendors }
 }
 export const setCurrentVendor = (currentVendor) => {
+    debugger
     return {
         type: SET_CURRENT_VENDOR, currentVendor
     }
@@ -81,9 +82,16 @@ export const setError = (code) => {
 export const getVendorsData = (page) => (dispatch) => {
     dispatch(toggleIsLoading(true))
     vendorAPI.all(page).then(res => {
-        dispatch(toggleIsLoading(false))
-        dispatch(setVendorsData(res.data.vendors, res.data.pagination))
+        // Добовляю поле ID для компонента DataGrid
+        const newRows = res.data.vendors.map(e => {
+            let row = Object.assign({}, e);
+            row.id = e.id_vendor;
+            return row
+        })
+
+        dispatch(setVendorsData(newRows, res.data.pagination))
     })
+    dispatch(toggleIsLoading(false))
 }
 
 export const getVendorAllData = (vendors) => (dispatch) => {

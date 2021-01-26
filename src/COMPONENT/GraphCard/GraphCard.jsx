@@ -13,7 +13,6 @@ const GraphCard = (props) => {
         setHeader('Добавляем:');
         props.createModal(true);
     }
-    debugger
     return (
         
         <div className={s.spWrapper}>

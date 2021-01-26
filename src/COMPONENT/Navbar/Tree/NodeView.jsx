@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles'
 
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import { NavLink } from 'react-router-dom';
 
 const drawerWidth = 250;
 
@@ -49,30 +50,43 @@ const NodeView = (props) => {
     };
 
     return (
-        <div>
-
-            <List component="nav">
-                <ListItem
-                    button
-                    onClick={toogle}
-                    // className={expanded ? classes.nested : null}
-                >
-                    <ListItemText primary={props.element.name} />
-                    {props.element.nodes && props.element.nodes.length > 0
-                        ? (expanded ? <ExpandLess /> : <ExpandMore />)
-                        : (null)}
-                </ListItem>
-
-            </List>
-            {expanded && (
-                <div className={expanded ? classes.nested : null}>
-                    <Collapse in={expanded} timeout="auto" unmountOnExit>
-                        {showNodes()}
-                    </Collapse>
-                </div>
+            <>
+            {props.element.nodes 
+            ? (
+                <List component="nav"  disablePadding>
+                    <ListItem
+                        button
+                        onClick={toogle}
+                    >
+                        <ListItemText primary={props.element.name} />
+                        {expanded ? <ExpandLess /> : <ExpandMore />}
+                    </ListItem>
+    
+                </List>
+            )
+            : (
+                <List component="nav"  disablePadding>
+                    <ListItem
+                        button
+                        onClick={toogle}
+                        component={NavLink}
+                        to={props.element.to}
+                    >
+                        <ListItemText primary={props.element.name} />
+                    </ListItem>
+    
+                </List>
             )}
+                
+                {expanded && (
+                    <div className={expanded ? classes.nested : null}>
+                        <Collapse in={expanded} timeout="auto" unmountOnExit>
+                            {showNodes()}
+                        </Collapse>
+                    </div>
+                )}
+            </>
 
-        </div>
     );
 
 };

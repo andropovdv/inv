@@ -19,7 +19,6 @@ let initialState = {
 const modalWindowReducer = (state = initialState, action) => {
     switch (action.type) {
         case SET_VISIBILITY_GRAPH_CARD: {
-            debugger
             return {
                 ...state,
                 graphCardVisibility: action.visibility

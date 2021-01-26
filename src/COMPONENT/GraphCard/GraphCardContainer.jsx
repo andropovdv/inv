@@ -11,7 +11,6 @@ class GraphCardContainer extends React.Component {
     }
 
     createModal = (toggle) => {
-        debugger
         if (toggle) {
             this.props.setCurrentGraphCard(null, null, null, null, null);
             this.props.setGraphCardVisibility(true);

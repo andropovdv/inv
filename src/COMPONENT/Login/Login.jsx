@@ -1,5 +1,4 @@
 import React from 'react';
-import s from './Login.module.css';
 import { connect } from 'react-redux';
 import { LoginReduxForm } from './LoginForm';
 import { login } from '../../BLL/authReducer';
@@ -35,9 +34,12 @@ const Login = (props) => {
     }
 
     const [open, setOpen] = React.useState(true)
+
     const handleClose = () => {
         setOpen(false);
     }
+
+    const classes = useStyles();
 
     return (
         <Container component="main" minWidth="xs">
