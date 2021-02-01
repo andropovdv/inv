@@ -1,124 +1,171 @@
-import React from 'react';
-import { connect } from "react-redux"
+import React from "react";
+import { PropTypes } from "prop-types";
+import { connect } from "react-redux";
 import {
-    getVendorsData, setCurrentVendor, updateVendorData,
-    deleteVendorData, addVendorData, setError
-} from '../../BLL/vendorReducer';
-import Vendors from "./Vendors";
-import VendorUI from './VendorUI';
-import { setVendorVisibility } from '../../BLL/modalWindowReducer';
-
+  getVendorsData,
+  setCurrentVendor,
+  updateVendorData,
+  deleteVendorData,
+  addVendorData,
+  setError,
+  changeSearch,
+  getSearchData,
+} from "../../BLL/vendorReducer";
+import VendorUI from "./VendorUI";
+import { setVendorVisibility } from "../../BLL/modalWindowReducer";
 
 class VendorsContainer extends React.Component {
+  componentDidMount() {
+    const { getVendors } = this.props;
+    getVendors();
+  }
 
-    // state = {
-    //     isVisable: false,
-    //     header: '',
-    //     typeModal: false
-    // }
-
-    componentDidMount() {
-        this.props.getVendorsData();
+  createDialog = (toggle) => {
+    const { setCurrent, visibility } = this.props;
+    if (toggle) {
+      setCurrent(null, null, null, null, null);
+      visibility(true);
+    } else {
+      visibility(true);
     }
+  };
 
-    // closeModal = () => {
-    //     this.setState({ isVisable: false });
-    //     this.props.setError(0);
-    // }
-
-    createDialog = (toggle) => {
-        if (toggle) {
-            this.props.setCurrentVendor(null, null, null, null, null);
-            this.props.setVendorVisibility(true);
-        } else {
-            this.props.setVendorVisibility(true);
-        }
+  addVendor = (values) => {
+    const { visibility, addVendor, errorCode } = this.props;
+    const vendorNew = {
+      name: values.name,
+      full_name: values.full_name,
+      url: values.url,
+    };
+    addVendor(vendorNew);
+    if (typeof errorCode === "undefined") {
+      visibility(false);
+      // FIXME нужно обнуление ошибки
     }
+  };
 
-    openModalNew = () => {
-        this.props.setCurrentVendor(null, null, null);
-        this.setState({
-            isVisable: true,
-            header: 'Добавляем:',
-            typeModal: false
-        })
+  updateVendor = (values) => {
+    const { visibility, currentVendor, errorCode, updateVendor } = this.props;
+    const vendorUp = {
+      id_vendor: currentVendor.id_vendor,
+      name: values.name,
+      full_name: values.full_name,
+      url: values.url,
+    };
+    updateVendor(vendorUp);
+    if (typeof errorCode === "undefined") {
+      visibility(false);
+      // FIXME нужно обнуление ошибки
     }
+  };
 
-    openModalEdit = () => {
-        this.setState({
-            isVisable: true,
-            header: 'Редактируем:',
-            typeModal: true
-        });
-    }
+  deleteVendor = () => {
+    const { deleteVendor, visibility, currentVendor } = this.props;
+    deleteVendor({
+      id_vendor: currentVendor.id_vendor,
+    });
+    visibility(false);
+  };
 
-    addVendor = (values) => {
-        let vendorNew = {
-            name: values.name,
-            full_name: values.full_name,
-            url: values.url
-        }
-        this.props.addVendorData(vendorNew);
-        this.props.setVendorVisibility(false);
-    }
+  prevPage = () => {
+    const { getVendors, pagination } = this.props;
+    getVendors(pagination.current - 1);
+  };
 
-    updateVendor = (values) => {
-        let vendorUp = {
-            id_vendor: this.props.currentVendor.id_vendor,
-            name: values.name,
-            full_name: values.full_name,
-            url: values.url
-        }
-        debugger
-        this.props.updateVendorData(vendorUp);
-        this.props.setVendorVisibility(false);
-    }
+  nextPage = () => {
+    const { getVendors, pagination } = this.props;
+    getVendors(pagination.current + 1);
+  };
 
-    deleteVendor = () => {
-        this.props.deleteVendorData({ "id_vendor": this.props.currentVendor.id_vendor });
-        this.props.setVendorVisibility(false);
-    }
+  onClear = () => {
+    const { getVendors, change } = this.props;
+    change("");
+    getVendors();
+  };
 
-    render() {
-        return (
-            <div>
-                <VendorUI
-                    {...this.props}
-                    prevPage={this.prevPage}
-                    nextPage={this.nextPage}
-                    createDialog={this.createDialog}
-                    updateVendor={this.updateVendor}
-                    addVendor={this.addVendor}
-                    deleteVendor={this.deleteVendor}
-                />
-                {/* <Vendors
-                    {...this.props}
-                    closeModal={this.closeModal}
-                    openModalNew={this.openModalNew}
-                    openModalEdit={this.openModalEdit}
-                    prevPage={this.prevPage}
-                    nextPage={this.nextPage}
-                    typeModal={this.state.typeModal}
-                    isVisable={this.state.isVisable}
-                    updateVendor={this.updateVendor}
-                    addVendor={this.addVendor}
-                    deleteVendor={this.deleteVendor} /> */}
-            </div>
-        )
-    }
+  onSearch = (e) => {
+    const { getSearch } = this.props;
+    const text = e.target.value;
+    getSearch(text);
+  };
+
+  closeModal = () => {
+    const { visibility } = this.props;
+    visibility(false);
+  };
+
+  render() {
+    const {
+      vendors,
+      currentVendor,
+      isLoading,
+      pagination,
+      errorCode,
+      searchField,
+      setCurrent,
+    } = this.props;
+    return (
+      <div>
+        <VendorUI
+          vendors={vendors}
+          currentVendor={currentVendor}
+          isLoading={isLoading}
+          pagination={pagination}
+          errorCode={errorCode}
+          searchField={searchField}
+          prevPage={this.prevPage}
+          nextPage={this.nextPage}
+          createDialog={this.createDialog}
+          updateVendor={this.updateVendor}
+          addVendor={this.addVendor}
+          deleteVendor={this.deleteVendor}
+          onClear={this.onClear}
+          onSearch={this.onSearch}
+          closeModal={this.closeModal}
+          setCurrent={setCurrent}
+        />
+      </div>
+    );
+  }
 }
 
-let mapsStateToProps = (state) => ({
-    vendors: state.vendor.vendors,
-    currentVendor: state.vendor.currentVendor,
-    isLoading: state.vendor.isLoading,
-    pagination: state.vendor.pagination,
-    errorCode: state.vendor.errorCode,
-    vendorVisibility: state.modalWindow.vendorVisibility
-})
+VendorsContainer.propTypes = {
+  getVendors: PropTypes.func.isRequired,
+  setCurrent: PropTypes.func.isRequired,
+  visibility: PropTypes.func.isRequired,
+  addVendor: PropTypes.func.isRequired,
+  errorCode: PropTypes.number.isRequired,
+  currentVendor: PropTypes.objectOf([PropTypes.number, PropTypes.stirng])
+    .isRequired,
+  updateVendor: PropTypes.func.isRequired,
+  pagination: PropTypes.objectOf([PropTypes.number, PropTypes.stirng])
+    .isRequired,
+  deleteVendor: PropTypes.func.isRequired,
+  change: PropTypes.func.isRequired,
+  getSearch: PropTypes.func.isRequired,
+  vendors: PropTypes.objectOf([PropTypes.number, PropTypes.stirng]).isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  searchField: PropTypes.string.isRequired,
+};
 
-export default connect(mapsStateToProps,
-    {
-        getVendorsData, setCurrentVendor, updateVendorData,
-        deleteVendorData, addVendorData, setError, setVendorVisibility
-    })(VendorsContainer)
+const mapsStateToProps = (state) => ({
+  vendors: state.vendor.vendors, //
+  currentVendor: state.vendor.currentVendor, //
+  isLoading: state.vendor.isLoading, //
+  pagination: state.vendor.pagination, //
+  errorCode: state.vendor.errorCode, //
+  searchField: state.vendor.searchField, //
+  vendorVisibility: state.modalWindow.vendorVisibility, // FIXME насколько необходимо ?
+});
+
+export default connect(mapsStateToProps, {
+  getVendors: getVendorsData,
+  setCurrent: setCurrentVendor,
+  updateVendor: updateVendorData,
+  deleteVendor: deleteVendorData,
+  addVendor: addVendorData,
+  setError,
+  visibility: setVendorVisibility,
+  change: changeSearch,
+  getSearch: getSearchData,
+})(VendorsContainer);

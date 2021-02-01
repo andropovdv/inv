@@ -1,8 +1,6 @@
 import { CssBaseline, Drawer, Hidden } from '@material-ui/core';
 import React from 'react';
-// import classes from './Navbar.module.css';
-import s from './Navbar.module.css'
-import Tree from './Tree/Tree';
+
 
 import { makeStyles } from '@material-ui/core/styles';
 import Node from './Tree/Node';

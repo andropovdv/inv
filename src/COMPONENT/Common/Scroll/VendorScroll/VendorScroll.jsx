@@ -1,11 +1,13 @@
-import React from 'react';
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
+import React from "react";
 
 const VendorScroll = (props) => {
-    return (
-        <option key={props.index} value={props.vendor}>
-            {props.vendor}
-        </option>
-    )
-}
+  return (
+    <option key={props.index} value={props.vendor}>
+      {props.vendor}
+    </option>
+  );
+};
 
 export default VendorScroll;

@@ -1,41 +1,59 @@
-import React from 'react';
-import { connect } from 'react-redux';
+/* eslint-disable react/jsx-props-no-spreading */
+import React from "react";
+import { PropTypes } from "prop-types";
+import { connect } from "react-redux";
 // import s from './ModalCpu.module.css';
-import { setError } from '../../../../BLL/cpuReducer';
-import { setCpuSoketVisibility } from '../../../../BLL/modalWindowReducer';
-import CpuSocketReduxForm from '../../../CpuSocketType/CpuSocketForm';
-import { addSocketCpuData } from '../../../../BLL/typeSocketCpuReducer';
-import Modal from '../Modal';
+import { setError } from "../../../../BLL/cpuReducer";
+import { setCpuSoketVisibility } from "../../../../BLL/modalWindowReducer";
+import CpuSocketReduxForm from "../../../CpuSocketType/CpuSocketForm";
+import { addSocketCpuData } from "../../../../BLL/typeSocketCpuReducer";
+import Modal from "../Modal";
+
+/**
+ *
+ * @param {{header: string, subheader: string, imageAlt: string, contentList: Array, orderLink: Object, contentLink: Object}} props
+ */
 
 class ModalCpuSocketContainer extends React.Component {
+  closeModal = () => {
+    const { setVisibility } = this.props;
+    setVisibility(false);
+  };
 
-    closeModal = () => {
-        this.props.setCpuSoketVisibility(false)
-    }
+  addSocketCpu = (values) => {
+    const { setVisibility, addSocketCpu } = this.props;
+    const typeSocket = { name_typeSocketCpu: values.name_typeSocketCpu };
+    addSocketCpu(typeSocket);
+    setVisibility(false);
+  };
 
-    addSocketCpu = (values) => {
-        let typeSocket = { name_typeSocketCpu: values.name_typeSocketCpu }
-        this.props.addSocketCpuData(typeSocket);
-        this.props.setCpuSoketVisibility(false)
-    }
-
-    render() {
-        // if (!this.props.cpuSocketVisibility) return null;
-        return (
-            <div>
-                <Modal {...this.props} closeModal={this.closeModal} header={'Добавить разъем процессора'}>
-                    <CpuSocketReduxForm onSubmit={this.addSocketCpu} />
-                </Modal>
-            </div>
-        )
-
-    }
+  render() {
+    const { addSocketCpu } = this.props;
+    return (
+      <div>
+        <Modal
+          {...this.props}
+          closeModal={this.closeModal}
+          header="Добавить разъем процессора"
+        >
+          <CpuSocketReduxForm onSubmit={addSocketCpu} />
+        </Modal>
+      </div>
+    );
+  }
 }
 
-let mapStateToProps = (state) => ({
-    cpuSocketVisibility: state.modalWindow.cpuSocketVisibility
-})
+ModalCpuSocketContainer.propTypes = {
+  setVisibility: PropTypes.func.isRequired,
+  addSocketCpu: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  cpuSocketVisibility: state.modalWindow.cpuSocketVisibility,
+});
 
 export default connect(mapStateToProps, {
-    setError, setCpuSoketVisibility, addSocketCpuData,
-})(ModalCpuSocketContainer)
+  setError,
+  setVisibility: setCpuSoketVisibility,
+  addSocketCpu: addSocketCpuData,
+})(ModalCpuSocketContainer);

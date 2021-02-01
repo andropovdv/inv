@@ -47,7 +47,7 @@ const items = {
                 {
                     "id": "abc_172.22.22.214.if.2",
                     "name": "Процессоры",
-                    "to": "/Vendors"
+                    "to": "/Cpus"
                 },
                 {
                     "id": "abc_172.22.22.214.if.2",

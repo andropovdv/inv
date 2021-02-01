@@ -25,6 +25,9 @@ const vendorAPI = {
     },
     allToScroll() {
         return instanceV2.get('all');
+    },
+    searchItem(text) {
+        return instanceV2.post('searchItem', text)
     }
 }
 
