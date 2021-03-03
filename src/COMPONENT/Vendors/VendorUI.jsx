@@ -43,6 +43,7 @@ const VendorUI = (props) => {
     vendors,
     isLoading,
     pagination,
+    errorCode,
   } = props;
   const classes = useStyles();
   const [header, setHeader] = React.useState("");
@@ -133,7 +134,7 @@ const VendorUI = (props) => {
               Информация
             </Typography>
             <Typography align="left">
-              {typeof currentVendor.id_vendor !== "undefined" ? (
+              {typeof currentVendor.id !== "undefined" ? (
                 <>
                   Сайт
                   {currentVendor.url}
@@ -142,7 +143,7 @@ const VendorUI = (props) => {
                   {currentVendor.name}
                   <br />
                   Сайт:
-                  {currentVendor.full_name}
+                  {currentVendor.full}
                   <br />
                 </>
               ) : null}
@@ -156,9 +157,13 @@ const VendorUI = (props) => {
         deleteVendor={deleteVendor}
         onDelete={onDelete}
         open={vendorVisibility}
-        onClose={closeModal}
+        onClose={closeModal} // FIXME дублируется
         header={header}
         onSubmit={action ? updateVendor : addVendor}
+        closeModal={closeModal}
+        currentVendor={currentVendor}
+        errorCode={errorCode}
+        isLoading={isLoading}
       />
     </>
   );
@@ -170,8 +175,12 @@ VendorUI.propTypes = {
   searchField: PropTypes.string.isRequired,
   onClear: PropTypes.func.isRequired,
   updateVendor: PropTypes.func.isRequired,
-  currentVendor: PropTypes.objectOf([PropTypes.number, PropTypes.stirng])
-    .isRequired,
+  currentVendor: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    full: PropTypes.string,
+    url: PropTypes.string,
+  }).isRequired,
   deleteVendor: PropTypes.func.isRequired,
   vendorVisibility: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
@@ -179,10 +188,26 @@ VendorUI.propTypes = {
   prevPage: PropTypes.func.isRequired,
   nextPage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
-  vendors: PropTypes.objectOf([PropTypes.number, PropTypes.stirng]).isRequired,
+  vendors: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      full: PropTypes.string,
+      url: PropTypes.string,
+    })
+  ).isRequired,
   isLoading: PropTypes.bool.isRequired,
-  pagination: PropTypes.objectOf([PropTypes.number, PropTypes.stirng])
-    .isRequired,
+  errorCode: PropTypes.number,
+  pagination: PropTypes.shape({
+    total: PropTypes.number,
+    current: PropTypes.number,
+    numPages: PropTypes.number,
+    perPage: PropTypes.number,
+  }).isRequired,
+};
+
+VendorUI.defaultProps = {
+  errorCode: null,
 };
 
 export default VendorUI;

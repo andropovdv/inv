@@ -20,7 +20,7 @@ const VendorsDataGrid = (props) => {
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "name", headerName: "Наименование", flex: 0.5 },
-    { field: "full_name", headerName: "Полное", flex: 1 },
+    { field: "full", headerName: "Полное", flex: 1 },
     { field: "url", headerName: "URL", hide: true },
     {
       field: "action",
@@ -50,8 +50,8 @@ const VendorsDataGrid = (props) => {
     setPage(params.page);
   };
 
-  const setCurrentRow = (id) => {
-    const result = vendors.find((item) => item.id_vendor === parseInt(id, 10));
+  const setCurrentRow = (idRow) => {
+    const result = vendors.find((item) => item.id === parseInt(idRow, 10));
     setCurrent(result);
   };
 
@@ -86,10 +86,21 @@ VendorsDataGrid.propTypes = {
   setCurrent: PropTypes.func.isRequired,
   clickEdit: PropTypes.func.isRequired,
   clickDelete: PropTypes.func.isRequired,
-  vendors: PropTypes.objectOf([PropTypes.number, PropTypes.stirng]).isRequired,
+  vendors: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      full: PropTypes.string,
+      url: PropTypes.string,
+    })
+  ).isRequired,
   isLoading: PropTypes.bool.isRequired,
-  pagination: PropTypes.objectOf([PropTypes.number, PropTypes.stirng])
-    .isRequired,
+  pagination: PropTypes.shape({
+    total: PropTypes.number,
+    current: PropTypes.number,
+    numPages: PropTypes.number,
+    perPage: PropTypes.number,
+  }).isRequired,
 };
 
 export default VendorsDataGrid;

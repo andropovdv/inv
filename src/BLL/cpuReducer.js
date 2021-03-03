@@ -65,13 +65,26 @@ export const setError = (code) => {
 
 // THUNK
 
-export const getCpusData = (page) => (dispatch) => {
-  dispatch(toggleIsLoadind(true));
-  dispatch(setError(0));
-  cpuAPI.all(page).then((res) => {
-    dispatch(toggleIsLoadind(false));
-    dispatch(setCpusData(res.data.cpus, res.data.pagination));
+export const mapsFields = (resApi) => {
+  const newRows = resApi.map((e) => {
+    const row = {};
+    row.id = e.id_cpu;
+    row.name = e.name;
+    row.model = e.model;
+    row.socketCpu = e.name_typeSocketCpu;
+    return row;
   });
+  return newRows;
+};
+
+export const getCpusData = (page) => (dispatch) => {
+  // FIXME сделать проверку ответа сервера
+  dispatch(toggleIsLoadind(true));
+  cpuAPI.all(page).then((res) => {
+    const finalRes = mapsFields(res.data.cpus);
+    dispatch(setCpusData(finalRes, res.data.pagination));
+  });
+  dispatch(toggleIsLoadind(false));
 };
 
 export const updateCpusData = (cpu) => (dispatch) => {

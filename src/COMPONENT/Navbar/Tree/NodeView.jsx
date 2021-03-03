@@ -1,5 +1,7 @@
+/* eslint-disable react/forbid-prop-types */
 import { Collapse, List, ListItem, ListItemText } from "@material-ui/core";
 import React from "react";
+import { PropTypes } from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -28,41 +30,36 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const NodeView = (props) => {
+  const { element } = props;
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
-  let toogle = () => {
+  const toogle = () => {
     setExpanded(!expanded);
   };
 
-  let showNodes = () => {
+  const showNodes = () => {
     let arNodes = [];
-    if (props.element.nodes && props.element.nodes.length > 0) {
-      arNodes = props.element.nodes.map((element, index) => {
-        return <NodeView key={index} element={element} />;
+    if (element.nodes && element.nodes.length > 0) {
+      arNodes = element.nodes.map((el) => {
+        return <NodeView element={el} />;
       });
     }
     return arNodes;
   };
-
   return (
     <>
-      {props.element.nodes ? (
+      {element.nodes ? (
         <List component="nav" disablePadding>
           <ListItem button onClick={toogle}>
-            <ListItemText primary={props.element.name} />
+            <ListItemText primary={element.name} />
             {expanded ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
         </List>
       ) : (
         <List component="nav" disablePadding>
-          <ListItem
-            button
-            onClick={toogle}
-            component={NavLink}
-            to={props.element.to}
-          >
-            <ListItemText primary={props.element.name} />
+          <ListItem button onClick={toogle} component={NavLink} to={element.to}>
+            <ListItemText primary={element.name} />
           </ListItem>
         </List>
       )}
@@ -76,6 +73,15 @@ const NodeView = (props) => {
       )}
     </>
   );
+};
+
+NodeView.propTypes = {
+  element: PropTypes.shape({
+    name: PropTypes.string,
+    nodes: PropTypes.any,
+    // nodes: PropTypes.arrayOf({}),
+    to: PropTypes.string,
+  }).isRequired,
 };
 
 export default NodeView;

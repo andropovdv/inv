@@ -4,10 +4,12 @@ const SET_VISIBILITY_TYPE_OF_RAM = "SET_VISIBILITY_TYPE_OF_RAM";
 const SET_VISIBILITY_TYPE_OF_GRAPH_SLOT = "SET_VISIBILITY_TYPE_OF_GRAPH_SLOT";
 const SET_VISIBILITY_FORM_FACTOR = "SET_VISIBILITY_FORM_FACTOR";
 const SET_VISIBILITY_GRAPH_CARD = "SET_VISIBILITY_GRAPH_CARD";
+const SET_VISIBILITY_CPU = "SET_VISIBILITY_CPU";
 
 const initialState = {
   cpuSocketVisibility: false,
   vendorVisibility: false,
+  cpuVisibility: false,
   typeOfRamVisibility: false,
   typeOfGraphSlotVisibility: false,
   formFactorVisibility: false,
@@ -20,6 +22,12 @@ const modalWindowReducer = (state = initialState, action) => {
       return {
         ...state,
         graphCardVisibility: action.visibility,
+      };
+    }
+    case SET_VISIBILITY_CPU: {
+      return {
+        ...state,
+        cpuVisibility: action.visibility,
       };
     }
     case SET_VISIBILITY_FORM_FACTOR: {
@@ -79,5 +87,9 @@ export const setTypeOfGraphSlotVisibility = (visibility) => {
 
 export const setFormFactorVisinility = (visibility) => {
   return { type: SET_VISIBILITY_FORM_FACTOR, visibility };
+};
+
+export const setCpuVisibility = (visibility) => {
+  return { type: SET_VISIBILITY_CPU, visibility };
 };
 export default modalWindowReducer;

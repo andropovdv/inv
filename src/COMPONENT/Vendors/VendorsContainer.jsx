@@ -23,47 +23,37 @@ class VendorsContainer extends React.Component {
   createDialog = (toggle) => {
     const { setCurrent, visibility } = this.props;
     if (toggle) {
-      setCurrent(null, null, null, null, null);
+      setCurrent(null, null, null, null);
       visibility(true);
     } else {
       visibility(true);
     }
   };
 
-  addVendor = (values) => {
-    const { visibility, addVendor, errorCode } = this.props;
-    const vendorNew = {
-      name: values.name,
-      full_name: values.full_name,
-      url: values.url,
-    };
-    addVendor(vendorNew);
-    if (typeof errorCode === "undefined") {
-      visibility(false);
-      // FIXME нужно обнуление ошибки
-    }
+  closeModal = () => {
+    const { visibility, setErrorCode } = this.props;
+    setErrorCode(null);
+    visibility(false);
   };
 
   updateVendor = (values) => {
     const { visibility, currentVendor, errorCode, updateVendor } = this.props;
     const vendorUp = {
-      id_vendor: currentVendor.id_vendor,
+      id: currentVendor.id,
       name: values.name,
-      full_name: values.full_name,
+      full: values.full,
       url: values.url,
     };
     updateVendor(vendorUp);
-    if (typeof errorCode === "undefined") {
+    if (errorCode === 0) {
       visibility(false);
-      // FIXME нужно обнуление ошибки
+      // FIXME нужно обнуление ошибки. Нужна проверка на дублирование
     }
   };
 
   deleteVendor = () => {
     const { deleteVendor, visibility, currentVendor } = this.props;
-    deleteVendor({
-      id_vendor: currentVendor.id_vendor,
-    });
+    deleteVendor({ ...currentVendor });
     visibility(false);
   };
 
@@ -89,9 +79,21 @@ class VendorsContainer extends React.Component {
     getSearch(text);
   };
 
-  closeModal = () => {
-    const { visibility } = this.props;
-    visibility(false);
+  addVendor = (values) => {
+    const { addVen } = this.props;
+    const vendorNew = {
+      name: values.name,
+      full: values.full,
+      url: values.url,
+    };
+    addVen(vendorNew).then((res) => {
+      const { setErrorCode } = this.props;
+      if (res.status) {
+        this.closeModal();
+      } else {
+        setErrorCode(res.errorCode);
+      }
+    });
   };
 
   render() {
@@ -103,6 +105,7 @@ class VendorsContainer extends React.Component {
       errorCode,
       searchField,
       setCurrent,
+      vendorVisibility,
     } = this.props;
     return (
       <div>
@@ -123,6 +126,7 @@ class VendorsContainer extends React.Component {
           onSearch={this.onSearch}
           closeModal={this.closeModal}
           setCurrent={setCurrent}
+          vendorVisibility={vendorVisibility}
         />
       </div>
     );
@@ -133,19 +137,40 @@ VendorsContainer.propTypes = {
   getVendors: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   visibility: PropTypes.func.isRequired,
-  addVendor: PropTypes.func.isRequired,
-  errorCode: PropTypes.number.isRequired,
-  currentVendor: PropTypes.objectOf([PropTypes.number, PropTypes.stirng])
-    .isRequired,
+  addVen: PropTypes.func.isRequired,
+  errorCode: PropTypes.number,
+  currentVendor: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    full: PropTypes.string,
+    url: PropTypes.string,
+  }).isRequired,
   updateVendor: PropTypes.func.isRequired,
-  pagination: PropTypes.objectOf([PropTypes.number, PropTypes.stirng])
-    .isRequired,
+  pagination: PropTypes.shape({
+    total: PropTypes.number,
+    current: PropTypes.number,
+    numPages: PropTypes.number,
+    perPage: PropTypes.number,
+  }).isRequired,
   deleteVendor: PropTypes.func.isRequired,
   change: PropTypes.func.isRequired,
   getSearch: PropTypes.func.isRequired,
-  vendors: PropTypes.objectOf([PropTypes.number, PropTypes.stirng]).isRequired,
+  setErrorCode: PropTypes.func.isRequired,
+  vendors: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      full: PropTypes.string,
+      url: PropTypes.string,
+    })
+  ).isRequired,
   isLoading: PropTypes.bool.isRequired,
   searchField: PropTypes.string.isRequired,
+  vendorVisibility: PropTypes.bool.isRequired,
+};
+
+VendorsContainer.defaultProps = {
+  errorCode: null,
 };
 
 const mapsStateToProps = (state) => ({
@@ -163,8 +188,8 @@ export default connect(mapsStateToProps, {
   setCurrent: setCurrentVendor,
   updateVendor: updateVendorData,
   deleteVendor: deleteVendorData,
-  addVendor: addVendorData,
-  setError,
+  addVen: addVendorData,
+  setErrorCode: setError,
   visibility: setVendorVisibility,
   change: changeSearch,
   getSearch: getSearchData,

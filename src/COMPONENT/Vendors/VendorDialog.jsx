@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable react/jsx-props-no-spreading */
 import {
   Container,
   Dialog,
@@ -5,16 +7,14 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  FormControl,
   Typography,
 } from "@material-ui/core";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Field, reduxForm } from "redux-form";
-import { connect } from "react-redux";
+// import { reduxForm } from "redux-form";
 import { PropTypes } from "prop-types";
-import { InputAreaOutlined } from "../Common/FormsControls/FormsControls";
-import { required } from "../../Utils/validators";
+import { Form } from "react-final-form";
+import { TextField } from "mui-rff";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -25,34 +25,41 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     marginTop: theme.spacing(2),
-    minWidth: 265,
     width: "fit-content",
   },
 }));
 
-const VendorDialogForm = (props) => {
+const VendorDialog = (props) => {
   const {
-    closeModal,
     onDelete,
     open,
     name,
     onClose,
     deleteVendor,
     header,
-    handleSubmit,
-    error,
+    onSubmit,
+    currentVendor,
+    isLoading,
+    errorCode,
   } = props;
   const classes = useStyles();
 
-  const close = (e) => {
-    e.preventDefault();
-    closeModal();
-  };
+  let message = "";
+  if (errorCode && errorCode === 10) {
+    message = "Уже есть";
+  }
 
+  const validate = (values) => {
+    const errors = {};
+    if (!values.name) {
+      errors.name = "Введи !!!";
+    }
+    return errors;
+  };
   return (
     <Container>
       {onDelete ? (
-        <Dialog open={open} onClose={close} modal="true">
+        <Dialog open={open} onClose={onClose} modal="true">
           <DialogTitle>Удаление</DialogTitle>
           <DialogContent>
             Вы уверенны в том, что хотите удалить
@@ -68,74 +75,106 @@ const VendorDialogForm = (props) => {
           </DialogActions>
         </Dialog>
       ) : (
-        <FormControl>
-          <Dialog open={open} onClose={onClose} modal="true">
-            <form onSubmit={handleSubmit} className={classes.form}>
-              <DialogTitle>{header}</DialogTitle>
-              <DialogContent>
-                <div>
-                  <Field
+        <Dialog open={open} onClose={onClose} modal="true">
+          <Form
+            onSubmit={onSubmit}
+            validate={validate}
+            initialValues={{
+              name: currentVendor.name,
+              full: currentVendor.full,
+              url: currentVendor.url,
+            }}
+            render={({
+              handleSubmit,
+              form,
+              submitting,
+              // error,
+              // touched,
+              // values,
+              // submitError,
+            }) => (
+              <form onSubmit={handleSubmit} className={classes.formControl}>
+                <DialogTitle>{header}</DialogTitle>
+                <DialogContent>
+                  <TextField
+                    label="Наименование"
                     name="name"
-                    placeholder="name"
-                    component={InputAreaOutlined}
-                    validate={[required]}
+                    variant="outlined"
+                    size="small"
+                    margin="dense"
+                    required
                     autoFocus
                   />
-                </div>
-                <div>
-                  <Field
-                    name="full_name"
-                    placeholder="full name"
-                    component={InputAreaOutlined}
+                  <TextField
+                    label="Полное наименование"
+                    name="full"
+                    variant="outlined"
+                    size="small"
+                    margin="dense"
                   />
-                </div>
-                <div>
-                  <Field
+                  <TextField
+                    label="Сайт"
                     name="url"
-                    placeholder="url"
-                    component={InputAreaOutlined}
+                    variant="outlined"
+                    size="small"
+                    margin="dense"
                   />
-                </div>
-                {error && (
-                  // <FormHelperText error="true">{props.error}</FormHelperText>
-                  <Typography color="error">{error}</Typography>
-                )}
-              </DialogContent>
-              <DialogActions>
-                <Button type="button" onClick={onClose} color="primary">
-                  Cancel
-                </Button>
-                <Button type="submit" color="primary">
-                  Save
-                </Button>
-              </DialogActions>
-            </form>
-          </Dialog>
-        </FormControl>
+                  {isLoading && <Typography color="error">Download</Typography>}
+                  {errorCode && (
+                    <Typography color="error">{message}</Typography>
+                  )}
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    type="button"
+                    onClick={onClose}
+                    color="primary"
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" color="secondary" disabled={submitting}>
+                    Save
+                  </Button>
+                  {/* <pre>{JSON.stringify(values)}</pre> */}
+                </DialogActions>
+              </form>
+            )}
+          />
+        </Dialog>
       )}
     </Container>
   );
 };
 
-VendorDialogForm.propTypes = {
-  closeModal: PropTypes.func.isRequired,
+VendorDialog.propTypes = {
+  // closeModal: PropTypes.func.isRequired,
+  errorCode: PropTypes.number,
   onDelete: PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
-  name: PropTypes.bool.isRequired,
+  name: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   deleteVendor: PropTypes.func.isRequired,
   header: PropTypes.string.isRequired,
-  handleSubmit: PropTypes.func.isRequired,
-  error: PropTypes.string.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  currentVendor: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    full: PropTypes.string,
+    url: PropTypes.string,
+  }).isRequired,
+  // error: PropTypes.string,
 };
 
-const VendorForm = reduxForm({ form: "vendor", enableReinitialize: true })(
-  VendorDialogForm
-);
+VendorDialog.defaultProps = {
+  errorCode: null,
+  name: "",
+  // error: "",
+};
 
-const VendorDialog = connect(
-  (state) => ({ initialValues: state.vendor.currentVendor }),
-  null
-)(VendorForm);
+// const VendorForm = reduxForm({ form: "vendor", enableReinitialize: true })(
+//   VendorDialogForm
+// );
 
 export default VendorDialog;

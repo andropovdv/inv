@@ -1,4 +1,4 @@
-import { stopSubmit } from "redux-form";
+// import { stopSubmit } from "redux-form";
 import vendorAPI from "../DAL/vendorAPI";
 
 const VENDOR_IS_LOADING = "VENDOR_IS LOADING";
@@ -14,7 +14,7 @@ const initialState = {
   vendorsAll: [],
   pagination: {},
   isLoading: true,
-  errorCode: 0,
+  errorCode: null,
   searchField: "",
 };
 
@@ -92,10 +92,21 @@ export const changeSearch = (text) => {
 
 // THUNK
 
+export const mapsFields = (resApi) => {
+  const newRows = resApi.map((e) => {
+    const row = {};
+    row.id = e.id_vendor;
+    row.name = e.name;
+    row.full = e.full_name;
+    row.url = e.url;
+    return row;
+  });
+  return newRows;
+};
+
 export const getSearchData = (text) => (dispatch) => {
   if (text.length > 3) {
     dispatch(toggleIsLoading(true));
-    // TODOзапрос к API
     vendorAPI.searchItem({ str: text }).then((res) => {
       if (res.data.status) {
         const newRows = res.data.vendors.map((e) => {
@@ -116,14 +127,8 @@ export const getSearchData = (text) => (dispatch) => {
 export const getVendorsData = (page) => (dispatch) => {
   dispatch(toggleIsLoading(true));
   vendorAPI.all(page).then((res) => {
-    // Добовляю поле ID для компонента DataGrid
-    const newRows = res.data.vendors.map((e) => {
-      const row = { ...e };
-      row.id = e.id_vendor;
-      return row;
-    });
-
-    dispatch(setVendorsData(newRows, res.data.pagination));
+    const finalRes = mapsFields(res.data.vendors);
+    dispatch(setVendorsData(finalRes, res.data.pagination));
   });
   dispatch(toggleIsLoading(false));
 };
@@ -139,34 +144,87 @@ export const getVendorAllData = () => (dispatch) => {
 };
 
 export const updateVendorData = (updateVendor) => (dispatch) => {
-  vendorAPI.update(updateVendor).then((res) => {
+  const newObj = {
+    id_vendor: updateVendor.id,
+    name: updateVendor.name,
+    full_name: updateVendor.full,
+    url: updateVendor.url,
+  };
+  dispatch(toggleIsLoading(true));
+  vendorAPI.update(newObj).then((res) => {
     if (res.data.status) {
       dispatch(getVendorsData());
     }
   });
+  dispatch(toggleIsLoading(false));
 };
 
-export const deleteVendorData = (idVendor) => (dispatch) => {
-  vendorAPI.delete(idVendor).then((res) => {
+export const deleteVendorData = (deleteVendor) => (dispatch) => {
+  const newObj = {
+    id_vendor: deleteVendor.id,
+  };
+  dispatch(toggleIsLoading(true));
+  vendorAPI.delete(newObj).then((res) => {
     if (res.data.status) {
       dispatch(getVendorsData());
     }
   });
+  dispatch(toggleIsLoading(false));
 };
+
+// export const addVendorData = (vendor) => (dispatch) => {
+//   const newObj = {
+//     name: vendor.name,
+//     full_name: vendor.full,
+//     url: vendor.url,
+//   };
+//   dispatch(toggleIsLoading(true));
+//   vendorAPI
+//     .add(newObj)
+//     .then((res) => {
+//       if (res.data.status) {
+//         dispatch(getVendorsData());
+//         dispatch(getVendorAllData());
+//         // return undefined;
+//       } else {
+//         console.log(`установка ошибки ${res.data.errorCode}`);
+//         dispatch(setError(res.data.errorCode));
+//         dispatch(toggleIsLoading(false));
+//       }
+//       // dispatch(toggleIsLoading(false));
+//       // const message =
+//       //   res.data.message.length > 0 ? res.data.message : "Проверь BackEnd";
+//       // dispatch(stopSubmit("vendor", { _error: message }));
+
+//       // const eCode = res.data.errorCode;
+//       // return eCode;
+//     })
+//     .then(() => {
+//       dispatch(toggleIsLoading(false));
+//     });
+// };
 
 export const addVendorData = (vendor) => (dispatch) => {
+  const newObj = {
+    name: vendor.name,
+    full_name: vendor.full,
+    url: vendor.url,
+  };
   dispatch(toggleIsLoading(true));
-  vendorAPI.add(vendor).then((res) => {
-    if (res.data.status) {
-      dispatch(getVendorsData());
-      dispatch(getVendorAllData());
-    } else {
-      const message =
-        res.data.message.length > 0 ? res.data.message : "Проверь BackEnd";
-      dispatch(stopSubmit("vendor", { _error: message }));
-      dispatch(setError(res.data.errorCode));
-    }
-    dispatch(toggleIsLoading(false));
+  return new Promise((resolve) => {
+    vendorAPI.add(newObj).then((res) => {
+      if (res.data.status) {
+        console.log("status - true");
+        dispatch(getVendorsData());
+        dispatch(getVendorAllData());
+      } else {
+        console.log(`promise ${res.data.errorCode}`);
+        dispatch(setError(res.data.errorCode));
+      }
+      dispatch(toggleIsLoading(false));
+      resolve(res.data);
+    });
   });
 };
+
 export default vendorReducer;

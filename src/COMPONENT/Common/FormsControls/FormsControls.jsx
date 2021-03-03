@@ -46,7 +46,7 @@ export const InputAreaOutlined = ({
   meta: { touched, invalid, error },
   ...custorm
 }) => {
-  const hasError = touched && error;
+  // const hasError = touched && error;
   return (
     <>
       <TextField
@@ -57,12 +57,12 @@ export const InputAreaOutlined = ({
         label={label}
         placeholder={label}
         error={touched && invalid}
-        helperText={touched && invalid}
+        helperText={touched && invalid && error}
         {...input}
         {...custorm}
       />
-
-      {hasError && <FormHelperText>{error}</FormHelperText>}
+      {/* {hasError && <Typography color="error">{error}</Typography>} */}
+      {/* {hasError && <FormHelperText>{error}</FormHelperText>} */}
     </>
   );
 };

@@ -1,3 +1,7 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 import React from "react";
 import s from "./Cpus.module.css";
 import CpuItem from "./CpuItem";
@@ -14,57 +18,64 @@ const Cpus = (props) => {
         <div className={s.errorMessage}>already have</div>
       </AddEditTwo>
     );
-  };
+  }
 
   return (
     <div className={s.cpuWrapper}>
       <div className={s.cpuLabel}>Процессоры:</div>
       <div className={s.cpuContent}>
         <div className={s.buttonArea}>
-          <button onClick={() => props.openModalNew()}>
+          <button type="button" onClick={() => props.openModalNew()}>
             Добавить процессор
           </button>
           <button
+            type="button"
             onClick={() => props.prevPage()}
-            disabled={typeof props.pagination.prev === "undefined"}>Предыдущая</button>
-            {props.pagination.current + 1}
-            из{props.pagination.numPages}
-            <button
-              onClick={() => props.nextPage()}
-              disabled={typeof props.pagination.next === "undefined"}
-            >Следующая</button>
-          </div>
-          <div>{errorMessage}</div>
-          <div disabled={props.isLoading}>
-            <table className={s.table2}>
-              <tbody>
-                <tr>
-                  <th>Vendor</th>
-                  <th>Model</th>
-                  <th></th>
-                </tr>
-                {props.cpus.map((c) => (
-                  <CpuItem
-                    key={c.id_cpu}
-                    {...props}
-                    id_cpu={c.id_cpu}
-                    id_vendor={c.id_vendor}
-                    vendor={c.name}
-                    model={c.model}
-                    socketCpu={c.name_typeSocketCpu}
-                    openModal={props.openModalEdit}
-                    deleteCpu={props.deleteCpu}
-                  />
-                ))}
-                /> ))}
-              </tbody>
-            </table>
-          </div>
+            disabled={typeof props.pagination.prev === "undefined"}
+          >
+            Предыдущая
+          </button>
+          {props.pagination.current + 1}
+          из
+          {props.pagination.numPages}
+          <button
+            type="button"
+            onClick={() => props.nextPage()}
+            disabled={typeof props.pagination.next === "undefined"}
+          >
+            Следующая
+          </button>
         </div>
-        <div className={s.cpuInfo}>
-          Подробная информация
-          <p>
-            <b>{props.currentCpu.name_typeSocketCpu}</b>
+        <div>{errorMessage}</div>
+        <div disabled={props.isLoading}>
+          <table className={s.table2}>
+            <tbody>
+              <tr>
+                <th>Vendor</th>
+                <th>Model</th>
+                <th />
+              </tr>
+              {props.cpus.map((c) => (
+                <CpuItem
+                  key={c.id_cpu}
+                  {...props}
+                  id_cpu={c.id_cpu}
+                  id_vendor={c.id_vendor}
+                  vendor={c.name}
+                  model={c.model}
+                  socketCpu={c.name_typeSocketCpu}
+                  openModal={props.openModalEdit}
+                  deleteCpu={props.deleteCpu}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className={s.cpuInfo}>
+        Подробная информация
+        <p>
+          <b>{props.currentCpu.name_typeSocketCpu}</b>
         </p>
       </div>
       <div>
@@ -77,7 +88,6 @@ const Cpus = (props) => {
             onSubmit={props.typeModal ? props.updateCpu : props.addCpu}
             typeModal={props.typeModal}
             {...props}
-          />
           />
         </AddEditTwo>
       </div>
