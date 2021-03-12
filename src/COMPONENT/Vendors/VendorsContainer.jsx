@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import React from "react";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
@@ -10,6 +11,7 @@ import {
   setError,
   changeSearch,
   getSearchData,
+  setBackEndMessage,
 } from "../../BLL/vendorReducer";
 import VendorUI from "./VendorUI";
 import { setVendorVisibility } from "../../BLL/modalWindowReducer";
@@ -31,24 +33,14 @@ class VendorsContainer extends React.Component {
   };
 
   closeModal = () => {
-    const { visibility, setErrorCode } = this.props;
-    setErrorCode(null);
+    const { visibility } = this.props;
     visibility(false);
   };
 
-  updateVendor = (values) => {
-    const { visibility, currentVendor, errorCode, updateVendor } = this.props;
-    const vendorUp = {
-      id: currentVendor.id,
-      name: values.name,
-      full: values.full,
-      url: values.url,
-    };
-    updateVendor(vendorUp);
-    if (errorCode === 0) {
-      visibility(false);
-      // FIXME нужно обнуление ошибки. Нужна проверка на дублирование
-    }
+  resetError = () => {
+    const { setErrorCode, setErrorMessage } = this.props;
+    setErrorCode(null);
+    setErrorMessage("");
   };
 
   deleteVendor = () => {
@@ -79,21 +71,27 @@ class VendorsContainer extends React.Component {
     getSearch(text);
   };
 
-  addVendor = (values) => {
-    const { addVen } = this.props;
+  addVendor = async (values) => {
+    const { addVen, visibility } = this.props;
     const vendorNew = {
       name: values.name,
       full: values.full,
       url: values.url,
     };
-    addVen(vendorNew).then((res) => {
-      const { setErrorCode } = this.props;
-      if (res.status) {
-        this.closeModal();
-      } else {
-        setErrorCode(res.errorCode);
-      }
-    });
+    await addVen(vendorNew);
+    visibility(false);
+  };
+
+  updateVendor = async (values) => {
+    const { currentVendor, updateVendor, visibility } = this.props;
+    const vendorUp = {
+      id: currentVendor.id,
+      name: values.name,
+      full: values.full,
+      url: values.url,
+    };
+    await updateVendor(vendorUp);
+    visibility(false);
   };
 
   render() {
@@ -106,6 +104,7 @@ class VendorsContainer extends React.Component {
       searchField,
       setCurrent,
       vendorVisibility,
+      errorMessage,
     } = this.props;
     return (
       <div>
@@ -125,8 +124,10 @@ class VendorsContainer extends React.Component {
           onClear={this.onClear}
           onSearch={this.onSearch}
           closeModal={this.closeModal}
+          resetError={this.resetError}
           setCurrent={setCurrent}
           vendorVisibility={vendorVisibility}
+          errorMessage={errorMessage}
         />
       </div>
     );
@@ -156,6 +157,7 @@ VendorsContainer.propTypes = {
   change: PropTypes.func.isRequired,
   getSearch: PropTypes.func.isRequired,
   setErrorCode: PropTypes.func.isRequired,
+  setErrorMessage: PropTypes.func.isRequired,
   vendors: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
@@ -167,6 +169,7 @@ VendorsContainer.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   searchField: PropTypes.string.isRequired,
   vendorVisibility: PropTypes.bool.isRequired,
+  errorMessage: PropTypes.string.isRequired,
 };
 
 VendorsContainer.defaultProps = {
@@ -181,6 +184,7 @@ const mapsStateToProps = (state) => ({
   errorCode: state.vendor.errorCode, //
   searchField: state.vendor.searchField, //
   vendorVisibility: state.modalWindow.vendorVisibility, // FIXME насколько необходимо ?
+  errorMessage: state.vendor.backEndMessage,
 });
 
 export default connect(mapsStateToProps, {
@@ -193,4 +197,5 @@ export default connect(mapsStateToProps, {
   visibility: setVendorVisibility,
   change: changeSearch,
   getSearch: getSearchData,
+  setErrorMessage: setBackEndMessage,
 })(VendorsContainer);

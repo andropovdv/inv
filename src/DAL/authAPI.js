@@ -1,7 +1,7 @@
 import Axios from "axios";
 
 const instance = Axios.create({
-  baseURL: "http://localhost:4000/auth/",
+  baseURL: "http://localhost:4000/api/auth/",
   withCredentials: true,
 });
 

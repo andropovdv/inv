@@ -1,4 +1,3 @@
-// import { stopSubmit } from "redux-form";
 import vendorAPI from "../DAL/vendorAPI";
 
 const VENDOR_IS_LOADING = "VENDOR_IS LOADING";
@@ -7,6 +6,7 @@ const SET_VENDORS_ALL = "SET_VENDORS_ALL";
 const SET_CURRENT_VENDOR = "SET_CURRENT_VENDOR";
 const SET_ERROR_VENDOR = "SET_ERROR_VENDOR";
 const SET_SEARCH_FIELD = "SET_SEARCH_FIELD";
+const SET_MESSAGE = "SET_MESSAGE";
 
 const initialState = {
   vendors: [],
@@ -15,6 +15,7 @@ const initialState = {
   pagination: {},
   isLoading: true,
   errorCode: null,
+  backEndMessage: "",
   searchField: "",
 };
 
@@ -57,12 +58,23 @@ const vendorReducer = (state = initialState, action) => {
         searchField: action.text,
       };
     }
+    case SET_MESSAGE: {
+      return {
+        ...state,
+        backEndMessage: action.message,
+      };
+    }
     default:
       return state;
   }
 };
 
 // AS
+
+export const setBackEndMessage = (message) => {
+  return { type: SET_MESSAGE, message };
+};
+
 export const toggleIsLoading = (isLoading) => {
   return { type: VENDOR_IS_LOADING, isLoading };
 };
@@ -104,6 +116,19 @@ export const mapsFields = (resApi) => {
   return newRows;
 };
 
+export const getVendorsData = (page) => async (dispatch) => {
+  dispatch(toggleIsLoading(true));
+  const res = await vendorAPI.all(page);
+  if (res.data.status) {
+    const finalRes = mapsFields(res.data.result);
+    dispatch(setVendorsData(finalRes, res.data.pagination));
+    dispatch(toggleIsLoading(false));
+  } else {
+    dispatch(setBackEndMessage(res.data.error));
+    dispatch(toggleIsLoading(false));
+  }
+};
+
 export const getSearchData = (text) => (dispatch) => {
   if (text.length > 3) {
     dispatch(toggleIsLoading(true));
@@ -120,17 +145,9 @@ export const getSearchData = (text) => (dispatch) => {
     dispatch(changeSearch(text));
     dispatch(toggleIsLoading(false));
   } else {
+    dispatch(getVendorsData());
     dispatch(changeSearch(text));
   }
-};
-
-export const getVendorsData = (page) => (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  vendorAPI.all(page).then((res) => {
-    const finalRes = mapsFields(res.data.vendors);
-    dispatch(setVendorsData(finalRes, res.data.pagination));
-  });
-  dispatch(toggleIsLoading(false));
 };
 
 export const getVendorAllData = () => (dispatch) => {
@@ -143,22 +160,6 @@ export const getVendorAllData = () => (dispatch) => {
   });
 };
 
-export const updateVendorData = (updateVendor) => (dispatch) => {
-  const newObj = {
-    id_vendor: updateVendor.id,
-    name: updateVendor.name,
-    full_name: updateVendor.full,
-    url: updateVendor.url,
-  };
-  dispatch(toggleIsLoading(true));
-  vendorAPI.update(newObj).then((res) => {
-    if (res.data.status) {
-      dispatch(getVendorsData());
-    }
-  });
-  dispatch(toggleIsLoading(false));
-};
-
 export const deleteVendorData = (deleteVendor) => (dispatch) => {
   const newObj = {
     id_vendor: deleteVendor.id,
@@ -168,63 +169,47 @@ export const deleteVendorData = (deleteVendor) => (dispatch) => {
     if (res.data.status) {
       dispatch(getVendorsData());
     }
+    dispatch(toggleIsLoading(false));
   });
-  dispatch(toggleIsLoading(false));
 };
 
-// export const addVendorData = (vendor) => (dispatch) => {
-//   const newObj = {
-//     name: vendor.name,
-//     full_name: vendor.full,
-//     url: vendor.url,
-//   };
-//   dispatch(toggleIsLoading(true));
-//   vendorAPI
-//     .add(newObj)
-//     .then((res) => {
-//       if (res.data.status) {
-//         dispatch(getVendorsData());
-//         dispatch(getVendorAllData());
-//         // return undefined;
-//       } else {
-//         console.log(`установка ошибки ${res.data.errorCode}`);
-//         dispatch(setError(res.data.errorCode));
-//         dispatch(toggleIsLoading(false));
-//       }
-//       // dispatch(toggleIsLoading(false));
-//       // const message =
-//       //   res.data.message.length > 0 ? res.data.message : "Проверь BackEnd";
-//       // dispatch(stopSubmit("vendor", { _error: message }));
-
-//       // const eCode = res.data.errorCode;
-//       // return eCode;
-//     })
-//     .then(() => {
-//       dispatch(toggleIsLoading(false));
-//     });
-// };
-
-export const addVendorData = (vendor) => (dispatch) => {
+export const addVendorData = (vendor) => async (dispatch) => {
   const newObj = {
     name: vendor.name,
     full_name: vendor.full,
     url: vendor.url,
   };
   dispatch(toggleIsLoading(true));
-  return new Promise((resolve) => {
-    vendorAPI.add(newObj).then((res) => {
-      if (res.data.status) {
-        console.log("status - true");
-        dispatch(getVendorsData());
-        dispatch(getVendorAllData());
-      } else {
-        console.log(`promise ${res.data.errorCode}`);
-        dispatch(setError(res.data.errorCode));
-      }
-      dispatch(toggleIsLoading(false));
-      resolve(res.data);
-    });
-  });
+  const res = await vendorAPI.add(newObj);
+  if (res.data.status) {
+    dispatch(getVendorsData());
+    dispatch(getVendorAllData());
+    dispatch(toggleIsLoading(false));
+  } else {
+    dispatch(setError(res.data.errorCode));
+    dispatch(setBackEndMessage(res.data.message));
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const updateVendorData = (updateVendor) => async (dispatch) => {
+  const newObj = {
+    id_vendor: updateVendor.id,
+    name: updateVendor.name,
+    full_name: updateVendor.full,
+    url: updateVendor.url,
+  };
+  dispatch(toggleIsLoading(true));
+  const res = await vendorAPI.update(newObj);
+  if (res.data.status) {
+    dispatch(getVendorsData());
+    dispatch(getVendorAllData());
+    dispatch(toggleIsLoading(false));
+  } else {
+    dispatch(setError(res.data.errorCode));
+    dispatch(setBackEndMessage(res.data.message));
+    dispatch(toggleIsLoading(false));
+  }
 };
 
 export default vendorReducer;

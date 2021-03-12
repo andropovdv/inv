@@ -7,11 +7,9 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Typography,
 } from "@material-ui/core";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-// import { reduxForm } from "redux-form";
 import { PropTypes } from "prop-types";
 import { Form } from "react-final-form";
 import { TextField } from "mui-rff";
@@ -40,14 +38,8 @@ const VendorDialog = (props) => {
     onSubmit,
     currentVendor,
     isLoading,
-    errorCode,
   } = props;
   const classes = useStyles();
-
-  let message = "";
-  if (errorCode && errorCode === 10) {
-    message = "Уже есть";
-  }
 
   const validate = (values) => {
     const errors = {};
@@ -84,15 +76,7 @@ const VendorDialog = (props) => {
               full: currentVendor.full,
               url: currentVendor.url,
             }}
-            render={({
-              handleSubmit,
-              form,
-              submitting,
-              // error,
-              // touched,
-              // values,
-              // submitError,
-            }) => (
+            render={({ handleSubmit, form }) => (
               <form onSubmit={handleSubmit} className={classes.formControl}>
                 <DialogTitle>{header}</DialogTitle>
                 <DialogContent>
@@ -119,10 +103,6 @@ const VendorDialog = (props) => {
                     size="small"
                     margin="dense"
                   />
-                  {isLoading && <Typography color="error">Download</Typography>}
-                  {errorCode && (
-                    <Typography color="error">{message}</Typography>
-                  )}
                 </DialogContent>
                 <DialogActions>
                   <Button
@@ -133,10 +113,9 @@ const VendorDialog = (props) => {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" color="secondary" disabled={submitting}>
+                  <Button type="submit" color="secondary" disabled={isLoading}>
                     Save
                   </Button>
-                  {/* <pre>{JSON.stringify(values)}</pre> */}
                 </DialogActions>
               </form>
             )}
@@ -148,8 +127,6 @@ const VendorDialog = (props) => {
 };
 
 VendorDialog.propTypes = {
-  // closeModal: PropTypes.func.isRequired,
-  errorCode: PropTypes.number,
   onDelete: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
@@ -164,17 +141,10 @@ VendorDialog.propTypes = {
     full: PropTypes.string,
     url: PropTypes.string,
   }).isRequired,
-  // error: PropTypes.string,
 };
 
 VendorDialog.defaultProps = {
-  errorCode: null,
   name: "",
-  // error: "",
 };
-
-// const VendorForm = reduxForm({ form: "vendor", enableReinitialize: true })(
-//   VendorDialogForm
-// );
 
 export default VendorDialog;

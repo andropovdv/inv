@@ -81,7 +81,7 @@ export const getCpusData = (page) => (dispatch) => {
   // FIXME сделать проверку ответа сервера
   dispatch(toggleIsLoadind(true));
   cpuAPI.all(page).then((res) => {
-    const finalRes = mapsFields(res.data.cpus);
+    const finalRes = mapsFields(res.data.result);
     dispatch(setCpusData(finalRes, res.data.pagination));
   });
   dispatch(toggleIsLoadind(false));

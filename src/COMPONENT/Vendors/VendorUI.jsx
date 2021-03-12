@@ -6,7 +6,9 @@ import {
   InputAdornment,
   IconButton,
   TextField,
+  Snackbar,
 } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import CancelIcon from "@material-ui/icons/Cancel";
@@ -22,6 +24,12 @@ const useStyles = makeStyles((theme) => ({
   buttonArea: {
     // marginBottom: theme.spacing(2),
     marginRight: theme.spacing(2),
+  },
+  root: {
+    width: "100%",
+    "& > * + *": {
+      marginTop: theme.spacing(2),
+    },
   },
 }));
 
@@ -44,6 +52,8 @@ const VendorUI = (props) => {
     isLoading,
     pagination,
     errorCode,
+    errorMessage,
+    resetError,
   } = props;
   const classes = useStyles();
   const [header, setHeader] = React.useState("");
@@ -69,8 +79,34 @@ const VendorUI = (props) => {
     createDialog(false);
   };
 
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    resetError();
+    setOpen(false);
+  };
+
+  React.useEffect(() => {
+    if (errorMessage.length > 0) {
+      setOpen(true);
+    }
+  }, [errorMessage]);
+
   return (
     <>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <Alert onClose={handleClose} severity="warning">
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -164,6 +200,8 @@ const VendorUI = (props) => {
         currentVendor={currentVendor}
         errorCode={errorCode}
         isLoading={isLoading}
+        errorMessage={errorMessage}
+        resetError={resetError}
       />
     </>
   );
@@ -204,6 +242,8 @@ VendorUI.propTypes = {
     numPages: PropTypes.number,
     perPage: PropTypes.number,
   }).isRequired,
+  errorMessage: PropTypes.string.isRequired,
+  resetError: PropTypes.func.isRequired,
 };
 
 VendorUI.defaultProps = {

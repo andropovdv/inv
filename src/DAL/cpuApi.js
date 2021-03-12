@@ -1,7 +1,7 @@
 import Axios from "axios";
 
 const instance = Axios.create({
-  baseURL: "http://localhost:4000/v2/cpus",
+  baseURL: "http://localhost:4000/api/cpus",
   withCredentials: true,
 });
 
@@ -10,7 +10,7 @@ const cpuAPI = {
     return instance.get(`?page=${page}`);
   },
   update(cpu) {
-    return instance.post("/update", cpu);
+    return instance.put("/update", cpu);
   },
   delete(id) {
     return instance.post(`/delete`, id);
