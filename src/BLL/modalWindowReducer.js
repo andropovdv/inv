@@ -7,7 +7,7 @@ const SET_VISIBILITY_GRAPH_CARD = "SET_VISIBILITY_GRAPH_CARD";
 const SET_VISIBILITY_CPU = "SET_VISIBILITY_CPU";
 
 const initialState = {
-  cpuSocketVisibility: false,
+  cpuSocketVisibility: { type: null, header: null, visibility: false },
   vendorVisibility: false,
   cpuVisibility: false,
   typeOfRamVisibility: false,
@@ -39,7 +39,7 @@ const modalWindowReducer = (state = initialState, action) => {
     case SET_VISIBILITY_CPU_SOKET: {
       return {
         ...state,
-        cpuSocketVisibility: action.visibility,
+        cpuSocketVisibility: { ...action.modal },
       };
     }
     case SET_VISIBILITY_VENDOR: {
@@ -69,8 +69,8 @@ export const setGraphCardVisibility = (visibility) => {
   return { type: SET_VISIBILITY_GRAPH_CARD, visibility };
 };
 
-export const setCpuSoketVisibility = (visibility) => {
-  return { type: SET_VISIBILITY_CPU_SOKET, visibility };
+export const setCpuSoketVisibility = (modal) => {
+  return { type: SET_VISIBILITY_CPU_SOKET, modal };
 };
 
 export const setVendorVisibility = (visibility) => {

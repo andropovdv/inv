@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable react/jsx-props-no-spreading */
 import {
   Container,
   Dialog,
@@ -13,6 +11,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import { PropTypes } from "prop-types";
 import { Form } from "react-final-form";
 import { TextField } from "mui-rff";
+import { connect } from "react-redux";
+import { deleteVendorData } from "../../BLL/vendorReducer";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -29,15 +29,15 @@ const useStyles = makeStyles((theme) => ({
 
 const VendorDialog = (props) => {
   const {
+    isLoading,
+
     onDelete,
     open,
-    name,
     onClose,
     deleteVendor,
     header,
     onSubmit,
     currentVendor,
-    isLoading,
   } = props;
   const classes = useStyles();
 
@@ -55,7 +55,7 @@ const VendorDialog = (props) => {
           <DialogTitle>Удаление</DialogTitle>
           <DialogContent>
             Вы уверенны в том, что хотите удалить
-            <b>{name}</b>
+            <b>{currentVendor.name}</b>
           </DialogContent>
           <DialogActions>
             <Button color="primary" onClick={onClose}>
@@ -76,7 +76,7 @@ const VendorDialog = (props) => {
               full: currentVendor.full,
               url: currentVendor.url,
             }}
-            render={({ handleSubmit, form }) => (
+            render={({ handleSubmit, values }) => (
               <form onSubmit={handleSubmit} className={classes.formControl}>
                 <DialogTitle>{header}</DialogTitle>
                 <DialogContent>
@@ -117,6 +117,7 @@ const VendorDialog = (props) => {
                     Save
                   </Button>
                 </DialogActions>
+                <pre>{JSON.stringify(values, 0, 2)}</pre>
               </form>
             )}
           />
@@ -130,7 +131,6 @@ VendorDialog.propTypes = {
   onDelete: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
-  name: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   deleteVendor: PropTypes.func.isRequired,
   header: PropTypes.string.isRequired,
@@ -143,8 +143,15 @@ VendorDialog.propTypes = {
   }).isRequired,
 };
 
-VendorDialog.defaultProps = {
-  name: "",
-};
+// VendorDialog.defaultProps = {
+//   name: "",
+// };
 
-export default VendorDialog;
+const mapStateToProps = (state) => ({
+  isLoading: state.vendor.isLoading,
+  currentVendor: state.vendor.currentVendor,
+});
+
+export default connect(mapStateToProps, {
+  deleteVendor: deleteVendorData,
+})(VendorDialog);

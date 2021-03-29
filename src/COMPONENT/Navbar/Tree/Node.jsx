@@ -21,7 +21,7 @@ const items = {
             {
               id: "0111",
               name: "Разъем процессора",
-              to: "/Vendors",
+              to: "/CpuSockets",
             },
             {
               id: "0112",

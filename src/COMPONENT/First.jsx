@@ -5,7 +5,8 @@ import { Route } from "react-router-dom";
 import Header from "./Header/Header";
 import Navbar from "./Navbar/Navbar";
 import VendorsContainer from "./Vendors/VendorsContainer";
-import CpusContainer from "./Cpus/CpusContainer";
+import CpusUI from "./Cpus/CpusUI";
+import CpuSocketUI from "./CpuSocket/CpuSocketUI";
 
 const drawerWidth = 250;
 
@@ -55,7 +56,8 @@ const First = () => {
         <div className={classes.toolBar} />
         {/* <Typography variant="h6" align="left">Производители:</Typography> */}
         <Route path="/Vendors" render={() => <VendorsContainer />} />
-        <Route path="/Cpus" render={() => <CpusContainer />} />
+        <Route path="/Cpus" render={() => <CpusUI />} />
+        <Route path="/CpuSockets" render={() => <CpuSocketUI />} />
       </main>
     </div>
   );

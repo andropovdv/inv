@@ -41,16 +41,12 @@ const VendorUI = (props) => {
     onClear,
     updateVendor,
     currentVendor,
-    deleteVendor,
     vendorVisibility,
     closeModal,
     addVendor,
     prevPage,
     nextPage,
-    setCurrent,
-    vendors,
-    isLoading,
-    pagination,
+    // setCurrent,
     errorCode,
     errorMessage,
     resetError,
@@ -153,10 +149,7 @@ const VendorUI = (props) => {
             </Grid>
           </Paper>
           <VendorsDataGrid
-            pagination={pagination}
-            isLoading={isLoading}
-            vendors={vendors}
-            setCurrent={setCurrent}
+            // setCurrent={setCurrent}
             prevPage={prevPage}
             nextPage={nextPage}
             clickEdit={clickEdit}
@@ -189,17 +182,13 @@ const VendorUI = (props) => {
       </Grid>
 
       <VendorDialog
-        name={currentVendor.name}
-        deleteVendor={deleteVendor}
         onDelete={onDelete}
         open={vendorVisibility}
         onClose={closeModal} // FIXME дублируется
         header={header}
         onSubmit={action ? updateVendor : addVendor}
         closeModal={closeModal}
-        currentVendor={currentVendor}
         errorCode={errorCode}
-        isLoading={isLoading}
         errorMessage={errorMessage}
         resetError={resetError}
       />
@@ -219,29 +208,13 @@ VendorUI.propTypes = {
     full: PropTypes.string,
     url: PropTypes.string,
   }).isRequired,
-  deleteVendor: PropTypes.func.isRequired,
   vendorVisibility: PropTypes.bool.isRequired,
   closeModal: PropTypes.func.isRequired,
   addVendor: PropTypes.func.isRequired,
   prevPage: PropTypes.func.isRequired,
   nextPage: PropTypes.func.isRequired,
-  setCurrent: PropTypes.func.isRequired,
-  vendors: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      full: PropTypes.string,
-      url: PropTypes.string,
-    })
-  ).isRequired,
-  isLoading: PropTypes.bool.isRequired,
+  // setCurrent: PropTypes.func.isRequired,
   errorCode: PropTypes.number,
-  pagination: PropTypes.shape({
-    total: PropTypes.number,
-    current: PropTypes.number,
-    numPages: PropTypes.number,
-    perPage: PropTypes.number,
-  }).isRequired,
   errorMessage: PropTypes.string.isRequired,
   resetError: PropTypes.func.isRequired,
 };

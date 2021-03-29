@@ -1,35 +1,35 @@
+/* eslint-disable no-unused-vars */
 import { IconButton } from "@material-ui/core";
-import React from "react";
+import React, { useEffect } from "react";
 import { PropTypes } from "prop-types";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import { connect } from "react-redux";
 import { DataGrid } from "@material-ui/data-grid";
+import { getCpusData, setCurrentCpu } from "../../BLL/cpuReducer";
 
-const CpuDataGrid = (props) => {
-  const {
-    cpus,
-    isLoading,
-    pagination,
-    prevPage,
-    nextPage,
-    setCurrent,
-    clickEdit,
-    clickDelete,
-  } = props;
-  const column = [
+const CpusTable = (props) => {
+  const { cpus, isLoading, pagination, getCpus, setCurrent } = props;
+
+  useEffect(() => {
+    getCpus();
+  }, []);
+
+  const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "name", headerName: "Производитель", flex: 0.5 },
     { field: "model", headerName: "Модель", flex: 1 },
+    { field: "socketCpu", headerName: "Разъем", flex: 0.5 },
     {
       field: "action",
       width: 120,
       headerName: "Действия",
       renderCell: () => (
         <strong>
-          <IconButton color="primary" size="small" onClick={clickEdit}>
+          <IconButton color="primary" size="small">
             <EditIcon fontSize="small" />
           </IconButton>
-          <IconButton color="secondary" size="small" onClick={clickDelete}>
+          <IconButton color="secondary" size="small">
             <DeleteIcon fontSize="small" />
           </IconButton>
         </strong>
@@ -37,20 +37,9 @@ const CpuDataGrid = (props) => {
     },
   ];
 
-  const [page, setPage] = React.useState(1);
-
-  const handlePageChange = (params) => {
-    if (params.page > page) {
-      nextPage();
-    } else {
-      prevPage();
-    }
-    setPage(params.page);
-  };
-
-  const setCurrentRow = (idRow) => {
-    const result = cpus.find((item) => item.id === parseInt(idRow, 10));
-    setCurrent(result);
+  const setRow = (idRow) => {
+    const res = cpus.find((e) => e.id === parseInt(idRow, 10));
+    setCurrent(res);
   };
 
   return (
@@ -58,18 +47,17 @@ const CpuDataGrid = (props) => {
       <div style={{ display: "flex", height: "100%" }}>
         <div style={{ flexGrow: 1 }}>
           <DataGrid
-            columns={column}
             rows={cpus}
+            columns={columns}
+            loading={isLoading}
             autoHeight
             density="compact"
-            loading={isLoading}
-            paginationMode="server"
-            pageSize={10}
-            rowCount={pagination.total}
-            onPageChange={handlePageChange}
-            onSelectionChange={(newSelection) => {
-              setCurrentRow(newSelection.rowIds);
+            onSelectionChange={(select) => {
+              setRow(select.rowIds);
             }}
+            paginationMode="server"
+            rowCount={pagination.total}
+            pageSize={pagination.perPage}
           />
         </div>
       </div>
@@ -77,13 +65,7 @@ const CpuDataGrid = (props) => {
   );
 };
 
-CpuDataGrid.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  prevPage: PropTypes.bool.isRequired,
-  nextPage: PropTypes.bool.isRequired,
-  setCurrent: PropTypes.func.isRequired,
-  clickEdit: PropTypes.func.isRequired,
-  clickDelete: PropTypes.func.isRequired,
+CpusTable.propTypes = {
   cpus: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
@@ -98,6 +80,18 @@ CpuDataGrid.propTypes = {
     numPages: PropTypes.number,
     perPage: PropTypes.number,
   }).isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  getCpus: PropTypes.func.isRequired,
+  setCurrent: PropTypes.func.isRequired,
 };
 
-export default CpuDataGrid;
+const mapStateToProps = (state) => ({
+  cpus: state.cpu.cpus,
+  isLoading: state.cpu.isLoading,
+  pagination: state.cpu.pagination,
+});
+
+export default connect(mapStateToProps, {
+  getCpus: getCpusData,
+  setCurrent: setCurrentCpu,
+})(CpusTable);

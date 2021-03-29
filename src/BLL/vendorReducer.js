@@ -6,7 +6,7 @@ const SET_VENDORS_ALL = "SET_VENDORS_ALL";
 const SET_CURRENT_VENDOR = "SET_CURRENT_VENDOR";
 const SET_ERROR_VENDOR = "SET_ERROR_VENDOR";
 const SET_SEARCH_FIELD = "SET_SEARCH_FIELD";
-const SET_MESSAGE = "SET_MESSAGE";
+const SET_VENDOR_MESSAGE = "SET_VENDOR_MESSAGE";
 
 const initialState = {
   vendors: [],
@@ -58,7 +58,7 @@ const vendorReducer = (state = initialState, action) => {
         searchField: action.text,
       };
     }
-    case SET_MESSAGE: {
+    case SET_VENDOR_MESSAGE: {
       return {
         ...state,
         backEndMessage: action.message,
@@ -72,7 +72,7 @@ const vendorReducer = (state = initialState, action) => {
 // AS
 
 export const setBackEndMessage = (message) => {
-  return { type: SET_MESSAGE, message };
+  return { type: SET_VENDOR_MESSAGE, message };
 };
 
 export const toggleIsLoading = (isLoading) => {
@@ -129,6 +129,26 @@ export const getVendorsData = (page) => async (dispatch) => {
   }
 };
 
+export const getVendorAllData = () => async (dispatch) => {
+  dispatch(toggleIsLoading(true));
+  const res = await vendorAPI.allToScroll();
+  if (res.data.status) {
+    const newRows = res.data.result.map((e) => {
+      const row = {};
+      row.id = e.id_vendor;
+      row.label = e.name;
+      return row;
+    });
+    // const finalRes = mapsFields(res.data.result);
+    await dispatch(setVendorsAllData(newRows));
+    dispatch(toggleIsLoading(false));
+  } else {
+    dispatch(setError(res.data.errorCode));
+    dispatch(setBackEndMessage(res.data.message));
+    dispatch(toggleIsLoading(false));
+  }
+};
+
 export const getSearchData = (text) => (dispatch) => {
   if (text.length > 3) {
     dispatch(toggleIsLoading(true));
@@ -148,16 +168,6 @@ export const getSearchData = (text) => (dispatch) => {
     dispatch(getVendorsData());
     dispatch(changeSearch(text));
   }
-};
-
-export const getVendorAllData = () => (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  vendorAPI.allToScroll().then((res) => {
-    if (res.data.status) {
-      dispatch(toggleIsLoading(false));
-      dispatch(setVendorsAllData(res.data.vendors));
-    }
-  });
 };
 
 export const deleteVendorData = (deleteVendor) => (dispatch) => {

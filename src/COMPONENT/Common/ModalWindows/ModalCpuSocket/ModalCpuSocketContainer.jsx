@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 // import s from './ModalCpu.module.css';
 import { setError } from "../../../../BLL/cpuReducer";
 import { setCpuSoketVisibility } from "../../../../BLL/modalWindowReducer";
-import CpuSocketReduxForm from "../../../CpuSocketType/CpuSocketForm";
+import CpuSocketReduxForm from "../../../CpuSocket/CpuSocketForm";
 import { addSocketCpuData } from "../../../../BLL/typeSocketCpuReducer";
 import Modal from "../Modal";
 

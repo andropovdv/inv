@@ -1,20 +1,28 @@
-import React from "react";
-import { PropTypes } from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
 import {
-  Grid,
-  Paper,
-  Typography,
   Button,
-  TextField,
-  InputAdornment,
+  Grid,
   IconButton,
+  InputAdornment,
+  Paper,
+  TextField,
+  Typography,
+  Snackbar,
 } from "@material-ui/core";
-
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import React from "react";
+import Alert from "@material-ui/lab/Alert";
+import { makeStyles } from "@material-ui/core/styles";
 import CancelIcon from "@material-ui/icons/Cancel";
-import CpuDataGrid from "./CpuDataGrid";
-import CpuDialogForm from "./CpuDialog";
+import { connect } from "react-redux";
+import { PropTypes } from "prop-types";
+import CpusTable from "./CpusTable";
+import CpuDialog from "./CpuDialog";
+import { setCpuVisibility } from "../../BLL/modalWindowReducer";
+import {
+  addCpusData,
+  setCurrentCpu,
+  setError,
+  setBackEndMessage,
+} from "../../BLL/cpuReducer";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -24,59 +32,67 @@ const useStyles = makeStyles((theme) => ({
   buttonArea: {
     marginRight: theme.spacing(2),
   },
+  root: {
+    width: "100%",
+    "& > * + *": {
+      marginTop: theme.spacing(2),
+    },
+  },
 }));
 
 const CpusUI = (props) => {
   const {
-    onSearch,
-    searchField,
-    onClear,
-    cpus,
-    isLoading,
-    pagination,
-    prevPage,
-    nextPage,
+    current,
+    setVisibilityCpu,
     setCurrent,
-    currentCpu,
-    cpuVisibility,
-    createDialog,
-    closeModal,
+    addCpu,
+    errorMessage,
+    setErrorCode,
+    setErrorMessage,
   } = props;
-
-  const [onDelete, setOnDelete] = React.useState(false);
-  const [header, setHeader] = React.useState("");
-  const [action, setAction] = React.useState(false);
-
   const classes = useStyles();
 
-  const clickAdd = () => {
-    setOnDelete(false);
-    setHeader("Добавление производителя:");
-    setAction(false);
-    createDialog(true); // добавление -- редактирование
+  const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (errorMessage.length > 0) {
+      setOpen(true);
+    }
+  }, [errorMessage]);
+
+  // TODO непонятноб как лучше управлять видимостью окон,
+  // через redux или LocalState
+  const handleClick = () => {
+    setCurrent(null, null, null, null);
+    setVisibilityCpu(true);
   };
 
-  const clickEdit = () => {
-    setOnDelete(false);
-    setHeader("Редактирование производителя:");
-    setAction(true);
-    createDialog(false);
-  };
-
-  const clickDelete = () => {
-    setOnDelete(true);
-    createDialog(false);
+  const handleClose = (reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setErrorCode(null);
+    setErrorMessage("");
+    setOpen(false);
   };
 
   return (
     <>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "left" }}
+      >
+        <Alert onClose={handleClose} severity="warning">
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
-            <Typography variant="h6" align="justify">
-              Справочники
-              <ArrowForwardIosIcon fontSize="small" />
-              Процессоры
+            <Typography variant="h6" align="left">
+              Справочники:/ Процессоры
             </Typography>
           </Paper>
         </Grid>
@@ -93,21 +109,21 @@ const CpusUI = (props) => {
                   color="primary"
                   variant="contained"
                   className={classes.buttonArea}
-                  onClick={clickAdd}
+                  onClick={handleClick}
                 >
                   Добавить
                 </Button>
                 <TextField
                   size="small"
                   variant="outlined"
-                  //   className={classes.buttonArea}
+                  className={classes.buttonArea}
                   label="Search"
-                  onChange={onSearch}
-                  value={searchField}
+                  // onChange={}
+                  // value={}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment>
-                        <IconButton onClick={onClear}>
+                        <IconButton>
                           <CancelIcon />
                         </IconButton>
                       </InputAdornment>
@@ -117,73 +133,47 @@ const CpusUI = (props) => {
               </Grid>
             </Grid>
           </Paper>
-          <CpuDataGrid
-            cpus={cpus}
-            isLoading={isLoading}
-            pagination={pagination}
-            prevPage={prevPage}
-            nextPage={nextPage}
-            setCurrent={setCurrent}
-            clickDelete={clickDelete}
-            clickEdit={clickEdit}
-          />
+          <CpusTable />
+          <CpuDialog operation={addCpu} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
-            <Typography variant="h6">Информация</Typography>
-            <Typography align="left">
-              {typeof currentCpu.id !== "undefined" ? (
-                <>
-                  Разъем процессора:
-                  {currentCpu.socketCpu}
-                </>
-              ) : null}
+            <Typography variant="h6" align="left" component="span">
+              Информация:
+              {current.name}
             </Typography>
           </Paper>
         </Grid>
       </Grid>
-      <CpuDialogForm
-        open={cpuVisibility}
-        onDelete={onDelete}
-        header={header}
-        onClose={closeModal}
-        onSubmit={action}
-      />
     </>
   );
 };
 
 CpusUI.propTypes = {
-  onSearch: PropTypes.func.isRequired,
-  searchField: PropTypes.func.isRequired,
-  onClear: PropTypes.func.isRequired,
-  prevPage: PropTypes.func.isRequired,
-  nextPage: PropTypes.func.isRequired,
-  setCurrent: PropTypes.func.isRequired,
-  createDialog: PropTypes.func.isRequired,
-  closeModal: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool.isRequired,
-  cpuVisibility: PropTypes.bool.isRequired,
-  cpus: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      model: PropTypes.string,
-      socketCpu: PropTypes.string,
-    })
-  ).isRequired,
-  pagination: PropTypes.shape({
-    total: PropTypes.number,
-    current: PropTypes.number,
-    numPages: PropTypes.number,
-    perPage: PropTypes.number,
-  }).isRequired,
-  currentCpu: PropTypes.shape({
+  current: PropTypes.shape({
     id: PropTypes.number,
     name: PropTypes.string,
     model: PropTypes.string,
     socketCpu: PropTypes.string,
   }).isRequired,
+  setVisibilityCpu: PropTypes.func.isRequired,
+  setCurrent: PropTypes.func.isRequired,
+  addCpu: PropTypes.func.isRequired,
+  errorMessage: PropTypes.string.isRequired,
+  setErrorCode: PropTypes.func.isRequired,
+  setErrorMessage: PropTypes.func.isRequired,
 };
 
-export default CpusUI;
+const mapStateToProps = (state) => ({
+  current: state.cpu.currentCpu,
+  visibilityCpu: state.modalWindow.cpuVisibility,
+  errorMessage: state.cpu.backEndMessage,
+});
+
+export default connect(mapStateToProps, {
+  setVisibilityCpu: setCpuVisibility,
+  setCurrent: setCurrentCpu,
+  addCpu: addCpusData,
+  setErrorCode: setError,
+  setErrorMessage: setBackEndMessage,
+})(CpusUI);

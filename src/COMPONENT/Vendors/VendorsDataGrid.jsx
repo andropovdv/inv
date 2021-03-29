@@ -5,16 +5,19 @@ import { IconButton } from "@material-ui/core";
 
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import { connect } from "react-redux";
+import { setCurrentVendor } from "../../BLL/vendorReducer";
 
 const VendorsDataGrid = (props) => {
   const {
+    isLoading,
+
     prevPage,
     nextPage,
     setCurrent,
     clickDelete,
     clickEdit,
     vendors,
-    isLoading,
     pagination,
   } = props;
   const columns = [
@@ -66,13 +69,12 @@ const VendorsDataGrid = (props) => {
             loading={isLoading}
             density="compact"
             onSelectionChange={(newSelection) => {
-              // alert(newSelection.rowIds);
               setCurrentRow(newSelection.rowIds);
             }}
             paginationMode="server"
             onPageChange={handlePageChange}
             rowCount={pagination.total}
-            pageSize={10}
+            pageSize={pagination.perPage}
           />
         </div>
       </div>
@@ -103,4 +105,12 @@ VendorsDataGrid.propTypes = {
   }).isRequired,
 };
 
-export default VendorsDataGrid;
+const mapStateToProps = (state) => ({
+  isLoading: state.vendor.isLoading,
+  vendors: state.vendor.vendors,
+  pagination: state.vendor.pagination,
+});
+
+export default connect(mapStateToProps, {
+  setCurrent: setCurrentVendor,
+})(VendorsDataGrid);

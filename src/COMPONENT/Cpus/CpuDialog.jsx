@@ -1,57 +1,153 @@
-import React from "react";
-import { PropTypes } from "prop-types";
+/* eslint-disable react/jsx-wrap-multilines */
 import {
-  Container,
+  Button,
+  Box,
   Dialog,
   DialogActions,
-  DialogTitle,
-  Button,
   DialogContent,
+  DialogTitle,
+  TextField,
+  IconButton,
 } from "@material-ui/core";
+import { useForm, Controller } from "react-hook-form";
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import { PropTypes } from "prop-types";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import { connect } from "react-redux";
+import VendorSM from "../Common/Scroll/VendorSM";
+import { setCpuVisibility } from "../../BLL/modalWindowReducer";
+import CpuSocketSM from "../Common/Scroll/CpuSocketSM";
+import { setError, setBackEndMessage } from "../../BLL/cpuReducer";
 
-const CpuDialogForm = (props) => {
-  const { open, onDelete, header, onClose } = props;
+const useStyles = makeStyles((theme) => ({
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    margin: "auto",
+    width: "fit-content",
+  },
+  formControl: {
+    minWidth: 320,
+    margin: theme.spacing(1),
+  },
+  title: {
+    flexGrow: 1,
+  },
+  bottonArea: {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: theme.spacing(1),
+  },
+}));
 
-  const close = (e) => {
-    e.preventDefault();
-    onClose();
+const CpuDialog = (props) => {
+  const classes = useStyles();
+  const {
+    setVisibilityCpu,
+    visibility,
+    current,
+    operation,
+    setErrorCode,
+    setErrorMessage,
+  } = props;
+
+  const { handleSubmit, reset, control, errors } = useForm();
+
+  const onClose = () => {
+    setErrorCode(null);
+    setErrorMessage("");
+    setVisibilityCpu(false);
   };
+
+  const onSubmit = async (data) => {
+    await operation(data);
+    setVisibilityCpu(false);
+  };
+
   return (
-    <Container>
-      {onDelete ? (
-        <Dialog open={open} onClose={close} modal="true">
-          <DialogTitle>Удаление</DialogTitle>
-          <DialogActions>
-            <Button color="primary" onClick={onClose}>
-              Отмена
-            </Button>
-            <Button color="secondary">Удалить</Button>
-          </DialogActions>
-        </Dialog>
-      ) : (
-        <Dialog open={open} onClose={onClose} modal="true">
-          <DialogTitle>{header}</DialogTitle>
-          <DialogContent>coming soon Final Form</DialogContent>
-          <DialogActions>
-            <Button type="button" onClick={onClose} color="primary">
-              Cancel
-            </Button>
-            <Button type="submit" color="primary">
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
-      ;
-    </Container>
+    <Dialog open={visibility} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Добавить процессор</DialogTitle>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogContent>
+          <Box display="flex" alignItems="center">
+            <Box flexGrow={1}>
+              <VendorSM control={control} />
+            </Box>
+            <Box>
+              <IconButton className={classes.butonArea}>
+                <AddCircleIcon color="primary" />
+              </IconButton>
+            </Box>
+          </Box>
+          <Controller
+            as={
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="model"
+                margin="dense"
+                label="Model"
+                error={!!errors.model}
+              />
+            }
+            name="model"
+            control={control}
+            rules={{ required: true }}
+            defaultValue={current.model || ""}
+          />
+          <Box display="flex" alignItems="center">
+            <Box flexGrow={1}>
+              <CpuSocketSM control={control} />
+            </Box>
+            <Box>
+              <IconButton className={classes.butonArea}>
+                <AddCircleIcon color="primary" />
+              </IconButton>
+            </Box>
+          </Box>
+          {errors.model && "Model is required"}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            type="reset"
+            color="primary"
+            onClick={() => {
+              reset({ model: "", vendor: "" });
+              setVisibilityCpu(false);
+            }}
+          >
+            Close
+          </Button>
+          <Button type="submit">Submit</Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 
-CpuDialogForm.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onDelete: PropTypes.bool.isRequired,
-  header: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
+CpuDialog.propTypes = {
+  setVisibilityCpu: PropTypes.func.isRequired,
+  operation: PropTypes.func.isRequired,
+  visibility: PropTypes.bool.isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    model: PropTypes.string,
+    url: PropTypes.string,
+  }).isRequired,
+  setErrorCode: PropTypes.func.isRequired,
+  setErrorMessage: PropTypes.func.isRequired,
 };
 
-export default CpuDialogForm;
+const mapStateToProps = (state) => ({
+  visibility: state.modalWindow.cpuVisibility,
+  current: state.cpu.currentCpu,
+});
+
+export default connect(mapStateToProps, {
+  setVisibilityCpu: setCpuVisibility,
+  setErrorCode: setError,
+  setErrorMessage: setBackEndMessage,
+})(CpuDialog);

@@ -6,7 +6,6 @@ import {
   getVendorsData,
   setCurrentVendor,
   updateVendorData,
-  deleteVendorData,
   addVendorData,
   setError,
   changeSearch,
@@ -96,10 +95,7 @@ class VendorsContainer extends React.Component {
 
   render() {
     const {
-      vendors,
       currentVendor,
-      isLoading,
-      pagination,
       errorCode,
       searchField,
       setCurrent,
@@ -109,21 +105,17 @@ class VendorsContainer extends React.Component {
     return (
       <div>
         <VendorUI
-          vendors={vendors}
           currentVendor={currentVendor}
-          isLoading={isLoading}
-          pagination={pagination}
           errorCode={errorCode}
           searchField={searchField}
-          prevPage={this.prevPage}
-          nextPage={this.nextPage}
+          prevPage={this.prevPage} // DataGrid
+          nextPage={this.nextPage} // DataGrid
           createDialog={this.createDialog}
-          updateVendor={this.updateVendor}
+          updateVendor={this.updateVendor} // DataGrid
           addVendor={this.addVendor}
-          deleteVendor={this.deleteVendor}
           onClear={this.onClear}
           onSearch={this.onSearch}
-          closeModal={this.closeModal}
+          closeModal={this.closeModal} // Dialog
           resetError={this.resetError}
           setCurrent={setCurrent}
           vendorVisibility={vendorVisibility}
@@ -158,15 +150,6 @@ VendorsContainer.propTypes = {
   getSearch: PropTypes.func.isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
-  vendors: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      full: PropTypes.string,
-      url: PropTypes.string,
-    })
-  ).isRequired,
-  isLoading: PropTypes.bool.isRequired,
   searchField: PropTypes.string.isRequired,
   vendorVisibility: PropTypes.bool.isRequired,
   errorMessage: PropTypes.string.isRequired,
@@ -176,7 +159,7 @@ VendorsContainer.defaultProps = {
   errorCode: null,
 };
 
-const mapsStateToProps = (state) => ({
+const mapStateToProps = (state) => ({
   vendors: state.vendor.vendors, //
   currentVendor: state.vendor.currentVendor, //
   isLoading: state.vendor.isLoading, //
@@ -187,11 +170,11 @@ const mapsStateToProps = (state) => ({
   errorMessage: state.vendor.backEndMessage,
 });
 
-export default connect(mapsStateToProps, {
+export default connect(mapStateToProps, {
   getVendors: getVendorsData,
   setCurrent: setCurrentVendor,
   updateVendor: updateVendorData,
-  deleteVendor: deleteVendorData,
+  // deleteVendor: deleteVendorData,
   addVen: addVendorData,
   setErrorCode: setError,
   visibility: setVendorVisibility,

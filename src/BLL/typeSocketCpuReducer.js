@@ -5,6 +5,7 @@ const SET_ALL_TYPE_CPU_SOKET = "SET_ALL_TYPE_CPU_SOKET";
 const TYPE_CPU_SOCKET_IS_LOADING = "TYPE_CPU_SOCKET_IS_LOADING";
 const SET_CURRENT_TYPE_CPU_SOCKET = "SET_CURREN_TYPE_CPU_SOCKET";
 const SET_ERROR_TYPE_CPU_SOCKET = "SET_ERROR_TYPE_CPU_SOCKET";
+const SET_SOCKETCPU_MESSAGE = "SET_SOCKETCPU_MESSAGE";
 
 const initialState = {
   cpuSockets: [],
@@ -12,7 +13,8 @@ const initialState = {
   pagination: {},
   currentType: {},
   isLoading: true,
-  errorCode: 0,
+  errorCode: null,
+  backEndMessage: "",
 };
 
 const typeSocketCpuReducer = (state = initialState, action) => {
@@ -48,12 +50,22 @@ const typeSocketCpuReducer = (state = initialState, action) => {
         cpuSocketsAll: [...action.socketCpu],
       };
     }
+    case SET_SOCKETCPU_MESSAGE: {
+      return {
+        ...state,
+        backEndMessage: action.message,
+      };
+    }
     default:
       return state;
   }
 };
 
 // AC
+
+export const setBackEndMessage = (message) => {
+  return { type: SET_SOCKETCPU_MESSAGE, message };
+};
 
 export const toggleIsLoading = (isLoading) => {
   return { type: TYPE_CPU_SOCKET_IS_LOADING, isLoading };
@@ -77,55 +89,118 @@ export const setError = (code) => {
 
 // THUNK
 
-export const getSocketCpuData = (page) => (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  typeSocketCpuAPI.all(page).then((res) => {
-    dispatch(toggleIsLoading(false));
-    dispatch(setSocketCpuData(res.data.typeSoketCpus, res.data.pagination));
+const mapsFields = (resApi) => {
+  const newRows = resApi.map((e) => {
+    const row = {};
+    row.id = e.id_typeSocketCpu;
+    row.socketCpu = e.name_typeSocketCpu;
+    return row;
   });
+  return newRows;
 };
 
-export const getAllSocketCpuData = () => (dispatch) => {
+export const getSocketCpuData = (page) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  typeSocketCpuAPI.allToScroll().then((res) => {
+  const res = await typeSocketCpuAPI.all(page);
+  try {
     if (res.data.status) {
+      const finalRes = mapsFields(res.data.result);
+      dispatch(setSocketCpuData(finalRes, res.data.pagination));
       dispatch(toggleIsLoading(false));
-      dispatch(setAllSocketCpuData(res.data.typeSocketCpus));
+    } else {
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoading(false));
     }
-  });
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoading(false));
+  }
 };
 
-export const updateSocketCpuData = (updateTypeSocket) => (dispatch) => {
+export const getAllSocketCpuData = () => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  typeSocketCpuAPI.update(updateTypeSocket).then((res) => {
+  const res = await typeSocketCpuAPI.allToScroll();
+  if (res.data.status) {
+    const newRows = res.data.result.map((e) => {
+      const row = {};
+      row.id = e.id_typeSocketCpu;
+      row.label = e.name_typeSocketCpu;
+      return row;
+    });
+    await dispatch(setAllSocketCpuData(newRows));
     dispatch(toggleIsLoading(false));
+  } else {
+    dispatch(setError(res.data.errorCode));
+    dispatch(setBackEndMessage(res.data.message));
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const addSocketCpuData = (socket) => async (dispatch) => {
+  const newObj = {
+    name_typeSocketCpu: socket.socketCpu,
+  };
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await typeSocketCpuAPI.add(newObj);
     if (res.data.status) {
       dispatch(getSocketCpuData());
+      dispatch(toggleIsLoading(false));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoading(false));
     }
-  });
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoading(false));
+  }
 };
 
-export const addSocketCpuData = (addTypeSocket) => (dispatch) => {
+export const updateSocketCpuData = (socket) => async (dispatch) => {
+  const newObj = {
+    id_typeSocketCpu: socket.id,
+    name_typeSocketCpu: socket.socketCpu,
+  };
   dispatch(toggleIsLoading(true));
-  typeSocketCpuAPI.add(addTypeSocket).then((res) => {
+  try {
+    const res = await typeSocketCpuAPI.update(newObj);
     if (res.data.status) {
       dispatch(getSocketCpuData());
       dispatch(getAllSocketCpuData());
+      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoading(false));
     }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
     dispatch(toggleIsLoading(false));
-  });
+  }
 };
 
-export const deleteSoketCpuData = (id) => (dispatch) => {
+export const deleteSoketCpuData = (id) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  typeSocketCpuAPI.delete(id).then((res) => {
-    dispatch(toggleIsLoading(false));
+  try {
+    const res = await typeSocketCpuAPI.delete(id);
     if (res.data.status) {
       dispatch(getSocketCpuData());
+      dispatch(toggleIsLoading(false));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoading(false));
     }
-  });
+  } catch (e) {
+    console.info(e);
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoading(false));
+  }
 };
 
 export default typeSocketCpuReducer;

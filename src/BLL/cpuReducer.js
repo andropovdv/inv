@@ -5,13 +5,15 @@ const SET_CPUS = "SET_CPUS";
 const CPUS_IS_LOADIND = "CPUS_IS_LOADIND";
 const SET_CURRENT_CPU = "SET_CURRENT_CPU";
 const SET_ERROR_CPU = "SET_ERROR_CPU";
+const SET_CPU_MESSAGE = "SET_CPU_MESSAGE";
 
 const initialState = {
   cpus: [],
   pagination: {},
   currentCpu: {},
   isLoading: true,
-  errorCode: 0,
+  errorCode: null,
+  backEndMessage: "",
 };
 
 const cpuReducer = (state = initialState, action) => {
@@ -41,6 +43,12 @@ const cpuReducer = (state = initialState, action) => {
         errorCode: action.code,
       };
     }
+    case SET_CPU_MESSAGE: {
+      return {
+        ...state,
+        backEndMessage: action.message,
+      };
+    }
     default:
       return state;
   }
@@ -63,6 +71,9 @@ export const setError = (code) => {
   return { type: SET_ERROR_CPU, code };
 };
 
+export const setBackEndMessage = (message) => {
+  return { type: SET_CPU_MESSAGE, message };
+};
 // THUNK
 
 export const mapsFields = (resApi) => {
@@ -77,14 +88,17 @@ export const mapsFields = (resApi) => {
   return newRows;
 };
 
-export const getCpusData = (page) => (dispatch) => {
-  // FIXME сделать проверку ответа сервера
+export const getCpusData = (page) => async (dispatch) => {
   dispatch(toggleIsLoadind(true));
-  cpuAPI.all(page).then((res) => {
+  const res = await cpuAPI.all(page);
+  if (res.data.status) {
     const finalRes = mapsFields(res.data.result);
     dispatch(setCpusData(finalRes, res.data.pagination));
-  });
-  dispatch(toggleIsLoadind(false));
+    dispatch(toggleIsLoadind(false));
+  } else {
+    dispatch(setBackEndMessage(res.data.message));
+    dispatch(toggleIsLoadind(false));
+  }
 };
 
 export const updateCpusData = (cpu) => (dispatch) => {
@@ -102,17 +116,28 @@ export const deleteCpusData = (id_cpu) => (dispatch) => {
   });
 };
 
-export const addCpusData = (cpu) => (dispatch) => {
+export const addCpusData = (cpu) => async (dispatch) => {
+  const newObj = {
+    vendor: cpu.vendor,
+    model: cpu.model,
+    name_typeSocketCpu: cpu.socket,
+  };
   dispatch(toggleIsLoadind(true));
-  dispatch(setError(0));
-  cpuAPI.add(cpu).then((res) => {
+  try {
+    const res = await cpuAPI.add(newObj);
     if (res.data.status) {
       dispatch(getCpusData());
+      dispatch(toggleIsLoadind)(false);
     } else {
       dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoadind(false));
     }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
     dispatch(toggleIsLoadind(false));
-  });
+  }
 };
 
 export default cpuReducer;
