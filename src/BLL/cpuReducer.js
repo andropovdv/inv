@@ -6,6 +6,7 @@ const CPUS_IS_LOADIND = "CPUS_IS_LOADIND";
 const SET_CURRENT_CPU = "SET_CURRENT_CPU";
 const SET_ERROR_CPU = "SET_ERROR_CPU";
 const SET_CPU_MESSAGE = "SET_CPU_MESSAGE";
+const SEARCH_CPU = "SEARCH_CPU";
 
 const initialState = {
   cpus: [],
@@ -14,6 +15,7 @@ const initialState = {
   isLoading: true,
   errorCode: null,
   backEndMessage: "",
+  searchField: "",
 };
 
 const cpuReducer = (state = initialState, action) => {
@@ -49,11 +51,21 @@ const cpuReducer = (state = initialState, action) => {
         backEndMessage: action.message,
       };
     }
+    case SEARCH_CPU: {
+      return {
+        ...state,
+        searchField: action.text,
+      };
+    }
     default:
       return state;
   }
 };
 // AC
+
+export const changeSearch = (text) => {
+  return { type: SEARCH_CPU, text };
+};
 
 export const setCurrentCpu = (currentCpu) => {
   return { type: SET_CURRENT_CPU, currentCpu };
@@ -101,16 +113,49 @@ export const getCpusData = (page) => async (dispatch) => {
   }
 };
 
-export const updateCpusData = (cpu) => (dispatch) => {
-  cpuAPI.update(cpu).then((res) => {
+export const updateCpusData = (cpu) => async (dispatch) => {
+  const newObj = {
+    vendor: cpu.name,
+    model: cpu.model,
+    name_typeSocketCpu: cpu.socketCpu,
+    id_cpu: cpu.id,
+  };
+  dispatch(toggleIsLoadind(true));
+  try {
+    const res = await cpuAPI.update(newObj);
     if (res.data.status) {
       dispatch(getCpusData());
       dispatch(setCurrentCpu(cpu));
+      dispatch(toggleIsLoadind(false));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoadind(false));
     }
-  });
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoadind(false));
+  }
 };
 
-export const deleteCpusData = (id_cpu) => (dispatch) => {
+export const deleteCpusData = (id_cpu) => async (dispatch) => {
+  dispatch(toggleIsLoadind(true));
+  try {
+    const res = await cpuAPI.delete(id_cpu);
+    if (res.data.status) {
+      dispatch(getCpusData());
+      dispatch(toggleIsLoadind(false));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoadind(false));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoadind(false));
+  }
   cpuAPI.delete(id_cpu).then(() => {
     dispatch(getCpusData());
   });
@@ -137,6 +182,32 @@ export const addCpusData = (cpu) => async (dispatch) => {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
     dispatch(toggleIsLoadind(false));
+  }
+};
+
+export const getSearchCpu = (text, page) => async (dispatch) => {
+  if (text.length >= 3) {
+    dispatch(toggleIsLoadind(true));
+    try {
+      const res = await cpuAPI.all(page, text);
+      if (res.data.status) {
+        const finalRes = mapsFields(res.data.result);
+        dispatch(setCpusData(finalRes, res.data.pagination));
+        dispatch(changeSearch(text));
+        dispatch(toggleIsLoadind(false));
+      } else {
+        dispatch(setError(res.data.errorCode));
+        dispatch(setBackEndMessage(res.data.message));
+        dispatch(toggleIsLoadind(false));
+      }
+    } catch (e) {
+      dispatch(setError(500));
+      dispatch(setBackEndMessage(e.message));
+      dispatch(toggleIsLoadind(false));
+    }
+  } else {
+    dispatch(changeSearch(text));
+    dispatch(getCpusData());
   }
 };
 

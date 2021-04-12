@@ -1,31 +1,36 @@
+/* eslint-disable no-debugger */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-wrap-multilines */
 import React from "react";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
 import { Controller } from "react-hook-form";
-import { MenuItem, Select } from "@material-ui/core";
+import { CircularProgress, MenuItem, Select } from "@material-ui/core";
 import { getAllSocketCpuData } from "../../../BLL/typeSocketCpuReducer";
 
 const CpuSocketSM = (props) => {
-  const { isLoading, cpuSocketsAll, getSocketCpu, control } = props;
+  const { isLoading, getSocketAllCpu, cpuSocketsAll, control, current } = props;
 
   React.useEffect(() => {
-    getSocketCpu();
+    getSocketAllCpu();
   }, []);
 
   return (
     <>
-      {isLoading ? (
-        <p>Loading</p>
+      {cpuSocketsAll.length === 0 ? (
+        <CircularProgress color="inherit" size={20} />
       ) : (
         <Controller
           as={
             <Select
+              displayEmpty
+              id="socketCpu"
               disabled={isLoading}
               fullWidth
               variant="outlined"
               margin="dense"
+              // defaultValue={value}
+              defaultValue={current.socketCpu || cpuSocketsAll[0].label}
             >
               {cpuSocketsAll.map((e) => (
                 <MenuItem key={e.id} value={e.label}>
@@ -36,7 +41,8 @@ const CpuSocketSM = (props) => {
           }
           name="socket"
           control={control}
-          defaultValue={cpuSocketsAll[0].label} // FIXME поправить
+          // defaultValue={value}
+          defaultValue={current.socketCpu || cpuSocketsAll[0].label}
         />
       )}
     </>
@@ -51,14 +57,21 @@ CpuSocketSM.propTypes = {
     })
   ).isRequired,
   isLoading: PropTypes.bool.isRequired,
-  getSocketCpu: PropTypes.func.isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    model: PropTypes.string,
+    socketCpu: PropTypes.string,
+  }).isRequired,
+  getSocketAllCpu: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   cpuSocketsAll: state.typeCpuSocket.cpuSocketsAll,
   isLoading: state.typeCpuSocket.isLoading,
+  current: state.cpu.currentCpu,
 });
 
-export default connect(mapStateToProps, { getSocketCpu: getAllSocketCpuData })(
-  CpuSocketSM
-);
+export default connect(mapStateToProps, {
+  getSocketAllCpu: getAllSocketCpuData,
+})(CpuSocketSM);

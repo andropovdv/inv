@@ -8,8 +8,8 @@ const SET_VISIBILITY_CPU = "SET_VISIBILITY_CPU";
 
 const initialState = {
   cpuSocketVisibility: { type: null, header: null, visibility: false },
-  vendorVisibility: false,
-  cpuVisibility: false,
+  vendorVisibility: null,
+  cpuVisibility: { type: null, header: null, visibility: false },
   typeOfRamVisibility: false,
   typeOfGraphSlotVisibility: false,
   formFactorVisibility: false,
@@ -27,7 +27,7 @@ const modalWindowReducer = (state = initialState, action) => {
     case SET_VISIBILITY_CPU: {
       return {
         ...state,
-        cpuVisibility: action.visibility,
+        cpuVisibility: { ...action.modal },
       };
     }
     case SET_VISIBILITY_FORM_FACTOR: {
@@ -89,7 +89,7 @@ export const setFormFactorVisinility = (visibility) => {
   return { type: SET_VISIBILITY_FORM_FACTOR, visibility };
 };
 
-export const setCpuVisibility = (visibility) => {
-  return { type: SET_VISIBILITY_CPU, visibility };
+export const setCpuVisibility = (modal) => {
+  return { type: SET_VISIBILITY_CPU, modal };
 };
 export default modalWindowReducer;

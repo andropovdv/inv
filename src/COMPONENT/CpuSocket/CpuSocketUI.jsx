@@ -22,6 +22,9 @@ import {
   setError,
   setBackEndMessage,
   setCurrentSocketCpu,
+  getSearchSocketCpu,
+  getSocketCpuData,
+  changeSearch,
 } from "../../BLL/typeSocketCpuReducer";
 import CpuSocketDialog from "./CpuSocketDialog";
 
@@ -49,12 +52,17 @@ const CpuSocketUI = (props) => {
     setErrorMessage,
     setCurrent,
     current,
+    searchField,
+    getSearch,
+    getSocket,
+    clearSearch,
+    isLoading,
   } = props;
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    if (errorMessage.length > 0) {
+    if (errorMessage && errorMessage.length > 0) {
       setOpen(true);
     }
   }, [errorMessage]);
@@ -73,8 +81,18 @@ const CpuSocketUI = (props) => {
     setOpen(false);
   };
 
+  const onClear = () => {
+    getSocket();
+    clearSearch("");
+  };
+
+  const onSearch = (e) => {
+    getSearch(e.target.value);
+  };
+
   return (
     <>
+      <CpuSocketDialog current={current.socketCpu || ""} />
       <Snackbar
         open={open}
         autoHideDuration={6000}
@@ -105,13 +123,15 @@ const CpuSocketUI = (props) => {
                 Добавить
               </Button>
               <TextField
+                onChange={onSearch}
+                value={searchField}
                 size="small"
                 variant="outlined"
                 label="Search"
                 InputProps={{
                   endAdornment: (
                     <InputAdornment>
-                      <IconButton>
+                      <IconButton onClick={onClear}>
                         <CancelIcon />
                       </IconButton>
                     </InputAdornment>
@@ -121,7 +141,6 @@ const CpuSocketUI = (props) => {
             </Box>
           </Paper>
           <CpuSocketTable />
-          <CpuSocketDialog current={current.socketCpu || ""} />
         </Grid>
       </Grid>
     </>
@@ -129,11 +148,16 @@ const CpuSocketUI = (props) => {
 };
 
 CpuSocketUI.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  searchField: PropTypes.string.isRequired,
   errorMessage: PropTypes.string.isRequired,
   setVisibility: PropTypes.func.isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
+  getSearch: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
+  getSocket: PropTypes.func.isRequired,
+  clearSearch: PropTypes.func.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
     socketCpu: PropTypes.string,
@@ -143,6 +167,8 @@ CpuSocketUI.propTypes = {
 const mapStateToProps = (state) => ({
   errorMessage: state.typeCpuSocket.backEndMessage,
   current: state.typeCpuSocket.currentType,
+  searchField: state.typeCpuSocket.searchField,
+  isLoading: state.typeCpuSocket.isLoading,
 });
 
 export default connect(mapStateToProps, {
@@ -150,4 +176,7 @@ export default connect(mapStateToProps, {
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
   setCurrent: setCurrentSocketCpu,
+  getSearch: getSearchSocketCpu,
+  getSocket: getSocketCpuData,
+  clearSearch: changeSearch,
 })(CpuSocketUI);

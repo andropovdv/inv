@@ -7,6 +7,7 @@ import {
   TextField,
   Typography,
   Snackbar,
+  Box,
 } from "@material-ui/core";
 import React from "react";
 import Alert from "@material-ui/lab/Alert";
@@ -18,11 +19,14 @@ import CpusTable from "./CpusTable";
 import CpuDialog from "./CpuDialog";
 import { setCpuVisibility } from "../../BLL/modalWindowReducer";
 import {
-  addCpusData,
   setCurrentCpu,
   setError,
   setBackEndMessage,
+  getSearchCpu,
+  changeSearch,
+  getCpusData,
 } from "../../BLL/cpuReducer";
+import CpuSocketDialog from "../CpuSocket/CpuSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -38,6 +42,11 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(2),
     },
   },
+  dialog: {
+    position: "absolute",
+    left: 10,
+    top: 50,
+  },
 }));
 
 const CpusUI = (props) => {
@@ -45,17 +54,20 @@ const CpusUI = (props) => {
     current,
     setVisibilityCpu,
     setCurrent,
-    addCpu,
     errorMessage,
     setErrorCode,
     setErrorMessage,
+    getSearch,
+    searchField,
+    clearSearch,
+    getCpu,
   } = props;
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    if (errorMessage.length > 0) {
+    if (errorMessage && errorMessage.length > 0) {
       setOpen(true);
     }
   }, [errorMessage]);
@@ -64,7 +76,11 @@ const CpusUI = (props) => {
   // через redux или LocalState
   const handleClick = () => {
     setCurrent(null, null, null, null);
-    setVisibilityCpu(true);
+    setVisibilityCpu({
+      type: true,
+      header: "Добавить процессор",
+      visibility: true,
+    });
   };
 
   const handleClose = (reason) => {
@@ -74,6 +90,15 @@ const CpusUI = (props) => {
     setErrorCode(null);
     setErrorMessage("");
     setOpen(false);
+  };
+
+  const onSearch = (e) => {
+    getSearch(e.target.value);
+  };
+
+  const onClear = () => {
+    clearSearch("");
+    getCpu();
   };
 
   return (
@@ -98,50 +123,71 @@ const CpusUI = (props) => {
         </Grid>
         <Grid item xs={9}>
           <Paper className={classes.paper}>
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="stretch"
-            >
-              <Grid item>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  className={classes.buttonArea}
-                  onClick={handleClick}
-                >
-                  Добавить
-                </Button>
-                <TextField
-                  size="small"
-                  variant="outlined"
-                  className={classes.buttonArea}
-                  label="Search"
-                  // onChange={}
-                  // value={}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment>
-                        <IconButton>
-                          <CancelIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-            </Grid>
+            <Box display="flex" alignItems="center">
+              <Button
+                color="primary"
+                variant="contained"
+                className={classes.buttonArea}
+                onClick={handleClick}
+              >
+                Добавить
+              </Button>
+              <TextField
+                size="small"
+                variant="outlined"
+                className={classes.buttonArea}
+                label="Search"
+                onChange={onSearch}
+                value={searchField}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={onClear} edge="end">
+                        <CancelIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
           </Paper>
           <CpusTable />
-          <CpuDialog operation={addCpu} />
+          <CpuDialog />
+          <CpuSocketDialog current={current.socketCpu || ""} step={false} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
             <Typography variant="h6" align="left" component="span">
               Информация:
-              {current.name}
             </Typography>
+            {Object.keys(current).length !== 0 ? (
+              <Box direction="column">
+                <Box display="flex" direction="row">
+                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                    Производитель:
+                  </Box>
+                  <Box textOverflow="ellipsis" overflow="hidden">
+                    {current.name}
+                  </Box>
+                </Box>
+                <Box display="flex" direction="row">
+                  <Box flexGrow={1}>Модель:</Box>
+                  <Box>{current.model}</Box>
+                </Box>
+                <Box display="flex" direction="row">
+                  <Box flexGrow={1}>Частота:</Box>
+                  <Box>Доделать</Box>
+                </Box>
+                <Box display="flex" direction="row">
+                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                    Разъем процессора:
+                  </Box>
+                  <Box textOverflow="ellipsis" overflow="hidden">
+                    {current.socketCpu}
+                  </Box>
+                </Box>
+              </Box>
+            ) : null}
           </Paper>
         </Grid>
       </Grid>
@@ -158,22 +204,27 @@ CpusUI.propTypes = {
   }).isRequired,
   setVisibilityCpu: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
-  addCpu: PropTypes.func.isRequired,
   errorMessage: PropTypes.string.isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
+  getSearch: PropTypes.func.isRequired,
+  searchField: PropTypes.string.isRequired,
+  clearSearch: PropTypes.func.isRequired,
+  getCpu: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   current: state.cpu.currentCpu,
-  visibilityCpu: state.modalWindow.cpuVisibility,
   errorMessage: state.cpu.backEndMessage,
+  searchField: state.cpu.searchField,
 });
 
 export default connect(mapStateToProps, {
   setVisibilityCpu: setCpuVisibility,
   setCurrent: setCurrentCpu,
-  addCpu: addCpusData,
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
+  getSearch: getSearchCpu,
+  clearSearch: changeSearch,
+  getCpu: getCpusData,
 })(CpusUI);

@@ -11,6 +11,7 @@ import {
 } from "../../BLL/typeSocketCpuReducer";
 import { setCpuSoketVisibility } from "../../BLL/modalWindowReducer";
 import CpuSocketDelete from "./CpuSocketDelete";
+// import CpuSocketDialog from "./CpuSocketDialog";
 
 const CpuSocketTable = (props) => {
   const {
@@ -20,6 +21,8 @@ const CpuSocketTable = (props) => {
     pagination,
     isLoading,
     setVisibility,
+    // current,
+    searchField,
   } = props;
 
   React.useState(() => {
@@ -27,6 +30,16 @@ const CpuSocketTable = (props) => {
   }, []);
 
   const [open, setOpen] = React.useState(false);
+  const [page, setPage] = React.useState(1);
+
+  const handlePageChange = (params) => {
+    if (params.page > page) {
+      getSocketCpu(pagination.current + 1, searchField);
+    } else {
+      getSocketCpu(pagination.current - 1, searchField);
+    }
+    setPage(params.page);
+  };
 
   const clickDelete = () => {
     setOpen(true);
@@ -82,10 +95,12 @@ const CpuSocketTable = (props) => {
               setRow(select.rowIds);
             }}
             paginationMode="server"
-            rowCount={pagination.total}
+            onPageChange={handlePageChange}
+            rowCount={pagination.error ? 0 : pagination.total}
             pageSize={pagination.perPage}
           />
           <CpuSocketDelete open={open} onClose={onClose} />
+          {/* <CpuSocketDialog current={current.socketCpu || ""} /> */}
         </div>
       </div>
     </div>
@@ -104,17 +119,29 @@ CpuSocketTable.propTypes = {
     current: PropTypes.number,
     numPages: PropTypes.number,
     perPage: PropTypes.number,
+    error: PropTypes.string,
   }).isRequired,
   setCurrent: PropTypes.func.isRequired,
   getSocketCpu: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    socketCpu: PropTypes.string,
+  }).isRequired,
+  searchField: PropTypes.string,
+};
+
+CpuSocketTable.defaultProps = {
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({
   socketCpus: state.typeCpuSocket.cpuSockets,
   pagination: state.typeCpuSocket.pagination,
   isLoading: state.typeCpuSocket.isLoading,
+  current: state.typeCpuSocket.currentType,
+  searchField: state.typeCpuSocket.searchField,
 });
 
 export default connect(mapStateToProps, {

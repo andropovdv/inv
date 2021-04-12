@@ -6,8 +6,8 @@ const instance = Axios.create({
 });
 
 const typeSocketCpuAPI = {
-  all(page) {
-    return instance.get(`?page=${page}`);
+  all(page, text) {
+    return instance.get(`?page=${page}&text=${text}`);
   },
   update(typeSocket) {
     return instance.put("/update", typeSocket);
@@ -20,6 +20,9 @@ const typeSocketCpuAPI = {
   },
   allToScroll() {
     return instance.get("/all");
+  },
+  searchItem(text) {
+    return instance.post("searchItem", text);
   },
 };
 

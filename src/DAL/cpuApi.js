@@ -6,8 +6,8 @@ const instance = Axios.create({
 });
 
 const cpuAPI = {
-  all(page) {
-    return instance.get(`?page=${page}`);
+  all(page, text) {
+    return instance.get(`?page=${page}&text=${text}`);
   },
   update(cpu) {
     return instance.put("/update", cpu);
@@ -17,6 +17,9 @@ const cpuAPI = {
   },
   add(cpu) {
     return instance.post("/add", cpu);
+  },
+  searchItem(text, page) {
+    return instance.get(`/searchItem?page=${page}&text=${text}`);
   },
 };
 

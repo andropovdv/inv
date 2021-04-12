@@ -8,17 +8,26 @@ import {
   DialogTitle,
   TextField,
   IconButton,
+  InputLabel,
 } from "@material-ui/core";
 import { useForm, Controller } from "react-hook-form";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { PropTypes } from "prop-types";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 import { connect } from "react-redux";
 import VendorSM from "../Common/Scroll/VendorSM";
-import { setCpuVisibility } from "../../BLL/modalWindowReducer";
+import {
+  setCpuSoketVisibility,
+  setCpuVisibility,
+} from "../../BLL/modalWindowReducer";
 import CpuSocketSM from "../Common/Scroll/CpuSocketSM";
-import { setError, setBackEndMessage } from "../../BLL/cpuReducer";
+import {
+  setError,
+  setBackEndMessage,
+  addCpusData,
+  updateCpusData,
+} from "../../BLL/cpuReducer";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -46,81 +55,99 @@ const CpuDialog = (props) => {
   const classes = useStyles();
   const {
     setVisibilityCpu,
-    visibility,
-    current,
-    operation,
+    modal,
+    currentGlobal,
     setErrorCode,
     setErrorMessage,
+    setVisibilitySocket,
+    addCpu,
+    updateCpu,
   } = props;
 
-  const { handleSubmit, reset, control, errors } = useForm();
+  const { handleSubmit, control, errors } = useForm();
 
   const onClose = () => {
     setErrorCode(null);
     setErrorMessage("");
-    setVisibilityCpu(false);
+    setVisibilityCpu({ type: false, header: "", visibility: false });
   };
 
   const onSubmit = async (data) => {
-    await operation(data);
-    setVisibilityCpu(false);
+    if (modal.type) {
+      await addCpu(data);
+    } else {
+      const req = {
+        id: currentGlobal.id,
+        name: data.vendor,
+        model: data.model,
+        socketCpu: data.socket,
+      };
+      await updateCpu(req);
+    }
+    setVisibilityCpu({ type: false, header: "", visibility: false });
+  };
+
+  const clickSocket = () => {
+    setVisibilitySocket({
+      type: true,
+      header: "Добавить разъем",
+      visibility: true,
+    });
   };
 
   return (
-    <Dialog open={visibility} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Добавить процессор</DialogTitle>
+    <Dialog open={modal.visibility} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="flex-end">
             <Box flexGrow={1}>
+              <InputLabel id="labelVendor">Производитель</InputLabel>
               <VendorSM control={control} />
             </Box>
             <Box>
               <IconButton className={classes.butonArea}>
-                <AddCircleIcon color="primary" />
+                <AddBoxIcon color="primary" fontSize="large" />
               </IconButton>
             </Box>
           </Box>
+          <InputLabel id="modelInput">Модель</InputLabel>
           <Controller
             as={
+              // <>
               <TextField
+                id="modelModel"
                 fullWidth
                 variant="outlined"
-                placeholder="model"
                 margin="dense"
-                label="Model"
                 error={!!errors.model}
+                // defaultValue={current.model || ""}
               />
+              // </>
             }
             name="model"
             control={control}
             rules={{ required: true }}
-            defaultValue={current.model || ""}
+            defaultValue={currentGlobal.model || ""}
           />
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="flex-end">
             <Box flexGrow={1}>
+              <InputLabel id="socketCpu">Разъем процессора</InputLabel>
               <CpuSocketSM control={control} />
             </Box>
             <Box>
-              <IconButton className={classes.butonArea}>
-                <AddCircleIcon color="primary" />
+              <IconButton className={classes.butonArea} onClick={clickSocket}>
+                <AddBoxIcon color="primary" fontSize="large" />
               </IconButton>
             </Box>
           </Box>
           {errors.model && "Model is required"}
         </DialogContent>
         <DialogActions>
-          <Button
-            type="reset"
-            color="primary"
-            onClick={() => {
-              reset({ model: "", vendor: "" });
-              setVisibilityCpu(false);
-            }}
-          >
+          <Button type="reset" color="primary" onClick={onClose}>
             Close
           </Button>
-          <Button type="submit">Submit</Button>
+          <Button type="submit">Save</Button>
         </DialogActions>
       </form>
     </Dialog>
@@ -129,9 +156,7 @@ const CpuDialog = (props) => {
 
 CpuDialog.propTypes = {
   setVisibilityCpu: PropTypes.func.isRequired,
-  operation: PropTypes.func.isRequired,
-  visibility: PropTypes.bool.isRequired,
-  current: PropTypes.shape({
+  currentGlobal: PropTypes.shape({
     id: PropTypes.number,
     name: PropTypes.string,
     model: PropTypes.string,
@@ -139,15 +164,26 @@ CpuDialog.propTypes = {
   }).isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
+  setVisibilitySocket: PropTypes.func.isRequired,
+  modal: PropTypes.shape({
+    type: PropTypes.bool,
+    header: PropTypes.string,
+    visibility: PropTypes.bool,
+  }).isRequired,
+  addCpu: PropTypes.func.isRequired,
+  updateCpu: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  visibility: state.modalWindow.cpuVisibility,
-  current: state.cpu.currentCpu,
+  modal: state.modalWindow.cpuVisibility,
+  currentGlobal: state.cpu.currentCpu,
 });
 
 export default connect(mapStateToProps, {
   setVisibilityCpu: setCpuVisibility,
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
+  setVisibilitySocket: setCpuSoketVisibility,
+  addCpu: addCpusData,
+  updateCpu: updateCpusData,
 })(CpuDialog);

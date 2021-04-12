@@ -6,6 +6,7 @@ const TYPE_CPU_SOCKET_IS_LOADING = "TYPE_CPU_SOCKET_IS_LOADING";
 const SET_CURRENT_TYPE_CPU_SOCKET = "SET_CURREN_TYPE_CPU_SOCKET";
 const SET_ERROR_TYPE_CPU_SOCKET = "SET_ERROR_TYPE_CPU_SOCKET";
 const SET_SOCKETCPU_MESSAGE = "SET_SOCKETCPU_MESSAGE";
+const SEARCH_SOCKET_CPU = "SEARCH_SOCKET_CPU";
 
 const initialState = {
   cpuSockets: [],
@@ -15,6 +16,7 @@ const initialState = {
   isLoading: true,
   errorCode: null,
   backEndMessage: "",
+  searchField: "",
 };
 
 const typeSocketCpuReducer = (state = initialState, action) => {
@@ -56,12 +58,22 @@ const typeSocketCpuReducer = (state = initialState, action) => {
         backEndMessage: action.message,
       };
     }
+    case SEARCH_SOCKET_CPU: {
+      return {
+        ...state,
+        searchField: action.text,
+      };
+    }
     default:
       return state;
   }
 };
 
 // AC
+
+export const changeSearch = (text) => {
+  return { type: SEARCH_SOCKET_CPU, text };
+};
 
 export const setBackEndMessage = (message) => {
   return { type: SET_SOCKETCPU_MESSAGE, message };
@@ -100,9 +112,9 @@ const mapsFields = (resApi) => {
 };
 
 export const getSocketCpuData = (page) => async (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  const res = await typeSocketCpuAPI.all(page);
   try {
+    dispatch(toggleIsLoading(true));
+    const res = await typeSocketCpuAPI.all(page);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setSocketCpuData(finalRes, res.data.pagination));
@@ -146,6 +158,7 @@ export const addSocketCpuData = (socket) => async (dispatch) => {
     const res = await typeSocketCpuAPI.add(newObj);
     if (res.data.status) {
       dispatch(getSocketCpuData());
+      dispatch(getAllSocketCpuData());
       dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
@@ -196,10 +209,35 @@ export const deleteSoketCpuData = (id) => async (dispatch) => {
       dispatch(toggleIsLoading(false));
     }
   } catch (e) {
-    console.info(e);
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
     dispatch(toggleIsLoading(false));
+  }
+};
+
+export const getSearchSocketCpu = (text, page) => async (dispatch) => {
+  if (text.length >= 3) {
+    dispatch(toggleIsLoading(true));
+    try {
+      const res = await typeSocketCpuAPI.all(page, text);
+      if (res.data.status) {
+        const finalRes = mapsFields(res.data.result);
+        dispatch(setSocketCpuData(finalRes, res.data.pagination));
+        dispatch(changeSearch(text));
+        dispatch(toggleIsLoading(false));
+      } else {
+        dispatch(setError(res.data.errorCode));
+        dispatch(setBackEndMessage(res.data.message));
+        dispatch(toggleIsLoading(false));
+      }
+    } catch (e) {
+      dispatch(setError(500));
+      dispatch(setBackEndMessage(e.message));
+      dispatch(toggleIsLoading(false));
+    }
+  } else {
+    dispatch(changeSearch(text));
+    dispatch(getSocketCpuData());
   }
 };
 

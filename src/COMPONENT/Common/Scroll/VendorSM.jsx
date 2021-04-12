@@ -4,7 +4,12 @@ import React from "react";
 import { Controller } from "react-hook-form";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
-import { MenuItem, Select } from "@material-ui/core";
+import {
+  CircularProgress,
+  // InputLabel,
+  MenuItem,
+  Select,
+} from "@material-ui/core";
 import { getVendorAllData } from "../../../BLL/vendorReducer";
 
 const VendorSM = (props) => {
@@ -14,17 +19,28 @@ const VendorSM = (props) => {
     getVendor();
   }, []);
 
+  // const [value, setValue] = React.useState("");
+
+  // React.useEffect(() => {
+  //   if (vendorsAll.length > 0) {
+  //     setValue(current.name || vendorsAll[0].label);
+  //   }
+  // });
+
   return (
     <>
-      {isLoading ? null : (
+      {vendorsAll.length === 0 ? (
+        <CircularProgress color="inherit" size={20} />
+      ) : (
         <Controller
           as={
             <Select
+              id="labelVendor"
               disabled={isLoading}
               fullWidth
               variant="outlined"
-              label="Vendors"
               margin="dense"
+              defaultValue={current.name || vendorsAll[0].label}
             >
               {vendorsAll.map((e) => (
                 <MenuItem key={e.id} value={e.label}>

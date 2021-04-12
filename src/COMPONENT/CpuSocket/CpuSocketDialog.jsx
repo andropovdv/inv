@@ -11,6 +11,7 @@ import {
   DialogTitle,
   TextField,
 } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { setCpuSoketVisibility } from "../../BLL/modalWindowReducer";
 import {
   setError,
@@ -18,6 +19,21 @@ import {
   addSocketCpuData,
   updateSocketCpuData,
 } from "../../BLL/typeSocketCpuReducer";
+
+const useStyles = makeStyles(() => ({
+  dialog: {
+    position: "absolute",
+    left: "53%",
+    top: "53%",
+    transform: "translate(-53%, -53%)",
+  },
+  dialog1: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+  },
+}));
 
 const CpuSocketDialog = (props) => {
   const {
@@ -29,7 +45,10 @@ const CpuSocketDialog = (props) => {
     addCpuSocket,
     updateSocket,
     currentGlobal,
+    step,
   } = props;
+
+  const classes = useStyles();
 
   const { handleSubmit, control, errors } = useForm();
 
@@ -49,8 +68,19 @@ const CpuSocketDialog = (props) => {
     setVisibility({ type: false, header: "", visibility: false });
   };
 
+  let location;
+  if (!step) {
+    location = { paper: classes.dialog };
+  }
+
   return (
-    <Dialog open={modal.visibility} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={modal.visibility}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      classes={location}
+    >
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
@@ -84,12 +114,17 @@ const CpuSocketDialog = (props) => {
   );
 };
 
+CpuSocketDialog.defaultProps = {
+  step: true,
+};
+
 CpuSocketDialog.propTypes = {
   setVisibility: PropTypes.func.isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
   addCpuSocket: PropTypes.func.isRequired,
   updateSocket: PropTypes.func.isRequired,
+
   current: PropTypes.string.isRequired,
   modal: PropTypes.shape({
     type: PropTypes.bool,
@@ -100,10 +135,10 @@ CpuSocketDialog.propTypes = {
     id: PropTypes.number,
     socketCpu: PropTypes.string,
   }).isRequired,
+  step: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => ({
-  isLoading: state.typeCpuSocket.isLoading,
   modal: state.modalWindow.cpuSocketVisibility,
   currentGlobal: state.typeCpuSocket.currentType,
 });
