@@ -4,12 +4,7 @@ import React from "react";
 import { Controller } from "react-hook-form";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
-import {
-  CircularProgress,
-  // InputLabel,
-  MenuItem,
-  Select,
-} from "@material-ui/core";
+import { CircularProgress, MenuItem, Select } from "@material-ui/core";
 import { getVendorAllData } from "../../../BLL/vendorReducer";
 
 const VendorSM = (props) => {
@@ -18,14 +13,6 @@ const VendorSM = (props) => {
   React.useEffect(() => {
     getVendor();
   }, []);
-
-  // const [value, setValue] = React.useState("");
-
-  // React.useEffect(() => {
-  //   if (vendorsAll.length > 0) {
-  //     setValue(current.name || vendorsAll[0].label);
-  //   }
-  // });
 
   return (
     <>

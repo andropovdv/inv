@@ -9,6 +9,7 @@ import {
   TextField,
   IconButton,
   InputLabel,
+  InputAdornment,
 } from "@material-ui/core";
 import { useForm, Controller } from "react-hook-form";
 import React from "react";
@@ -20,6 +21,7 @@ import VendorSM from "../Common/Scroll/VendorSM";
 import {
   setCpuSoketVisibility,
   setCpuVisibility,
+  setVendorVisibility,
 } from "../../BLL/modalWindowReducer";
 import CpuSocketSM from "../Common/Scroll/CpuSocketSM";
 import {
@@ -49,17 +51,27 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 0,
     marginLeft: theme.spacing(1),
   },
+  button: {
+    display: "inline-block",
+    padding: 0,
+    minHeight: "1.1876 em",
+    // minWidth: 0,
+  },
 }));
 
 const CpuDialog = (props) => {
   const classes = useStyles();
   const {
-    setVisibilityCpu,
     modal,
     currentGlobal,
+    searchField,
+    pagination,
+
+    setVisibilityCpu,
     setErrorCode,
     setErrorMessage,
     setVisibilitySocket,
+    setVisibilityVendor,
     addCpu,
     updateCpu,
   } = props;
@@ -74,15 +86,16 @@ const CpuDialog = (props) => {
 
   const onSubmit = async (data) => {
     if (modal.type) {
-      await addCpu(data);
+      await addCpu(data, pagination.current, searchField);
     } else {
-      const req = {
+      const upCpu = {
         id: currentGlobal.id,
         name: data.vendor,
         model: data.model,
         socketCpu: data.socket,
+        freq: data.freq,
       };
-      await updateCpu(req);
+      await updateCpu(upCpu, pagination.current, searchField);
     }
     setVisibilityCpu({ type: false, header: "", visibility: false });
   };
@@ -91,6 +104,14 @@ const CpuDialog = (props) => {
     setVisibilitySocket({
       type: true,
       header: "Добавить разъем",
+      visibility: true,
+    });
+  };
+
+  const clickVendor = () => {
+    setVisibilityVendor({
+      type: true,
+      header: "Добавить производителя",
       visibility: true,
     });
   };
@@ -105,8 +126,8 @@ const CpuDialog = (props) => {
               <InputLabel id="labelVendor">Производитель</InputLabel>
               <VendorSM control={control} />
             </Box>
-            <Box>
-              <IconButton className={classes.butonArea}>
+            <Box alignItems="flex-end">
+              <IconButton className={classes.button} onClick={clickVendor}>
                 <AddBoxIcon color="primary" fontSize="large" />
               </IconButton>
             </Box>
@@ -114,21 +135,48 @@ const CpuDialog = (props) => {
           <InputLabel id="modelInput">Модель</InputLabel>
           <Controller
             as={
-              // <>
               <TextField
                 id="modelModel"
                 fullWidth
                 variant="outlined"
                 margin="dense"
                 error={!!errors.model}
-                // defaultValue={current.model || ""}
+                label={errors.model ? errors.model.message : null}
               />
-              // </>
             }
             name="model"
             control={control}
-            rules={{ required: true }}
+            rules={{
+              required: "Обязательное",
+              minLength: { value: 2, message: "Короткое" },
+            }}
             defaultValue={currentGlobal.model || ""}
+          />
+          <InputLabel id="freq">Частота процессора</InputLabel>
+          <Controller
+            as={
+              <TextField
+                id="freq"
+                type="number"
+                fullWidth
+                variant="outlined"
+                margin="dense"
+                error={!!errors.freq}
+                label={errors.freq ? errors.freq.message : null}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">MHz</InputAdornment>
+                  ),
+                }}
+              />
+            }
+            name="freq"
+            control={control}
+            rules={{
+              required: "Обязательное",
+              minLength: { value: 3, message: "Короткое" },
+            }}
+            defaultValue={currentGlobal.freq || ""}
           />
           <Box display="flex" alignItems="flex-end">
             <Box flexGrow={1}>
@@ -136,18 +184,19 @@ const CpuDialog = (props) => {
               <CpuSocketSM control={control} />
             </Box>
             <Box>
-              <IconButton className={classes.butonArea} onClick={clickSocket}>
+              <IconButton className={classes.button} onClick={clickSocket}>
                 <AddBoxIcon color="primary" fontSize="large" />
               </IconButton>
             </Box>
           </Box>
-          {errors.model && "Model is required"}
         </DialogContent>
         <DialogActions>
-          <Button type="reset" color="primary" onClick={onClose}>
-            Close
+          <Button color="primary" onClick={onClose} variant="outlined">
+            Отмена
           </Button>
-          <Button type="submit">Save</Button>
+          <Button color="secondary" type="submit" variant="outlined">
+            Записать
+          </Button>
         </DialogActions>
       </form>
     </Dialog>
@@ -156,27 +205,39 @@ const CpuDialog = (props) => {
 
 CpuDialog.propTypes = {
   setVisibilityCpu: PropTypes.func.isRequired,
-  currentGlobal: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    model: PropTypes.string,
-    url: PropTypes.string,
-  }).isRequired,
+  addCpu: PropTypes.func.isRequired,
+  updateCpu: PropTypes.func.isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
   setVisibilitySocket: PropTypes.func.isRequired,
+  setVisibilityVendor: PropTypes.func.isRequired,
+  searchField: PropTypes.string.isRequired,
+
   modal: PropTypes.shape({
     type: PropTypes.bool,
     header: PropTypes.string,
     visibility: PropTypes.bool,
   }).isRequired,
-  addCpu: PropTypes.func.isRequired,
-  updateCpu: PropTypes.func.isRequired,
+  currentGlobal: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    model: PropTypes.string,
+    socketCpu: PropTypes.string,
+    freq: PropTypes.string,
+  }).isRequired,
+  pagination: PropTypes.shape({
+    total: PropTypes.number,
+    current: PropTypes.number,
+    numPages: PropTypes.number,
+    perPage: PropTypes.number,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.cpuVisibility,
   currentGlobal: state.cpu.currentCpu,
+  pagination: state.cpu.pagination,
+  searchField: state.cpu.searchField,
 });
 
 export default connect(mapStateToProps, {
@@ -184,6 +245,7 @@ export default connect(mapStateToProps, {
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
   setVisibilitySocket: setCpuSoketVisibility,
+  setVisibilityVendor: setVendorVisibility,
   addCpu: addCpusData,
   updateCpu: updateCpusData,
 })(CpuDialog);

@@ -21,7 +21,7 @@ const CpusTable = (props) => {
   } = props;
 
   useEffect(() => {
-    getCpus();
+    getCpus(pagination.current, searchFileld);
   }, []);
 
   const [open, setOpen] = React.useState(false);
@@ -134,7 +134,7 @@ const mapStateToProps = (state) => ({
   cpus: state.cpu.cpus,
   isLoading: state.cpu.isLoading,
   pagination: state.cpu.pagination,
-  seacrhField: state.cpu.searchFileld,
+  searchField: state.cpu.searchFileld,
 });
 
 export default connect(mapStateToProps, {

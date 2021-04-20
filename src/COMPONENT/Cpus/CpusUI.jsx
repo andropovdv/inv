@@ -27,6 +27,7 @@ import {
   getCpusData,
 } from "../../BLL/cpuReducer";
 import CpuSocketDialog from "../CpuSocket/CpuSocketDialog";
+import VendorDialog from "../Vendors/VendorDialog";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -154,6 +155,7 @@ const CpusUI = (props) => {
           <CpusTable />
           <CpuDialog />
           <CpuSocketDialog current={current.socketCpu || ""} step={false} />
+          <VendorDialog step={false} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -176,7 +178,7 @@ const CpusUI = (props) => {
                 </Box>
                 <Box display="flex" direction="row">
                   <Box flexGrow={1}>Частота:</Box>
-                  <Box>Доделать</Box>
+                  <Box>{current.freq}</Box>
                 </Box>
                 <Box display="flex" direction="row">
                   <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
@@ -201,6 +203,7 @@ CpusUI.propTypes = {
     name: PropTypes.string,
     model: PropTypes.string,
     socketCpu: PropTypes.string,
+    freq: PropTypes.string,
   }).isRequired,
   setVisibilityCpu: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,

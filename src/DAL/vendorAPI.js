@@ -6,8 +6,8 @@ const instance = Axios.create({
 });
 
 const vendorAPI = {
-  all(page) {
-    return instance.get(`?page=${page}`);
+  all(page, text) {
+    return instance.get(`?page=${page}&text=${text}`);
   },
   update(vendor) {
     return instance.put("update", vendor);

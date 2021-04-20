@@ -5,6 +5,8 @@ const SET_CURRENT_TYPE_OF_GRAPH_SLOT = "SET_CURRENT_TYPE_OF_GRAPH_SLOT";
 const SET_ALL_TYPE_OF_GRAPH_SLOT = "SET_ALL_TYPE_OF_GRAPH_SLOT";
 const TYPE_OF_GRAPH_SLOT_IS_LOADING = "TYPE_OF_GRAPH_SOLT_IS_LOADING";
 const SET_ERROR_TYPE_GRAPH_SLOT = "SET_ERROR_TYPE_GROPH_SLOT";
+const SET_MESSAGE_TYPE_GRAPH = "SET_MESSAGE_TYPE_GRAPH";
+const SEARCH_SOCKET_GRAPH = "SEARCH_SOCKET_GRAPH";
 
 const initialState = {
   typeOfGraphSlot: [],
@@ -12,7 +14,9 @@ const initialState = {
   pagination: {},
   currentType: {},
   isLoading: true,
-  errorCode: 0,
+  errorCode: null,
+  backEndMessage: "",
+  searchField: "",
 };
 
 const typeOfGraphSlotReducer = (state = initialState, action) => {
@@ -42,10 +46,22 @@ const typeOfGraphSlotReducer = (state = initialState, action) => {
         errorCode: action.error,
       };
     }
+    case SET_MESSAGE_TYPE_GRAPH: {
+      return {
+        ...state,
+        backEndMessage: action.message,
+      };
+    }
     case SET_ALL_TYPE_OF_GRAPH_SLOT: {
       return {
         ...state,
         typeAllOfGraphSlot: [...action.allTypeOfGraphSlot],
+      };
+    }
+    case SEARCH_SOCKET_GRAPH: {
+      return {
+        ...state,
+        searchField: action.text,
       };
     }
     default:
@@ -54,6 +70,10 @@ const typeOfGraphSlotReducer = (state = initialState, action) => {
 };
 
 // AC
+
+export const changeSearch = (text) => {
+  return { type: SEARCH_SOCKET_GRAPH, text };
+};
 
 export const toggleIsLoading = (isLoading) => {
   return { type: TYPE_OF_GRAPH_SLOT_IS_LOADING, isLoading };
@@ -71,22 +91,69 @@ export const setError = (error) => {
   return { type: SET_ERROR_TYPE_GRAPH_SLOT, error };
 };
 
+export const setBackEndMessage = (message) => {
+  return { typw: SET_MESSAGE_TYPE_GRAPH, message };
+};
+
 export const setAllTypeOfGraphSlot = (allTypeOfGraphSlot) => {
   return { type: SET_ALL_TYPE_OF_GRAPH_SLOT, allTypeOfGraphSlot };
 };
 
 // THUNK
 
-export const getTypeOfGraphSlot = (page) => (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  typeOfGraphSlotAPI.all(page).then((res) => {
-    if (res.data.status) {
-      dispatch(
-        setTypeOfGraphSlot(res.data.typeOfGraphSlot, res.data.pagination)
-      );
-    }
+export const mapsFields = (resApi) => {
+  const newRows = resApi.map((e) => {
+    const row = {};
+    row.id = e.idTypeOfGraphSlot;
+    row.graphSocket = e.typeOfGraphSlot;
+    return row;
   });
-  dispatch(toggleIsLoading(false));
+  return newRows;
+};
+
+export const getTypeOfGraphSlot = (page) => async (dispatch) => {
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await typeOfGraphSlotAPI.all(page);
+    if (res.data.result) {
+      const finalRes = mapsFields(res.data.result);
+      dispatch(setTypeOfGraphSlot(finalRes, res.data.pagination));
+      dispatch(toggleIsLoading(false));
+    } else {
+      dispatch(setBackEndMessage(res.data.error));
+      dispatch(toggleIsLoading(false));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const getSearchSocketGraph = (text, page) => async (dispatch) => {
+  if (text.length >= 3) {
+    dispatch(toggleIsLoading(true));
+    try {
+      const res = await typeOfGraphSlotAPI.all(page, text);
+      if (res.data.status) {
+        const finalRes = mapsFields(res.data.result);
+        dispatch(setTypeOfGraphSlot(finalRes, res.data.pagination));
+        dispatch(changeSearch(text));
+        dispatch(toggleIsLoading(false));
+      } else {
+        dispatch(setError(res.data.errorCode));
+        dispatch(setBackEndMessage(res.data.message));
+        dispatch(toggleIsLoading(false));
+      }
+    } catch (e) {
+      dispatch(setError(500));
+      dispatch(setBackEndMessage(e.message));
+      dispatch(toggleIsLoading(false));
+    }
+  } else {
+    dispatch(changeSearch(text));
+    dispatch(getTypeOfGraphSlot());
+  }
 };
 
 export const getAllTypeOfGraphSlot = () => (dispatch) => {

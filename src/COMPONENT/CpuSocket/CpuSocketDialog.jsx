@@ -40,11 +40,14 @@ const CpuSocketDialog = (props) => {
     setVisibility,
     setErrorCode,
     setErrorMessage,
-    modal,
-    current,
     addCpuSocket,
     updateSocket,
     currentGlobal,
+    searchField,
+    pagination,
+
+    modal,
+    current,
     step,
   } = props;
 
@@ -60,10 +63,10 @@ const CpuSocketDialog = (props) => {
 
   const onSubmit = async (data) => {
     if (modal.type) {
-      await addCpuSocket(data);
+      await addCpuSocket(data, pagination.current, searchField);
     } else {
-      const req = { id: currentGlobal.id, socketCpu: data.socketCpu };
-      await updateSocket(req);
+      const upSocket = { id: currentGlobal.id, socketCpu: data.socketCpu };
+      await updateSocket(upSocket, pagination.current, searchField);
     }
     setVisibility({ type: false, header: "", visibility: false });
   };
@@ -126,6 +129,13 @@ CpuSocketDialog.propTypes = {
   updateSocket: PropTypes.func.isRequired,
 
   current: PropTypes.string.isRequired,
+  searchField: PropTypes.string.isRequired,
+  pagination: PropTypes.shape({
+    total: PropTypes.number,
+    current: PropTypes.number,
+    numPages: PropTypes.number,
+    perPage: PropTypes.number,
+  }).isRequired,
   modal: PropTypes.shape({
     type: PropTypes.bool,
     header: PropTypes.string,
@@ -141,6 +151,8 @@ CpuSocketDialog.propTypes = {
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.cpuSocketVisibility,
   currentGlobal: state.typeCpuSocket.currentType,
+  searchField: state.typeCpuSocket.searchField,
+  pagination: state.typeCpuSocket.pagination,
 });
 
 export default connect(mapStateToProps, {

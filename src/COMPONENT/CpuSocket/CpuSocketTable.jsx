@@ -11,7 +11,6 @@ import {
 } from "../../BLL/typeSocketCpuReducer";
 import { setCpuSoketVisibility } from "../../BLL/modalWindowReducer";
 import CpuSocketDelete from "./CpuSocketDelete";
-// import CpuSocketDialog from "./CpuSocketDialog";
 
 const CpuSocketTable = (props) => {
   const {
@@ -21,12 +20,11 @@ const CpuSocketTable = (props) => {
     pagination,
     isLoading,
     setVisibility,
-    // current,
     searchField,
   } = props;
 
   React.useState(() => {
-    getSocketCpu();
+    getSocketCpu(pagination.current, searchField);
   }, []);
 
   const [open, setOpen] = React.useState(false);

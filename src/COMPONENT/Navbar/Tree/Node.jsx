@@ -31,7 +31,7 @@ const items = {
             {
               id: "0113",
               name: "Разъем графического адаптера",
-              to: "/Vendors",
+              to: "/GraphSockets",
             },
             {
               id: "0114",

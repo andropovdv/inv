@@ -149,7 +149,7 @@ export const getAllSocketCpuData = () => async (dispatch) => {
   }
 };
 
-export const addSocketCpuData = (socket) => async (dispatch) => {
+export const addSocketCpuData = (socket, page, text) => async (dispatch) => {
   const newObj = {
     name_typeSocketCpu: socket.socketCpu,
   };
@@ -157,7 +157,7 @@ export const addSocketCpuData = (socket) => async (dispatch) => {
   try {
     const res = await typeSocketCpuAPI.add(newObj);
     if (res.data.status) {
-      dispatch(getSocketCpuData());
+      dispatch(getSocketCpuData(page, text));
       dispatch(getAllSocketCpuData());
       dispatch(toggleIsLoading(false));
     } else {
@@ -172,7 +172,7 @@ export const addSocketCpuData = (socket) => async (dispatch) => {
   }
 };
 
-export const updateSocketCpuData = (socket) => async (dispatch) => {
+export const updateSocketCpuData = (socket, page, text) => async (dispatch) => {
   const newObj = {
     id_typeSocketCpu: socket.id,
     name_typeSocketCpu: socket.socketCpu,
@@ -181,7 +181,7 @@ export const updateSocketCpuData = (socket) => async (dispatch) => {
   try {
     const res = await typeSocketCpuAPI.update(newObj);
     if (res.data.status) {
-      dispatch(getSocketCpuData());
+      dispatch(getSocketCpuData(page, text));
       dispatch(getAllSocketCpuData());
       dispatch(toggleIsLoading(false));
     } else {

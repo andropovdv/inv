@@ -14,10 +14,19 @@ import {
 } from "../../BLL/typeSocketCpuReducer";
 
 const CpuSocketDelete = (props) => {
-  const { open, onClose, current, deleteSocket, setCurrent } = props;
+  const {
+    searchField,
+    pagination,
+    open,
+    onClose,
+    current,
+    deleteSocket,
+    setCurrent,
+  } = props;
 
   const submit = async () => {
-    await deleteSocket({ id: current.id });
+    const delSocket = { id: current.id };
+    await deleteSocket(delSocket, pagination.current, searchField);
     setCurrent(null, null);
     onClose();
   };
@@ -44,6 +53,14 @@ const CpuSocketDelete = (props) => {
 
 CpuSocketDelete.propTypes = {
   open: PropTypes.bool.isRequired,
+  searchField: PropTypes.string.isRequired,
+  pagination: PropTypes.shape({
+    total: PropTypes.number,
+    current: PropTypes.number,
+    numPages: PropTypes.number,
+    perPage: PropTypes.number,
+  }).isRequired,
+
   onClose: PropTypes.func.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
@@ -55,6 +72,8 @@ CpuSocketDelete.propTypes = {
 
 const mapStateToProps = (state) => ({
   current: state.typeCpuSocket.currentType,
+  pagination: state.typeCpuSocket.pagination,
+  searchField: state.typeCpuSocket.searchField,
 });
 
 export default connect(mapStateToProps, {

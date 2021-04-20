@@ -1,5 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { PropTypes } from "prop-types";
 import {
   Box,
   Button,
@@ -11,21 +12,19 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import CancelIcon from "@material-ui/icons/Cancel";
 import Alert from "@material-ui/lab/Alert";
-import { PropTypes } from "prop-types";
+import CancelIcon from "@material-ui/icons/Cancel";
 import { connect } from "react-redux";
 import {
-  setError,
-  setBackEndMessage,
-  setCurrentVendor,
-  getSearchData,
   changeSearch,
-  getVendorsData,
-} from "../../BLL/vendorReducer";
-import { setVendorVisibility } from "../../BLL/modalWindowReducer";
-import VendorTable from "./VendorTable";
-import VendorDialog from "./VendorDialog";
+  getSearchSocketGraph,
+  getTypeOfGraphSlot,
+  setBackEndMessage,
+  setCurrentTypeOfGraph,
+  setError,
+} from "../../BLL/typeOfGraphSlotReducer";
+import { setTypeOfGraphSlotVisibility } from "../../BLL/modalWindowReducer";
+import GraphSocketTable from "./GraphSocketTable";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -48,16 +47,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const VendorUI = (props) => {
+const GraphSocketUI = (props) => {
   const {
     setErrorCode,
     setErrorMessage,
-    setCurrent,
     setVisibility,
-    getSearch,
+    setCurrent,
     clearSearch,
-    getVendor,
-    current,
+    getGraphSocket,
+    getSearch,
 
     errorMessage,
     searchField,
@@ -65,12 +63,6 @@ const VendorUI = (props) => {
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    if (errorMessage && errorMessage.length > 0) {
-      setOpen(true);
-    }
-  });
 
   const handleClose = (reason) => {
     if (reason === "clickaway") {
@@ -81,42 +73,41 @@ const VendorUI = (props) => {
     setOpen(false);
   };
 
-  const handleClick = () => {
-    setCurrent(null, null, null, null);
+  const clickAdd = () => {
+    setCurrent(null, null);
     setVisibility({
       type: true,
-      header: "Добавить производителя",
+      header: "Добавить разъем",
       visibility: true,
     });
+  };
+
+  const onClear = () => {
+    clearSearch("");
+    getGraphSocket();
   };
 
   const onSearch = (e) => {
     getSearch(e.target.value);
   };
 
-  const onClear = () => {
-    clearSearch("");
-    getVendor();
-  };
-
   return (
     <>
-      <VendorDialog step />
       <Snackbar
         open={open}
         autoHideDuration={6000}
         onClose={handleClose}
         anchorOrigin={{ vertical: "top", horizontal: "left" }}
       >
-        <Alert onClose={handleClose} severity="warning">
+        <Alert onClose={handleClose} severity="error">
           {errorMessage}
         </Alert>
       </Snackbar>
-      <Grid container spacing={1}>
+      <Grid container spaicing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Typography variant="h6" align="left">
-              Справочники:/ Производители
+              Справочники:/ Разъемы графических карт
             </Typography>
           </Paper>
         </Grid>
@@ -127,7 +118,7 @@ const VendorUI = (props) => {
                 color="primary"
                 variant="contained"
                 className={classes.buttonArea}
-                onClick={handleClick}
+                onClick={clickAdd}
               >
                 Добавить
               </Button>
@@ -150,46 +141,13 @@ const VendorUI = (props) => {
               />
             </Box>
           </Paper>
-          <VendorTable />
+          <GraphSocketTable />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
             <Typography variant="h6" align="left" component="span">
-              Информация:
+              Информация
             </Typography>
-            {Object.keys(current).length !== 0 ? (
-              <Box direction="column">
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                    Производитель:
-                  </Box>
-                  <Box textOverflow="ellipsis" overflow="hidden">
-                    <b>{current.name}</b>
-                  </Box>
-                </Box>
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1}>Полное:</Box>
-                  <Box>
-                    <b>{current.full}</b>
-                  </Box>
-                </Box>
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                    Сайт:
-                  </Box>
-                  <Box textOverflow="ellipsis" overflow="hidden">
-                    {/* <b>{current.url}</b> */}
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={`https://${current.url}`}
-                    >
-                      {current.url}
-                    </a>
-                  </Box>
-                </Box>
-              </Box>
-            ) : null}
           </Paper>
         </Grid>
       </Grid>
@@ -197,37 +155,30 @@ const VendorUI = (props) => {
   );
 };
 
-VendorUI.propTypes = {
+GraphSocketUI.propTypes = {
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  getSearch: PropTypes.func.isRequired,
   clearSearch: PropTypes.func.isRequired,
-  getVendor: PropTypes.func.isRequired,
+  getGraphSocket: PropTypes.func.isRequired,
+  getSearch: PropTypes.func.isRequired,
 
   errorMessage: PropTypes.string.isRequired,
   searchField: PropTypes.string.isRequired,
-  current: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    full: PropTypes.string,
-    url: PropTypes.string,
-  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.vendor.backEndMessage,
-  searchField: state.vendor.searchField,
-  current: state.vendor.currentVendor,
+  errorMessage: state.typeOfGraphSlot.backEndMessage,
+  searchField: state.typeOfGraphSlot.searchField,
 });
 
 export default connect(mapStateToProps, {
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentVendor,
-  setVisibility: setVendorVisibility,
-  getSearch: getSearchData,
+  setCurrent: setCurrentTypeOfGraph,
+  setVisibility: setTypeOfGraphSlotVisibility,
   clearSearch: changeSearch,
-  getVendor: getVendorsData,
-})(VendorUI);
+  getGraphSocket: getTypeOfGraphSlot,
+  getSearch: getSearchSocketGraph,
+})(GraphSocketUI);

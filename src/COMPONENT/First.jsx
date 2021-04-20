@@ -7,6 +7,7 @@ import Navbar from "./Navbar/Navbar";
 import CpusUI from "./Cpus/CpusUI";
 import CpuSocketUI from "./CpuSocket/CpuSocketUI";
 import VendorUI from "./Vendors/VendorUI";
+import GraphSocketUI from "./GraphSocket/GraphSocketUI";
 
 const drawerWidth = 250;
 
@@ -54,10 +55,10 @@ const First = () => {
       </nav>
       <main className={classes.mainContent}>
         <div className={classes.toolBar} />
-        {/* <Typography variant="h6" align="left">Производители:</Typography> */}
         <Route path="/Vendors" render={() => <VendorUI />} />
         <Route path="/Cpus" render={() => <CpusUI />} />
         <Route path="/CpuSockets" render={() => <CpuSocketUI />} />
+        <Route path="/GraphSockets" render={() => <GraphSocketUI />} />
       </main>
     </div>
   );
