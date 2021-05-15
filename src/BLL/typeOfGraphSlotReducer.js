@@ -92,7 +92,7 @@ export const setError = (error) => {
 };
 
 export const setBackEndMessage = (message) => {
-  return { typw: SET_MESSAGE_TYPE_GRAPH, message };
+  return { type: SET_MESSAGE_TYPE_GRAPH, message };
 };
 
 export const setAllTypeOfGraphSlot = (allTypeOfGraphSlot) => {
@@ -156,51 +156,96 @@ export const getSearchSocketGraph = (text, page) => async (dispatch) => {
   }
 };
 
-export const getAllTypeOfGraphSlot = () => (dispatch) => {
+export const getAllTypeOfGraphSlot = () => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  typeOfGraphSlotAPI.allToScroll().then((res) => {
+  try {
+    const res = await typeOfGraphSlotAPI.allToScroll();
     if (res.data.status) {
-      dispatch(setAllTypeOfGraphSlot(res.data.typeOfGraphSlot));
+      const newRows = res.data.result.map((e) => {
+        const row = {};
+        row.id = e.idTypeOfGraphSlot;
+        row.label = e.typeOfGraphSlot;
+        return row;
+      });
+      dispatch(setAllTypeOfGraphSlot(newRows));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
     }
-  });
-  dispatch(toggleIsLoading(false));
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
 };
 
-export const addTypeOfGraphSlot = (typeOfGraphSlot) => (dispatch) => {
+export const addTypeOfGraphSlot = (socket, page, text) => async (dispatch) => {
+  const newObj = { typeOfGraphSlot: socket.socketGraph };
   dispatch(toggleIsLoading(true));
-  typeOfGraphSlotAPI.add(typeOfGraphSlot).then((res) => {
+  try {
+    const res = await typeOfGraphSlotAPI.add(newObj);
     if (res.data.status) {
+      dispatch(getTypeOfGraphSlot(page, text));
       dispatch(getAllTypeOfGraphSlot());
-      dispatch(getTypeOfGraphSlot());
+      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoading(false));
     }
-  });
-  dispatch(toggleIsLoading(false));
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoading(false));
+  }
 };
 
-export const updateTypeOfGraphSlot = (typeOfGraph) => (dispatch) => {
+export const updateTypeOfGraphSlot = (socket, page, text) => async (
+  dispatch
+) => {
+  const newObj = {
+    idTypeOfGraphSlot: socket.id,
+    typeOfGraphSlot: socket.graphSocket,
+  };
   dispatch(toggleIsLoading(true));
-  typeOfGraphSlotAPI.update(typeOfGraph).then((res) => {
+  try {
+    const res = await typeOfGraphSlotAPI.update(newObj);
     if (res.data.status) {
-      dispatch(getTypeOfGraphSlot());
+      dispatch(getTypeOfGraphSlot(page, text));
+      dispatch(getAllTypeOfGraphSlot());
+      // dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      // dispatch(toggleIsLoading(false));
     }
-  });
-  dispatch(toggleIsLoading(false));
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    // dispatch(toggleIsLoading(false));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
 };
 
-export const deleteTypeOfGraphSlot = (id) => (dispatch) => {
+export const deleteTypeOfGraphSlot = (id, page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  typeOfGraphSlotAPI.delete(id).then((res) => {
+  try {
+    const res = await typeOfGraphSlotAPI.delete(id);
     if (res.data.status) {
-      dispatch(getTypeOfGraphSlot());
+      dispatch(getTypeOfGraphSlot(page, text));
+      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+      dispatch(toggleIsLoading(false));
     }
-  });
-  dispatch(toggleIsLoading(false));
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+    dispatch(toggleIsLoading(false));
+  }
 };
 
 export default typeOfGraphSlotReducer;

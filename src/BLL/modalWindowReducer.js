@@ -10,7 +10,7 @@ const initialState = {
   cpuSocketVisibility: { type: null, header: null, visibility: false },
   vendorVisibility: { type: null, header: null, visibility: false },
   cpuVisibility: { type: null, header: null, visibility: false },
-  typeOfRamVisibility: false,
+  typeOfRamVisibility: { type: null, header: null, visibility: false },
   typeOfGraphSlotVisibility: { type: null, header: null, visibility: false },
   formFactorVisibility: false,
   graphCardVisibility: false,
@@ -51,7 +51,7 @@ const modalWindowReducer = (state = initialState, action) => {
     case SET_VISIBILITY_TYPE_OF_RAM: {
       return {
         ...state,
-        typeOfRamVisibility: action.visibility,
+        typeOfRamVisibility: { ...action.modal },
       };
     }
     case SET_VISIBILITY_TYPE_OF_GRAPH_SLOT: {
@@ -77,8 +77,8 @@ export const setVendorVisibility = (modal) => {
   return { type: SET_VISIBILITY_VENDOR, modal };
 };
 
-export const setTypeOfRamVisibility = (visibility) => {
-  return { type: SET_VISIBILITY_TYPE_OF_RAM, visibility };
+export const setTypeOfRamVisibility = (modal) => {
+  return { type: SET_VISIBILITY_TYPE_OF_RAM, modal };
 };
 
 export const setTypeOfGraphSlotVisibility = (modal) => {

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
@@ -56,7 +55,6 @@ const CpuSocketUI = (props) => {
     getSearch,
     getSocket,
     clearSearch,
-    isLoading,
   } = props;
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -148,7 +146,6 @@ const CpuSocketUI = (props) => {
 };
 
 CpuSocketUI.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
   searchField: PropTypes.string.isRequired,
   errorMessage: PropTypes.string.isRequired,
   setVisibility: PropTypes.func.isRequired,

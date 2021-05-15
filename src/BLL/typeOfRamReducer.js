@@ -5,6 +5,8 @@ const SET_ALL_TYPE_OF_RAM = "SET_ALL_TYPE_OF_RAM";
 const SET_CURRENT_TYPE_OF_RAM = "SET_CURRENT_TYPE_OF_RAM";
 const SET_ERROR_TYPE_OF_RAM = "SET_ERROR_TYPE_OF_RAM";
 const TYPE_OF_RAM_IS_LOADING = "TYPE_OF_RAM_IS_LOADING";
+const SET_SOCKETRAM_MESSAGE = "SET_SOCKETRAM_MESSAGE";
+const SEARCH_SOCKET_RAM = "SEARCH_SOCKET_RAM";
 
 const initialState = {
   typeOfRam: [],
@@ -13,6 +15,8 @@ const initialState = {
   currentType: {},
   isLoading: true,
   errorCode: 0,
+  backEndMessage: "",
+  searchField: "",
 };
 
 const typeOfRamReducer = (state = initialState, action) => {
@@ -48,6 +52,18 @@ const typeOfRamReducer = (state = initialState, action) => {
         currentType: { ...action.current },
       };
     }
+    case SET_SOCKETRAM_MESSAGE: {
+      return {
+        ...state,
+        backEndMessage: action.message,
+      };
+    }
+    case SEARCH_SOCKET_RAM: {
+      return {
+        ...state,
+        searchField: action.text,
+      };
+    }
     default:
       return state;
   }
@@ -66,62 +82,157 @@ export const toggleIsLoading = (isLoading) => {
   return { type: TYPE_OF_RAM_IS_LOADING, isLoading };
 };
 
-export const setErrorCode = (error) => {
+export const setError = (error) => {
   return { type: SET_ERROR_TYPE_OF_RAM, error };
 };
 
 export const setAllTypeOfRam = (allTypeOfRam) => {
   return { type: SET_ALL_TYPE_OF_RAM, allTypeOfRam };
 };
+
+export const setBackEndMessage = (message) => {
+  return { type: SET_SOCKETRAM_MESSAGE, message };
+};
+
+export const changeSearch = (text) => {
+  return { type: SEARCH_SOCKET_RAM, text };
+};
 // thunk
 
-export const getTypeOfRamData = (page) => (dispatch) => {
-  dispatch(toggleIsLoading);
-  typeOfRamAPI.all(page).then((res) => {
-    dispatch(setTypeOfRamData(res.data.typeOfRam, res.data.pagination));
-    dispatch(toggleIsLoading(false));
+const mapsFields = (resApi) => {
+  const newRows = resApi.map((e) => {
+    const row = {};
+    row.id = e.id_typeRam;
+    row.socketRam = e.typeOfRam;
+    return row;
   });
+  return newRows;
 };
 
-export const getAllTypeOfRam = () => (dispatch) => {
+export const getTypeOfRamData = (page) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  typeOfRamAPI.allToScroll().then((res) => {
-    dispatch(setAllTypeOfRam(res.data.typeOfRam));
-  });
-  dispatch(toggleIsLoading(false));
-};
-
-export const addTypeOfRamData = (typeOfRam) => (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  typeOfRamAPI.add(typeOfRam).then((res) => {
+  try {
+    const res = await typeOfRamAPI.all(page);
     if (res.data.status) {
-      dispatch(getTypeOfRamData());
+      const finalRes = mapsFields(res.data.result);
+      dispatch(setTypeOfRamData(finalRes, res.data.pagination));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const getAllTypeOfRam = () => async (dispatch) => {
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await typeOfRamAPI.allToScroll();
+    if (res.data.status) {
+      const finalRes = mapsFields(res.data.result);
+      dispatch(setAllTypeOfRam(finalRes));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const addTypeOfRamData = (socket, page, text) => async (dispatch) => {
+  const newObj = {
+    typeOfRam: socket.socketRam,
+  };
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await typeOfRamAPI.add(newObj);
+    if (res.data.status) {
+      dispatch(getTypeOfRamData(page, text));
       dispatch(getAllTypeOfRam());
     } else {
-      dispatch(setErrorCode(res.data.errorCode));
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
     }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
-  });
+  }
 };
 
-export const updateTypeOfRamData = (typeOfRam) => (dispatch) => {
+export const updateTypeOfRamData = (socket, page, text) => async (dispatch) => {
+  const newObj = {
+    id_typeRam: socket.id,
+    typeOfRam: socket.ramSocket,
+  };
   dispatch(toggleIsLoading(true));
-  typeOfRamAPI.update(typeOfRam).then((res) => {
+  try {
+    const res = await typeOfRamAPI.update(newObj);
     if (res.data.status) {
-      dispatch(getTypeOfRamData());
+      dispatch(getTypeOfRamData(page, text));
+      dispatch(getAllTypeOfRam());
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
     }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
-  });
+  }
 };
 
-export const deleteTypeOfRamData = (id) => (dispatch) => {
+export const deleteTypeOfRamData = (id) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  typeOfRamAPI.delete(id).then((res) => {
+  try {
+    const res = await typeOfRamAPI.delete(id);
     if (res.data.status) {
       dispatch(getTypeOfRamData());
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
     }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
-  });
+  }
+};
+
+export const getSearchSocketRam = (text, page) => async (dispatch) => {
+  if (text.length >= 3) {
+    dispatch(toggleIsLoading(true));
+    try {
+      const res = await typeOfRamAPI.all(page, text);
+      if (res.data.status) {
+        const finalRes = mapsFields(res.data.result);
+        dispatch(setTypeOfRamData(finalRes, res.data.pagination));
+        dispatch(changeSearch(text));
+      } else {
+        dispatch(setError(res.data.errorCode));
+        dispatch(setBackEndMessage(res.data.message));
+      }
+    } catch (e) {
+      dispatch(setError(500));
+      dispatch(setBackEndMessage(e.message));
+    } finally {
+      dispatch(toggleIsLoading(false));
+    }
+  } else {
+    dispatch(changeSearch(text));
+    dispatch(getTypeOfRamData());
+  }
 };
 
 export default typeOfRamReducer;

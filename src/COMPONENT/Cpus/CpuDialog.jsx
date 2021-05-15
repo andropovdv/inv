@@ -10,6 +10,8 @@ import {
   IconButton,
   InputLabel,
   InputAdornment,
+  Typography,
+  Switch,
 } from "@material-ui/core";
 import { useForm, Controller } from "react-hook-form";
 import React from "react";
@@ -152,6 +154,14 @@ const CpuDialog = (props) => {
             }}
             defaultValue={currentGlobal.model || ""}
           />
+          <Box display="flex" alignItems="center">
+            <Box flexGrow={1}>
+              <Typography variant="h6">Графическое ядро</Typography>
+            </Box>
+            <Box alignItems="flex-end">
+              <Switch color="primary" />
+            </Box>
+          </Box>
           <InputLabel id="freq">Частота процессора</InputLabel>
           <Controller
             as={

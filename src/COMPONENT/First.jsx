@@ -8,6 +8,7 @@ import CpusUI from "./Cpus/CpusUI";
 import CpuSocketUI from "./CpuSocket/CpuSocketUI";
 import VendorUI from "./Vendors/VendorUI";
 import GraphSocketUI from "./GraphSocket/GraphSocketUI";
+import RamSocketUI from "./RamSocket/RamSocketUI";
 
 const drawerWidth = 250;
 
@@ -59,6 +60,7 @@ const First = () => {
         <Route path="/Cpus" render={() => <CpusUI />} />
         <Route path="/CpuSockets" render={() => <CpuSocketUI />} />
         <Route path="/GraphSockets" render={() => <GraphSocketUI />} />
+        <Route path="/RamSockets" render={() => <RamSocketUI />} />
       </main>
     </div>
   );

@@ -26,7 +26,7 @@ const items = {
             {
               id: "0112",
               name: "Разъем RAM",
-              to: "/Vendors",
+              to: "/RamSockets",
             },
             {
               id: "0113",

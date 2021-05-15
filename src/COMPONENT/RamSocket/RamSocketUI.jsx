@@ -1,6 +1,7 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { PropTypes } from "prop-types";
+import CancelIcon from "@material-ui/icons/Cancel";
 import {
   Box,
   Button,
@@ -13,19 +14,18 @@ import {
   Typography,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import CancelIcon from "@material-ui/icons/Cancel";
 import { connect } from "react-redux";
 import {
   changeSearch,
-  getSearchSocketGraph,
-  getTypeOfGraphSlot,
+  getSearchSocketRam,
+  getTypeOfRamData,
   setBackEndMessage,
-  setCurrentTypeOfGraph,
+  setCurrentTypeOfRam,
   setError,
-} from "../../BLL/typeOfGraphSlotReducer";
-import { setTypeOfGraphSlotVisibility } from "../../BLL/modalWindowReducer";
-import GraphSocketTable from "./GraphSocketTable";
-import GraphSocketDialog from "./GraphSocketDialog";
+} from "../../BLL/typeOfRamReducer";
+import { setTypeOfRamVisibility } from "../../BLL/modalWindowReducer";
+import RamSocketTable from "./RamSocketTable";
+import RamSocketDialog from "./RamSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -41,26 +41,20 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(2),
     },
   },
-  dialog: {
-    position: "absolute",
-    left: 10,
-    top: 50,
-  },
 }));
 
-const GraphSocketUI = (props) => {
+const RamSocketUI = (props) => {
   const {
-    setErrorCode,
-    setErrorMessage,
-    setVisibility,
-    setCurrent,
-    clearSearch,
-    getGraphSocket,
-    getSearch,
-
     errorMessage,
     searchField,
-    current,
+
+    setErrorCode,
+    setErrorMessage,
+    setCurrent,
+    setVisibility,
+    getSearch,
+    getSocket,
+    clearSearch,
   } = props;
 
   const classes = useStyles();
@@ -74,7 +68,7 @@ const GraphSocketUI = (props) => {
   }, [errorMessage]);
 
   const handleClose = (reason) => {
-    if (reason === "clickaway") {
+    if (reason === "clickway") {
       return;
     }
     setErrorCode(null);
@@ -82,22 +76,18 @@ const GraphSocketUI = (props) => {
     setOpen(false);
   };
 
-  const clickAdd = () => {
+  const handleAdd = () => {
     setCurrent(null, null);
-    setVisibility({
-      type: true,
-      header: "Добавить разъем",
-      visibility: true,
-    });
-  };
-
-  const onClear = () => {
-    clearSearch("");
-    getGraphSocket();
+    setVisibility({ type: true, header: "Добавить разъем", visibility: true });
   };
 
   const onSearch = (e) => {
     getSearch(e.target.value);
+  };
+
+  const onClear = () => {
+    getSocket();
+    clearSearch("");
   };
 
   return (
@@ -116,7 +106,7 @@ const GraphSocketUI = (props) => {
         <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Typography variant="h6" align="left">
-              Справочники:/ Разъемы графических карт
+              Справочники:/ Разъемы оперативной памяти
             </Typography>
           </Paper>
         </Grid>
@@ -127,21 +117,20 @@ const GraphSocketUI = (props) => {
                 color="primary"
                 variant="contained"
                 className={classes.buttonArea}
-                onClick={clickAdd}
+                onClick={handleAdd}
               >
                 Добавить
               </Button>
               <TextField
-                size="small"
-                variant="outlined"
-                className={classes.buttonArea}
-                label="Search"
                 onChange={onSearch}
                 value={searchField}
+                size="small"
+                variant="outlined"
+                label="Search"
                 InputProps={{
                   endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={onClear} edge="end">
+                    <InputAdornment>
+                      <IconButton onClick={onClear}>
                         <CancelIcon />
                       </IconButton>
                     </InputAdornment>
@@ -150,62 +139,38 @@ const GraphSocketUI = (props) => {
               />
             </Box>
           </Paper>
-          <GraphSocketTable />
-          <GraphSocketDialog step={false} />
-        </Grid>
-        <Grid item xs={3}>
-          <Paper className={classes.paper}>
-            <Typography variant="h6" align="left" component="span">
-              Информация
-            </Typography>
-            {Object.keys(current).length !== 0 ? (
-              <Box direction="colunm">
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                    Название:
-                  </Box>
-                  <Box textOverflow="ellipsis" overflow="hidden">
-                    {current.graphSocket}
-                  </Box>
-                </Box>
-              </Box>
-            ) : null}
-          </Paper>
+          <RamSocketTable />
+          <RamSocketDialog step={false} />
         </Grid>
       </Grid>
     </>
   );
 };
 
-GraphSocketUI.propTypes = {
+RamSocketUI.propTypes = {
+  errorMessage: PropTypes.string.isRequired,
+  searchField: PropTypes.string.isRequired,
+
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  clearSearch: PropTypes.func.isRequired,
-  getGraphSocket: PropTypes.func.isRequired,
   getSearch: PropTypes.func.isRequired,
-
-  errorMessage: PropTypes.string.isRequired,
-  searchField: PropTypes.string.isRequired,
-  current: PropTypes.shape({
-    id: PropTypes.number,
-    graphSocket: PropTypes.string,
-  }).isRequired,
+  getSocket: PropTypes.func.isRequired,
+  clearSearch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.typeOfGraphSlot.backEndMessage,
-  searchField: state.typeOfGraphSlot.searchField,
-  current: state.typeOfGraphSlot.currentType,
+  errorMessage: state.typeOfRam.backEndMessage,
+  searchField: state.typeOfRam.searchField,
 });
 
 export default connect(mapStateToProps, {
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentTypeOfGraph,
-  setVisibility: setTypeOfGraphSlotVisibility,
+  setCurrent: setCurrentTypeOfRam,
+  setVisibility: setTypeOfRamVisibility,
+  getSearch: getSearchSocketRam,
+  getSocket: getTypeOfRamData,
   clearSearch: changeSearch,
-  getGraphSocket: getTypeOfGraphSlot,
-  getSearch: getSearchSocketGraph,
-})(GraphSocketUI);
+})(RamSocketUI);

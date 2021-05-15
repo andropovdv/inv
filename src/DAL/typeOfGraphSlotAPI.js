@@ -10,13 +10,13 @@ const typeOfGraphSlotAPI = {
     return instance.get(`?page=${page}&text=${text}`);
   },
   add(typeOfGraphSlot) {
-    return instance.post("/", typeOfGraphSlot);
+    return instance.post("/add", typeOfGraphSlot);
   },
   update(typeOfGraphSlot) {
-    return instance.put("/", typeOfGraphSlot);
+    return instance.put("/update", typeOfGraphSlot);
   },
   delete(id) {
-    return instance.delete(`/${id}`);
+    return instance.post("/delete", id);
   },
   allToScroll() {
     return instance.get("/all");

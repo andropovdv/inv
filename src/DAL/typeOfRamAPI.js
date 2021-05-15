@@ -1,22 +1,22 @@
 import Axios from "axios";
 
 const instance = Axios.create({
-  baseURL: "http://localhost:4000/v2/typeOfRam",
+  baseURL: "http://localhost:4000/api/socketRam",
   withCredentials: true,
 });
 
 const typeOfRamAPI = {
-  all(page) {
-    return instance.get(`?page=${page}`);
+  all(page, text) {
+    return instance.get(`?page=${page}&text=${text}`);
   },
   add(typeOfRam) {
-    return instance.post("/", typeOfRam);
+    return instance.post("/add", typeOfRam);
   },
   update(typeOfRam) {
-    return instance.put("/", typeOfRam);
+    return instance.put("/update", typeOfRam);
   },
   delete(id) {
-    return instance.delete(`/${id}`);
+    return instance.post("/delete", id);
   },
   allToScroll() {
     return instance.get("/all");

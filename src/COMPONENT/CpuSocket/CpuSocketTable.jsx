@@ -23,7 +23,7 @@ const CpuSocketTable = (props) => {
     searchField,
   } = props;
 
-  React.useState(() => {
+  React.useEffect(() => {
     getSocketCpu(pagination.current, searchField);
   }, []);
 
