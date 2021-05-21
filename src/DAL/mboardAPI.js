@@ -1,11 +1,11 @@
 import Axios from "axios";
 
 const instance = Axios.create({
-  baseURL: "http://localhost:4000/api/formFactor",
+  baseURL: "http://localhost:4000/api/mboard",
   withCredentials: true,
 });
 
-const formFactorAPI = {
+const mboardAPI = {
   all(page, text) {
     return instance.get(`?page=${page}&text=${text}`);
   },
@@ -23,4 +23,4 @@ const formFactorAPI = {
   },
 };
 
-export default formFactorAPI;
+export default mboardAPI;

@@ -36,7 +36,7 @@ const items = {
             {
               id: "0114",
               name: "Форм-фактор",
-              to: "/Vendors",
+              to: "/FormFactor",
             },
           ],
         },
@@ -53,7 +53,7 @@ const items = {
         {
           id: "abc_172.22.22.214.if.2",
           name: "Материнские платы",
-          to: "/Vendors",
+          to: "/MBoard",
         },
         {
           id: "abc_172.22.22.214.if.2",

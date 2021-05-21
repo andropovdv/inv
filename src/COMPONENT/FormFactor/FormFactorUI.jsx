@@ -1,7 +1,8 @@
-import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { PropTypes } from "prop-types";
 import CancelIcon from "@material-ui/icons/Cancel";
+import { PropTypes } from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
+import React from "react";
+import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -14,18 +15,17 @@ import {
   Typography,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import { connect } from "react-redux";
 import {
   changeSearch,
-  getSearchSocketRam,
-  getTypeOfRamData,
+  getFormFactor,
+  getSearchFormFactor,
   setBackEndMessage,
-  setCurrentTypeOfRam,
+  setCurrentFormFactor,
   setError,
-} from "../../BLL/typeOfRamReducer";
-import { setTypeOfRamVisibility } from "../../BLL/modalWindowReducer";
-import RamSocketTable from "./RamSocketTable";
-import RamSocketDialog from "./RamSocketDialog";
+} from "../../BLL/formFactorReducer";
+import { setFormFactorVisibility } from "../../BLL/modalWindowReducer";
+import FormFactorTable from "./FormFactorTable";
+import FormFactorDialog from "./FormFactorDialog";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -43,17 +43,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RamSocketUI = (props) => {
+const FormFactorUI = (props) => {
   const {
-    errorMessage,
     searchField,
-
+    errorMessage,
     setErrorCode,
     setErrorMessage,
     setCurrent,
     setVisibility,
     getSearch,
-    getSocket,
+    getFactor,
     clearSearch,
   } = props;
 
@@ -76,9 +75,13 @@ const RamSocketUI = (props) => {
     setOpen(false);
   };
 
-  const handleAdd = () => {
+  const addClick = () => {
     setCurrent(null, null);
-    setVisibility({ type: true, header: "Добавить разъем", visibility: true });
+    setVisibility({
+      type: true,
+      header: "Добавить форм-фактор",
+      visibility: true,
+    });
   };
 
   const onSearch = (e) => {
@@ -86,7 +89,7 @@ const RamSocketUI = (props) => {
   };
 
   const onClear = () => {
-    getSocket();
+    getFactor();
     clearSearch("");
   };
 
@@ -106,7 +109,7 @@ const RamSocketUI = (props) => {
         <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Typography variant="h6" align="left">
-              Справочники:/ Разъемы оперативной памяти
+              Справочники:/ Форм-фактор
             </Typography>
           </Paper>
         </Grid>
@@ -117,15 +120,15 @@ const RamSocketUI = (props) => {
                 color="primary"
                 variant="contained"
                 className={classes.buttonArea}
-                onClick={handleAdd}
+                onClick={addClick}
               >
                 Добавить
               </Button>
               <TextField
                 onChange={onSearch}
                 value={searchField}
-                size="small"
                 variant="outlined"
+                size="small"
                 label="Search"
                 InputProps={{
                   endAdornment: (
@@ -139,8 +142,8 @@ const RamSocketUI = (props) => {
               />
             </Box>
           </Paper>
-          <RamSocketTable />
-          <RamSocketDialog step={false} />
+          <FormFactorTable />
+          <FormFactorDialog step={false} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -154,7 +157,7 @@ const RamSocketUI = (props) => {
   );
 };
 
-RamSocketUI.propTypes = {
+FormFactorUI.propTypes = {
   errorMessage: PropTypes.string.isRequired,
   searchField: PropTypes.string.isRequired,
 
@@ -163,21 +166,21 @@ RamSocketUI.propTypes = {
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
   getSearch: PropTypes.func.isRequired,
-  getSocket: PropTypes.func.isRequired,
+  getFactor: PropTypes.func.isRequired,
   clearSearch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.typeOfRam.backEndMessage,
-  searchField: state.typeOfRam.searchField,
+  errorMessage: state.formFactor.backEndMessage,
+  searchField: state.formFactor.searchField,
 });
 
 export default connect(mapStateToProps, {
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentTypeOfRam,
-  setVisibility: setTypeOfRamVisibility,
-  getSearch: getSearchSocketRam,
-  getSocket: getTypeOfRamData,
+  setCurrent: setCurrentFormFactor,
+  setVisibility: setFormFactorVisibility,
+  getSearch: getSearchFormFactor,
+  getFactor: getFormFactor,
   clearSearch: changeSearch,
-})(RamSocketUI);
+})(FormFactorUI);

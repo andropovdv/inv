@@ -5,6 +5,7 @@ const SET_VISIBILITY_TYPE_OF_GRAPH_SLOT = "SET_VISIBILITY_TYPE_OF_GRAPH_SLOT";
 const SET_VISIBILITY_FORM_FACTOR = "SET_VISIBILITY_FORM_FACTOR";
 const SET_VISIBILITY_GRAPH_CARD = "SET_VISIBILITY_GRAPH_CARD";
 const SET_VISIBILITY_CPU = "SET_VISIBILITY_CPU";
+const SET_VISIBILITY_MBOARD = "SET_VISIBILITY_MBOARD";
 
 const initialState = {
   cpuSocketVisibility: { type: null, header: null, visibility: false },
@@ -12,8 +13,9 @@ const initialState = {
   cpuVisibility: { type: null, header: null, visibility: false },
   typeOfRamVisibility: { type: null, header: null, visibility: false },
   typeOfGraphSlotVisibility: { type: null, header: null, visibility: false },
-  formFactorVisibility: false,
+  formFactorVisibility: { type: null, header: null, visibility: false },
   graphCardVisibility: false,
+  mboardVisibility: { type: null, header: null, visibility: false },
 };
 
 const modalWindowReducer = (state = initialState, action) => {
@@ -33,7 +35,7 @@ const modalWindowReducer = (state = initialState, action) => {
     case SET_VISIBILITY_FORM_FACTOR: {
       return {
         ...state,
-        formFactorVisibility: action.visibility,
+        formFactorVisibility: { ...action.modal },
       };
     }
     case SET_VISIBILITY_CPU_SOKET: {
@@ -60,10 +62,21 @@ const modalWindowReducer = (state = initialState, action) => {
         typeOfGraphSlotVisibility: { ...action.modal },
       };
     }
+    case SET_VISIBILITY_MBOARD: {
+      return {
+        ...state,
+        mboardVisibility: { ...action.modal },
+      };
+    }
     default:
       return state;
   }
 };
+
+export const setMboardVisibility = (modal) => ({
+  type: SET_VISIBILITY_MBOARD,
+  modal,
+});
 
 export const setGraphCardVisibility = (visibility) => {
   return { type: SET_VISIBILITY_GRAPH_CARD, visibility };
@@ -85,8 +98,8 @@ export const setTypeOfGraphSlotVisibility = (modal) => {
   return { type: SET_VISIBILITY_TYPE_OF_GRAPH_SLOT, modal };
 };
 
-export const setFormFactorVisinility = (visibility) => {
-  return { type: SET_VISIBILITY_FORM_FACTOR, visibility };
+export const setFormFactorVisibility = (modal) => {
+  return { type: SET_VISIBILITY_FORM_FACTOR, modal };
 };
 
 export const setCpuVisibility = (modal) => {

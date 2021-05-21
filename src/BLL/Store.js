@@ -12,6 +12,7 @@ import typeOfRamReducer from "./typeOfRamReducer";
 import typeOfGraphSlotReducer from "./typeOfGraphSlotReducer";
 import formFactorReducer from "./formFactorReducer";
 import graphCardReducer from "./graphCardReducer";
+import mboardReducer from "./mboardReducer";
 
 const reducers = combineReducers({
   app: appReducer,
@@ -24,6 +25,7 @@ const reducers = combineReducers({
   typeOfGraphSlot: typeOfGraphSlotReducer,
   formFactor: formFactorReducer,
   graphCard: graphCardReducer,
+  mboard: mboardReducer,
   form: formReducer,
 });
 

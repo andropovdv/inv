@@ -27,6 +27,8 @@ const VendorSM = (props) => {
               fullWidth
               variant="outlined"
               margin="dense"
+              label="Производитель"
+              // defaultValue={current.id || vendorsAll[0].id}
               defaultValue={current.name || vendorsAll[0].label}
             >
               {vendorsAll.map((e) => (
@@ -38,6 +40,7 @@ const VendorSM = (props) => {
           }
           name="vendor"
           control={control}
+          // defaultValue={current.id || vendorsAll[0].id}
           defaultValue={current.name || vendorsAll[0].label}
         />
       )}

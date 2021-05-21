@@ -117,6 +117,9 @@ const CpuDialog = (props) => {
       visibility: true,
     });
   };
+  // FIXME
+  // Failed prop type: Invalid prop `currentGlobal.freq` of type `number`
+  // supplied to `CpuDialog`, expected `string`.
 
   return (
     <Dialog open={modal.visibility} onClose={onClose} maxWidth="sm" fullWidth>

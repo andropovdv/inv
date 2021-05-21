@@ -70,33 +70,36 @@ const typeOfRamReducer = (state = initialState, action) => {
 };
 
 // ac
-export const setTypeOfRamData = (typeOfRam, pagination) => {
-  return { type: SET_TYPE_OF_RAM, typeOfRam, pagination };
-};
+export const setTypeOfRamData = (typeOfRam, pagination) => ({
+  type: SET_TYPE_OF_RAM,
+  typeOfRam,
+  pagination,
+});
 
-export const setCurrentTypeOfRam = (current) => {
-  return { type: SET_CURRENT_TYPE_OF_RAM, current };
-};
+export const setCurrentTypeOfRam = (current) => ({
+  type: SET_CURRENT_TYPE_OF_RAM,
+  current,
+});
 
-export const toggleIsLoading = (isLoading) => {
-  return { type: TYPE_OF_RAM_IS_LOADING, isLoading };
-};
+export const toggleIsLoading = (isLoading) => ({
+  type: TYPE_OF_RAM_IS_LOADING,
+  isLoading,
+});
 
-export const setError = (error) => {
-  return { type: SET_ERROR_TYPE_OF_RAM, error };
-};
+export const setError = (error) => ({ type: SET_ERROR_TYPE_OF_RAM, error });
 
-export const setAllTypeOfRam = (allTypeOfRam) => {
-  return { type: SET_ALL_TYPE_OF_RAM, allTypeOfRam };
-};
+export const setAllTypeOfRam = (allTypeOfRam) => ({
+  type: SET_ALL_TYPE_OF_RAM,
+  allTypeOfRam,
+});
 
-export const setBackEndMessage = (message) => {
-  return { type: SET_SOCKETRAM_MESSAGE, message };
-};
+export const setBackEndMessage = (message) => ({
+  type: SET_SOCKETRAM_MESSAGE,
+  message,
+});
 
-export const changeSearch = (text) => {
-  return { type: SEARCH_SOCKET_RAM, text };
-};
+export const changeSearch = (text) => ({ type: SEARCH_SOCKET_RAM, text });
+
 // thunk
 
 const mapsFields = (resApi) => {
@@ -109,10 +112,10 @@ const mapsFields = (resApi) => {
   return newRows;
 };
 
-export const getTypeOfRamData = (page) => async (dispatch) => {
+export const getTypeOfRamData = (page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeOfRamAPI.all(page);
+    const res = await typeOfRamAPI.all(page, text);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setTypeOfRamData(finalRes, res.data.pagination));
@@ -148,9 +151,7 @@ export const getAllTypeOfRam = () => async (dispatch) => {
 };
 
 export const addTypeOfRamData = (socket, page, text) => async (dispatch) => {
-  const newObj = {
-    typeOfRam: socket.socketRam,
-  };
+  const newObj = { typeOfRam: socket.socketRam };
   dispatch(toggleIsLoading(true));
   try {
     const res = await typeOfRamAPI.add(newObj);
@@ -192,12 +193,12 @@ export const updateTypeOfRamData = (socket, page, text) => async (dispatch) => {
   }
 };
 
-export const deleteTypeOfRamData = (id) => async (dispatch) => {
+export const deleteTypeOfRamData = (id, page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   try {
     const res = await typeOfRamAPI.delete(id);
     if (res.data.status) {
-      dispatch(getTypeOfRamData());
+      dispatch(getTypeOfRamData(page, text));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));

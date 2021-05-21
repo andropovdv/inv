@@ -9,6 +9,8 @@ import CpuSocketUI from "./CpuSocket/CpuSocketUI";
 import VendorUI from "./Vendors/VendorUI";
 import GraphSocketUI from "./GraphSocket/GraphSocketUI";
 import RamSocketUI from "./RamSocket/RamSocketUI";
+import FormFactorUI from "./FormFactor/FormFactorUI";
+import MBoardUI from "./MBoard/MBoardUI";
 
 const drawerWidth = 250;
 
@@ -61,6 +63,8 @@ const First = () => {
         <Route path="/CpuSockets" render={() => <CpuSocketUI />} />
         <Route path="/GraphSockets" render={() => <GraphSocketUI />} />
         <Route path="/RamSockets" render={() => <RamSocketUI />} />
+        <Route path="/FormFactor" render={() => <FormFactorUI />} />
+        <Route path="/MBoard" render={() => <MBoardUI />} />
       </main>
     </div>
   );
