@@ -61,7 +61,7 @@ const VendorTable = (props) => {
 
   const columns = [
     { field: "id", headerName: "ID", hide: true },
-    { field: "name", headerName: "Наименование", flex: 0.5 },
+    { field: "vendor", headerName: "Наименование", flex: 0.5 },
     { field: "full", headerName: "Полное наименование", flex: 1 },
     { field: "url", headerName: "Web", hide: true },
     {
@@ -109,7 +109,7 @@ VendorTable.propTypes = {
   vendors: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
-      name: PropTypes.string,
+      vendor: PropTypes.string,
       full: PropTypes.string,
       url: PropTypes.string,
     })

@@ -9,11 +9,11 @@ const mboardAPI = {
   all(page, text) {
     return instance.get(`?page=${page}&text=${text}`);
   },
-  add(formFactor) {
-    return instance.post("/add", formFactor);
+  add(mBoard) {
+    return instance.post("/add", mBoard);
   },
-  update(formFactor) {
-    return instance.put("/update", formFactor);
+  update(mBoard) {
+    return instance.put("/update", mBoard);
   },
   delete(id) {
     return instance.post("/delete", id);

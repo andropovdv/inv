@@ -54,7 +54,7 @@ const CpusTable = (props) => {
 
   const columns = [
     { field: "id", headerName: "ID", hide: true },
-    { field: "name", headerName: "Производитель", flex: 0.5 },
+    { field: "vendor", headerName: "Производитель", flex: 0.5 },
     { field: "model", headerName: "Модель", flex: 1 },
     { field: "socketCpu", headerName: "Разъем", flex: 0.5 },
     {

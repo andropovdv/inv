@@ -71,36 +71,35 @@ const vendorReducer = (state = initialState, action) => {
 
 // AS
 
-export const setBackEndMessage = (message) => {
-  return { type: SET_VENDOR_MESSAGE, message };
-};
+export const setBackEndMessage = (message) => ({
+  type: SET_VENDOR_MESSAGE,
+  message,
+});
 
-export const toggleIsLoading = (isLoading) => {
-  return { type: VENDOR_IS_LOADING, isLoading };
-};
+export const toggleIsLoading = (isLoading) => ({
+  type: VENDOR_IS_LOADING,
+  isLoading,
+});
 
-export const setVendorsData = (vendors, pagination) => {
-  return { type: SET_VENDORS, vendors, pagination };
-};
+export const setVendorsData = (vendors, pagination) => ({
+  type: SET_VENDORS,
+  vendors,
+  pagination,
+});
 
-export const setVendorsAllData = (vendors) => {
-  return { type: SET_VENDORS_ALL, vendors };
-};
+export const setVendorsAllData = (vendors) => ({
+  type: SET_VENDORS_ALL,
+  vendors,
+});
 
-export const setCurrentVendor = (currentVendor) => {
-  return {
-    type: SET_CURRENT_VENDOR,
-    currentVendor,
-  };
-};
+export const setCurrentVendor = (currentVendor) => ({
+  type: SET_CURRENT_VENDOR,
+  currentVendor,
+});
 
-export const setError = (code) => {
-  return { type: SET_ERROR_VENDOR, code };
-};
+export const setError = (code) => ({ type: SET_ERROR_VENDOR, code });
 
-export const changeSearch = (text) => {
-  return { type: SET_SEARCH_FIELD, text };
-};
+export const changeSearch = (text) => ({ type: SET_SEARCH_FIELD, text });
 
 // THUNK
 
@@ -108,7 +107,7 @@ export const mapsFields = (resApi) => {
   const newRows = resApi.map((e) => {
     const row = {};
     row.id = e.id_vendor;
-    row.name = e.name;
+    row.vendor = e.name;
     row.full = e.full_name;
     row.url = e.url;
     return row;
@@ -202,7 +201,7 @@ export const deleteVendorData = (idVendor) => async (dispatch) => {
 
 export const addVendorData = (vendor, page, text) => async (dispatch) => {
   const newObj = {
-    name: vendor.name,
+    name: vendor.vendor,
     full_name: vendor.full,
     url: vendor.url,
   };
@@ -230,7 +229,7 @@ export const updateVendorData = (updateVendor, page, text) => async (
 ) => {
   const newObj = {
     id_vendor: updateVendor.id,
-    name: updateVendor.name,
+    name: updateVendor.vendor,
     full_name: updateVendor.full,
     url: updateVendor.url,
   };

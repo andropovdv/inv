@@ -44,6 +44,13 @@ const useStyles = makeStyles((theme) => ({
     top: "53%",
     transform: "translate(-53%, -53%)",
   },
+  textField: {
+    marginTop: theme.spacing(1),
+  },
+  actionButton: {
+    paddingRight: 24,
+    paddingBottom: 24,
+  },
 }));
 
 const VendorDialog = (props) => {
@@ -77,7 +84,7 @@ const VendorDialog = (props) => {
     } else {
       const upVendor = {
         id: current.id,
-        name: data.name,
+        vendor: data.vendor,
         full: data.full,
         url: data.url,
       };
@@ -107,18 +114,22 @@ const VendorDialog = (props) => {
                 autoFocus
                 fullWidth
                 variant="outlined"
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
                 margin="dense"
                 label={errors.name ? errors.name.message : "Наименование"}
                 error={!!errors.name}
               />
             }
-            name="name"
+            name="vendor"
             control={control}
             rules={{
               required: "Обязательное",
               minLength: { value: 2, message: "Короткое" },
             }}
-            defaultValue={current.name || ""}
+            defaultValue={current.vendor || ""}
           />
           <Controller
             as={
@@ -127,6 +138,10 @@ const VendorDialog = (props) => {
                 variant="outlined"
                 margin="dense"
                 label="Полное наименование"
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
                 error={!!errors.full}
               />
             }
@@ -141,6 +156,10 @@ const VendorDialog = (props) => {
                 variant="outlined"
                 margin="dense"
                 label="Сайт"
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
                 error={!!errors.url}
               />
             }
@@ -149,12 +168,12 @@ const VendorDialog = (props) => {
             defaultValue={current.url || ""}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
-            Cancel
+            Отмера
           </Button>
           <Button color="secondary" type="submit" variant="outlined">
-            Save
+            Записать
           </Button>
         </DialogActions>
       </form>
@@ -163,7 +182,7 @@ const VendorDialog = (props) => {
 };
 
 VendorDialog.propTypes = {
-  step: PropTypes.bool.isRequired,
+  step: PropTypes.bool,
   modal: PropTypes.shape({
     type: PropTypes.bool,
     header: PropTypes.string,
@@ -171,10 +190,10 @@ VendorDialog.propTypes = {
   }).isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
+    vendor: PropTypes.string,
     full: PropTypes.string,
     url: PropTypes.string,
-  }).isRequired,
+  }),
 
   searchField: PropTypes.string.isRequired,
   pagination: PropTypes.shape({
@@ -191,9 +210,18 @@ VendorDialog.propTypes = {
   updateVendor: PropTypes.func.isRequired,
 };
 
+VendorDialog.defaultProps = {
+  current: {
+    id: undefined,
+    vendor: undefined,
+    full: undefined,
+    url: undefined,
+  },
+  step: true,
+};
+
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.vendorVisibility,
-  current: state.vendor.currentVendor,
   searchField: state.vendor.searchField,
   pagination: state.vendor.pagination,
 });

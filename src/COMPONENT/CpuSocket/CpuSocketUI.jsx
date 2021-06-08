@@ -90,7 +90,7 @@ const CpuSocketUI = (props) => {
 
   return (
     <>
-      <CpuSocketDialog current={current.socketCpu || ""} />
+      <CpuSocketDialog current={current} />
       <Snackbar
         open={open}
         autoHideDuration={6000}

@@ -20,7 +20,7 @@ import {
   updateSocketCpuData,
 } from "../../BLL/typeSocketCpuReducer";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   dialog: {
     position: "absolute",
     left: "53%",
@@ -33,6 +33,13 @@ const useStyles = makeStyles(() => ({
     top: "50%",
     transform: "translate(-50%, -50%)",
   },
+  textField: {
+    marginTop: theme.spacing(1),
+  },
+  actionButton: {
+    paddingRight: 24,
+    paddingBottom: 24,
+  },
 }));
 
 const CpuSocketDialog = (props) => {
@@ -42,7 +49,6 @@ const CpuSocketDialog = (props) => {
     setErrorMessage,
     addCpuSocket,
     updateSocket,
-    currentGlobal,
     searchField,
     pagination,
 
@@ -65,7 +71,7 @@ const CpuSocketDialog = (props) => {
     if (modal.type) {
       await addCpuSocket(data, pagination.current, searchField);
     } else {
-      const upSocket = { id: currentGlobal.id, socketCpu: data.socketCpu };
+      const upSocket = { id: current.id, socketCpu: data.socketCpu };
       await updateSocket(upSocket, pagination.current, searchField);
     }
     setVisibility({ type: false, header: "", visibility: false });
@@ -93,24 +99,35 @@ const CpuSocketDialog = (props) => {
                 autoFocus
                 fullWidth
                 variant="outlined"
-                placeholder="Cpu socket"
                 margin="dense"
-                label="Cpu socket"
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                label={
+                  errors.socketCpu
+                    ? errors.socketCpu.message
+                    : "Разъем процессора"
+                }
                 error={!!errors.socketCpu}
               />
             }
             name="socketCpu"
             control={control}
-            rules={{ required: true }}
-            defaultValue={current}
+            rules={{
+              required: "Обязательное",
+              minLength: { value: 2, message: "Короткое" },
+            }}
+            defaultValue={current.socketCpu || ""}
           />
-          {errors.socketCpu && "is required"}
         </DialogContent>
-        <DialogActions>
-          <Button color="primary" onClick={onClose}>
-            Cancel
+        <DialogActions className={classes.actionButton}>
+          <Button color="primary" variant="outlined" onClick={onClose}>
+            Отмена
           </Button>
-          <Button type="submit">SAVE</Button>
+          <Button type="submit" variant="outlined" color="secondary">
+            Записать
+          </Button>
         </DialogActions>
       </form>
     </Dialog>
@@ -119,6 +136,10 @@ const CpuSocketDialog = (props) => {
 
 CpuSocketDialog.defaultProps = {
   step: true,
+  current: {
+    id: undefined,
+    socketCpu: undefined,
+  },
 };
 
 CpuSocketDialog.propTypes = {
@@ -128,7 +149,10 @@ CpuSocketDialog.propTypes = {
   addCpuSocket: PropTypes.func.isRequired,
   updateSocket: PropTypes.func.isRequired,
 
-  current: PropTypes.string.isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    socketCpu: PropTypes.string,
+  }),
   searchField: PropTypes.string.isRequired,
   pagination: PropTypes.shape({
     total: PropTypes.number,
@@ -141,16 +165,11 @@ CpuSocketDialog.propTypes = {
     header: PropTypes.string,
     visibility: PropTypes.bool,
   }).isRequired,
-  currentGlobal: PropTypes.shape({
-    id: PropTypes.number,
-    socketCpu: PropTypes.string,
-  }).isRequired,
   step: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.cpuSocketVisibility,
-  currentGlobal: state.typeCpuSocket.currentType,
   searchField: state.typeCpuSocket.searchField,
   pagination: state.typeCpuSocket.pagination,
 });

@@ -88,17 +88,32 @@ export const setBackEndMessage = (message) => {
 };
 // THUNK
 
-export const mapsFields = (resApi) => {
-  const newRows = resApi.map((e) => {
+const mapsFields = (cpu) => {
+  const newRows = cpu.map((e) => {
     const row = {};
     row.id = e.id_cpu;
-    row.name = e.name;
+    row.vendor = e.name;
     row.model = e.model;
     row.socketCpu = e.name_typeSocketCpu;
     row.freq = e.frequency;
+    row.graphKernel = e.graphKernel === 1;
     return row;
   });
   return newRows;
+};
+
+const unMapsField = (cpu) => {
+  let kernel = 0;
+  if (cpu.graphKernel) kernel = 1;
+  const apiCpu = {
+    id_cpu: cpu.id,
+    name: cpu.vendor,
+    name_typeSocketCpu: cpu.socketCpu,
+    model: cpu.model,
+    frequency: cpu.freq,
+    graphKernel: kernel,
+  };
+  return apiCpu;
 };
 
 export const getCpusData = (page, text) => async (dispatch) => {
@@ -108,41 +123,34 @@ export const getCpusData = (page, text) => async (dispatch) => {
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setCpusData(finalRes, res.data.pagination));
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
 
 export const updateCpusData = (cpu, page, text) => async (dispatch) => {
-  const newObj = {
-    vendor: cpu.name,
-    model: cpu.model,
-    name_typeSocketCpu: cpu.socketCpu,
-    id_cpu: cpu.id,
-    frequency: cpu.freq,
-  };
   dispatch(toggleIsLoading(true));
   try {
-    const res = await cpuAPI.update(newObj);
+    const finalData = unMapsField(cpu);
+    const res = await cpuAPI.update(finalData);
     if (res.data.status) {
       dispatch(getCpusData(page, text));
       dispatch(setCurrentCpu(cpu));
-      dispatch(toggleIsLoading(false));
+      dispatch(setCurrentCpu(cpu));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
@@ -153,20 +161,16 @@ export const deleteCpusData = (id_cpu, page, text) => async (dispatch) => {
     const res = await cpuAPI.delete(id_cpu);
     if (res.data.status) {
       dispatch(getCpusData(page, text));
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
-  cpuAPI.delete(id_cpu).then(() => {
-    dispatch(getCpusData());
-  });
 };
 
 export const addCpusData = (cpu, page, text) => async (dispatch) => {
@@ -181,15 +185,14 @@ export const addCpusData = (cpu, page, text) => async (dispatch) => {
     const res = await cpuAPI.add(newObj);
     if (res.data.status) {
       dispatch(getCpusData(page, text));
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
@@ -203,15 +206,14 @@ export const getSearchCpu = (text, page) => async (dispatch) => {
         const finalRes = mapsFields(res.data.result);
         dispatch(setCpusData(finalRes, res.data.pagination));
         dispatch(changeSearch(text));
-        dispatch(toggleIsLoading(false));
       } else {
         dispatch(setError(res.data.errorCode));
         dispatch(setBackEndMessage(res.data.message));
-        dispatch(toggleIsLoading(false));
       }
     } catch (e) {
       dispatch(setError(500));
       dispatch(setBackEndMessage(e.message));
+    } finally {
       dispatch(toggleIsLoading(false));
     }
   } else {

@@ -101,7 +101,7 @@ const VendorUI = (props) => {
 
   return (
     <>
-      <VendorDialog step />
+      <VendorDialog current={current} />
       <Snackbar
         open={open}
         autoHideDuration={6000}
@@ -164,12 +164,14 @@ const VendorUI = (props) => {
                     Производитель:
                   </Box>
                   <Box textOverflow="ellipsis" overflow="hidden">
-                    <b>{current.name}</b>
+                    <b>{current.vendor}</b>
                   </Box>
                 </Box>
                 <Box display="flex" direction="row">
-                  <Box flexGrow={1}>Полное:</Box>
-                  <Box>
+                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                    Полное:
+                  </Box>
+                  <Box textOverflow="ellipsis" overflow="hidden">
                     <b>{current.full}</b>
                   </Box>
                 </Box>
@@ -210,7 +212,7 @@ VendorUI.propTypes = {
   searchField: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
+    vendor: PropTypes.string,
     full: PropTypes.string,
     url: PropTypes.string,
   }).isRequired,

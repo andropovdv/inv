@@ -102,6 +102,7 @@ const GraphSocketUI = (props) => {
 
   return (
     <>
+      <GraphSocketDialog current={current} />
       <Snackbar
         open={open}
         autoHideDuration={6000}
@@ -151,7 +152,6 @@ const GraphSocketUI = (props) => {
             </Box>
           </Paper>
           <GraphSocketTable />
-          <GraphSocketDialog step={false} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -165,7 +165,7 @@ const GraphSocketUI = (props) => {
                     Название:
                   </Box>
                   <Box textOverflow="ellipsis" overflow="hidden">
-                    {current.graphSocket}
+                    {current.socketGraph}
                   </Box>
                 </Box>
               </Box>
@@ -190,7 +190,7 @@ GraphSocketUI.propTypes = {
   searchField: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    graphSocket: PropTypes.string,
+    socketGraph: PropTypes.string,
   }).isRequired,
 };
 

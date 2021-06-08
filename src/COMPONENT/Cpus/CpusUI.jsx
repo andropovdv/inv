@@ -110,7 +110,7 @@ const CpusUI = (props) => {
         onClose={handleClose}
         anchorOrigin={{ vertical: "top", horizontal: "left" }}
       >
-        <Alert onClose={handleClose} severity="warning">
+        <Alert onClose={handleClose} severity="error">
           {errorMessage}
         </Alert>
       </Snackbar>
@@ -154,7 +154,7 @@ const CpusUI = (props) => {
           </Paper>
           <CpusTable />
           <CpuDialog />
-          <CpuSocketDialog current={current.socketCpu || ""} step={false} />
+          <CpuSocketDialog current={current} step={false} />
           <VendorDialog step={false} />
         </Grid>
         <Grid item xs={3}>
@@ -169,7 +169,7 @@ const CpusUI = (props) => {
                     Производитель:
                   </Box>
                   <Box textOverflow="ellipsis" overflow="hidden">
-                    {current.name}
+                    {current.vendor}
                   </Box>
                 </Box>
                 <Box display="flex" direction="row">
@@ -200,10 +200,10 @@ const CpusUI = (props) => {
 CpusUI.propTypes = {
   current: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
+    vendor: PropTypes.string,
     model: PropTypes.string,
     socketCpu: PropTypes.string,
-    freq: PropTypes.string,
+    freq: PropTypes.number,
   }).isRequired,
   setVisibilityCpu: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,

@@ -35,7 +35,7 @@ const GraphSocketDelete = (props) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Удалить</DialogTitle>
       <DialogContent>
-        {`Вы действительно хотите удалить ${current.graphSocket}`}
+        {`Вы действительно хотите удалить ${current.socketGraph}`}
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={onClose}>
@@ -57,7 +57,7 @@ GraphSocketDelete.propTypes = {
 
   current: PropTypes.shape({
     id: PropTypes.number,
-    graphSocket: PropTypes.string,
+    socketGraph: PropTypes.string,
   }).isRequired,
   pagination: PropTypes.shape({
     total: PropTypes.number,

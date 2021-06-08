@@ -45,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
 
 const FormFactorUI = (props) => {
   const {
+    current,
     searchField,
     errorMessage,
     setErrorCode,
@@ -95,6 +96,7 @@ const FormFactorUI = (props) => {
 
   return (
     <>
+      <FormFactorDialog current={current} />
       <Snackbar
         open={open}
         autoHideDuration={6000}
@@ -143,7 +145,6 @@ const FormFactorUI = (props) => {
             </Box>
           </Paper>
           <FormFactorTable />
-          <FormFactorDialog step={false} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -160,6 +161,10 @@ const FormFactorUI = (props) => {
 FormFactorUI.propTypes = {
   errorMessage: PropTypes.string.isRequired,
   searchField: PropTypes.string.isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    formFactor: PropTypes.string,
+  }).isRequired,
 
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
@@ -173,6 +178,7 @@ FormFactorUI.propTypes = {
 const mapStateToProps = (state) => ({
   errorMessage: state.formFactor.backEndMessage,
   searchField: state.formFactor.searchField,
+  current: state.formFactor.currentType,
 });
 
 export default connect(mapStateToProps, {

@@ -32,7 +32,7 @@ const CpuDelete = (props) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Удалить</DialogTitle>
       <DialogContent>
-        {`Вы действительно хотите удалить ${current.name} ${current.model}`}
+        {`Вы действительно хотите удалить ${current.vendor} ${current.model}`}
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={onClose}>
@@ -49,7 +49,7 @@ const CpuDelete = (props) => {
 CpuDelete.propTypes = {
   current: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
+    vendor: PropTypes.string,
     model: PropTypes.string,
     socketCpu: PropTypes.string,
   }).isRequired,

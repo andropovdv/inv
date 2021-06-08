@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import { CircularProgress, MenuItem, Select } from "@material-ui/core";
 import { getVendorAllData } from "../../../BLL/vendorReducer";
-
+// TODO посмотреть PropTypes => control
 const VendorSM = (props) => {
   const { getVendor, vendorsAll, isLoading, control, current } = props;
 
@@ -29,7 +29,7 @@ const VendorSM = (props) => {
               margin="dense"
               label="Производитель"
               // defaultValue={current.id || vendorsAll[0].id}
-              defaultValue={current.name || vendorsAll[0].label}
+              defaultValue={current.vendor || vendorsAll[0].label}
             >
               {vendorsAll.map((e) => (
                 <MenuItem key={e.id} value={e.label}>
@@ -41,7 +41,7 @@ const VendorSM = (props) => {
           name="vendor"
           control={control}
           // defaultValue={current.id || vendorsAll[0].id}
-          defaultValue={current.name || vendorsAll[0].label}
+          defaultValue={current.vendor || vendorsAll[0].label}
         />
       )}
     </>
@@ -58,9 +58,7 @@ VendorSM.propTypes = {
   ).isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
-    model: PropTypes.string,
-    url: PropTypes.string,
+    vendor: PropTypes.string,
   }).isRequired,
   isLoading: PropTypes.bool.isRequired,
 };
@@ -68,7 +66,6 @@ VendorSM.propTypes = {
 const mapStateToProps = (state) => ({
   vendorsAll: state.vendor.vendorsAll,
   isLoading: state.vendor.isLoading,
-  current: state.cpu.currentCpu, // FIXME продумать передачу current из компонента
 });
 
 export default connect(mapStateToProps, { getVendor: getVendorAllData })(

@@ -10,8 +10,9 @@ import {
   IconButton,
   InputLabel,
   InputAdornment,
-  Typography,
-  Switch,
+  FormControl,
+  FormControlLabel,
+  Checkbox,
 } from "@material-ui/core";
 import { useForm, Controller } from "react-hook-form";
 import React from "react";
@@ -59,6 +60,13 @@ const useStyles = makeStyles((theme) => ({
     minHeight: "1.1876 em",
     // minWidth: 0,
   },
+  textField: {
+    marginTop: theme.spacing(1),
+  },
+  actionButton: {
+    paddingRight: 24,
+    paddingBottom: 24,
+  },
 }));
 
 const CpuDialog = (props) => {
@@ -90,14 +98,8 @@ const CpuDialog = (props) => {
     if (modal.type) {
       await addCpu(data, pagination.current, searchField);
     } else {
-      const upCpu = {
-        id: currentGlobal.id,
-        name: data.vendor,
-        model: data.model,
-        socketCpu: data.socket,
-        freq: data.freq,
-      };
-      await updateCpu(upCpu, pagination.current, searchField);
+      const res = { ...data, id: currentGlobal.id };
+      await updateCpu(res, pagination.current, searchField);
     }
     setVisibilityCpu({ type: false, header: "", visibility: false });
   };
@@ -117,6 +119,7 @@ const CpuDialog = (props) => {
       visibility: true,
     });
   };
+
   // FIXME
   // Failed prop type: Invalid prop `currentGlobal.freq` of type `number`
   // supplied to `CpuDialog`, expected `string`.
@@ -126,29 +129,8 @@ const CpuDialog = (props) => {
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Box display="flex" alignItems="flex-end">
-            <Box flexGrow={1}>
-              <InputLabel id="labelVendor">Производитель</InputLabel>
-              <VendorSM control={control} />
-            </Box>
-            <Box alignItems="flex-end">
-              <IconButton className={classes.button} onClick={clickVendor}>
-                <AddBoxIcon color="primary" fontSize="large" />
-              </IconButton>
-            </Box>
-          </Box>
-          <InputLabel id="modelInput">Модель</InputLabel>
+          {/* Model */}
           <Controller
-            as={
-              <TextField
-                id="modelModel"
-                fullWidth
-                variant="outlined"
-                margin="dense"
-                error={!!errors.model}
-                label={errors.model ? errors.model.message : null}
-              />
-            }
             name="model"
             control={control}
             rules={{
@@ -156,26 +138,58 @@ const CpuDialog = (props) => {
               minLength: { value: 2, message: "Короткое" },
             }}
             defaultValue={currentGlobal.model || ""}
-          />
-          <Box display="flex" alignItems="center">
-            <Box flexGrow={1}>
-              <Typography variant="h6">Графическое ядро</Typography>
-            </Box>
-            <Box alignItems="flex-end">
-              <Switch color="primary" />
-            </Box>
-          </Box>
-          <InputLabel id="freq">Частота процессора</InputLabel>
-          <Controller
             as={
               <TextField
-                id="freq"
+                autoFocus
+                fullWidth
+                className={classes.textField}
+                id="modelInput"
+                variant="outlined"
+                size="small"
+                error={!!errors.model}
+                label={errors.model ? errors.model.message : "Модель"}
+                InputLabelProps={{ shrink: true }}
+              />
+            }
+          />
+          {/* Vendors */}
+          <FormControl
+            variant="outlined"
+            fullWidth
+            className={classes.textField}
+          >
+            <Box display="flex" alignItems="flex-end">
+              <Box flexGrow={1}>
+                <InputLabel id="labelVendor">Производитель</InputLabel>
+                <VendorSM control={control} current={currentGlobal} />
+              </Box>
+              <Box alignItems="flex-end">
+                <IconButton className={classes.button} onClick={clickVendor}>
+                  <AddBoxIcon color="primary" fontSize="large" />
+                </IconButton>
+              </Box>
+            </Box>
+          </FormControl>
+          {/* Freq */}
+          <Controller
+            name="freq"
+            control={control}
+            rules={{
+              required: "Обязательно",
+              minLength: { value: 2, message: "Короткое" },
+            }}
+            defaultValue={currentGlobal.freq || ""}
+            as={
+              <TextField
+                // id="freq"
                 type="number"
                 fullWidth
+                className={classes.textField}
                 variant="outlined"
-                margin="dense"
-                error={!!errors.freq}
-                label={errors.freq ? errors.freq.message : null}
+                size="small"
+                error={!!errors.model}
+                label={errors.freq ? errors.freq.message : "Частота"}
+                InputLabelProps={{ shrink: true }}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">MHz</InputAdornment>
@@ -183,27 +197,47 @@ const CpuDialog = (props) => {
                 }}
               />
             }
-            name="freq"
-            control={control}
-            rules={{
-              required: "Обязательное",
-              minLength: { value: 3, message: "Короткое" },
-            }}
-            defaultValue={currentGlobal.freq || ""}
           />
-          <Box display="flex" alignItems="flex-end">
-            <Box flexGrow={1}>
-              <InputLabel id="socketCpu">Разъем процессора</InputLabel>
-              <CpuSocketSM control={control} />
+          <FormControl
+            variant="outlined"
+            fullWidth
+            className={classes.textField}
+          >
+            <Box display="flex" alignItems="flex-end">
+              <Box flexGrow={1}>
+                <InputLabel id="socketCpu">Разъем процессора</InputLabel>
+                <CpuSocketSM control={control} current={currentGlobal} />
+              </Box>
+              <Box>
+                <IconButton className={classes.button} onClick={clickSocket}>
+                  <AddBoxIcon color="primary" fontSize="large" />
+                </IconButton>
+              </Box>
             </Box>
-            <Box>
-              <IconButton className={classes.button} onClick={clickSocket}>
-                <AddBoxIcon color="primary" fontSize="large" />
-              </IconButton>
-            </Box>
-          </Box>
+          </FormControl>
+          {/* Graph kernel */}
+          <Controller
+            name="graphKernel"
+            control={control}
+            defaultValue={currentGlobal.graphKernel || false}
+            render={({ onChange }) => (
+              <FormControl>
+                <FormControlLabel
+                  label="Графическое ядро"
+                  labelPlacement="end"
+                  control={
+                    <Checkbox
+                      defaultChecked={currentGlobal.graphKernel || false}
+                      color="primary"
+                      onChange={(e) => onChange(e.target.checked)}
+                    />
+                  }
+                />
+              </FormControl>
+            )}
+          />
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
@@ -233,10 +267,11 @@ CpuDialog.propTypes = {
   }).isRequired,
   currentGlobal: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
+    vendor: PropTypes.string,
     model: PropTypes.string,
     socketCpu: PropTypes.string,
-    freq: PropTypes.string,
+    freq: PropTypes.number,
+    graphKernel: PropTypes.bool,
   }).isRequired,
   pagination: PropTypes.shape({
     total: PropTypes.number,

@@ -71,33 +71,35 @@ const typeSocketCpuReducer = (state = initialState, action) => {
 
 // AC
 
-export const changeSearch = (text) => {
-  return { type: SEARCH_SOCKET_CPU, text };
-};
+export const changeSearch = (text) => ({ type: SEARCH_SOCKET_CPU, text });
 
-export const setBackEndMessage = (message) => {
-  return { type: SET_SOCKETCPU_MESSAGE, message };
-};
+export const setBackEndMessage = (message) => ({
+  type: SET_SOCKETCPU_MESSAGE,
+  message,
+});
 
-export const toggleIsLoading = (isLoading) => {
-  return { type: TYPE_CPU_SOCKET_IS_LOADING, isLoading };
-};
+export const toggleIsLoading = (isLoading) => ({
+  type: TYPE_CPU_SOCKET_IS_LOADING,
+  isLoading,
+});
 
-export const setSocketCpuData = (cpuSockets, pagination) => {
-  return { type: SET_TYPE_CPU_SOKET, cpuSockets, pagination };
-};
+export const setSocketCpuData = (cpuSockets, pagination) => ({
+  type: SET_TYPE_CPU_SOKET,
+  cpuSockets,
+  pagination,
+});
 
-export const setAllSocketCpuData = (socketCpu) => {
-  return { type: SET_ALL_TYPE_CPU_SOKET, socketCpu };
-};
+export const setAllSocketCpuData = (socketCpu) => ({
+  type: SET_ALL_TYPE_CPU_SOKET,
+  socketCpu,
+});
 
-export const setCurrentSocketCpu = (currentType) => {
-  return { type: SET_CURRENT_TYPE_CPU_SOCKET, currentType };
-};
+export const setCurrentSocketCpu = (currentType) => ({
+  type: SET_CURRENT_TYPE_CPU_SOCKET,
+  currentType,
+});
 
-export const setError = (code) => {
-  return { type: SET_ERROR_TYPE_CPU_SOCKET, code };
-};
+export const setError = (code) => ({ type: SET_ERROR_TYPE_CPU_SOCKET, code });
 
 // THUNK
 

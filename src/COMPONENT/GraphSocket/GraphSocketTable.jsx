@@ -64,7 +64,7 @@ const GraphSocketTable = (props) => {
 
   const columns = [
     { field: "id", headerName: "ID", hide: true },
-    { field: "graphSocket", headerName: "Разъем гр.карты", flex: 1 },
+    { field: "socketGraph", headerName: "Разъем гр.карты", flex: 1 },
     {
       field: "action",
       width: 120,
@@ -111,7 +111,7 @@ GraphSocketTable.propTypes = {
   graphSockets: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
-      graphSocket: PropTypes.string,
+      socketGraph: PropTypes.string,
     })
   ).isRequired,
   pagination: PropTypes.shape({

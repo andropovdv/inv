@@ -47,6 +47,7 @@ const RamSocketUI = (props) => {
   const {
     errorMessage,
     searchField,
+    current,
 
     setErrorCode,
     setErrorMessage,
@@ -92,6 +93,7 @@ const RamSocketUI = (props) => {
 
   return (
     <>
+      <RamSocketDialog current={current} />
       <Snackbar
         open={open}
         autoHideDuration={6000}
@@ -140,7 +142,6 @@ const RamSocketUI = (props) => {
             </Box>
           </Paper>
           <RamSocketTable />
-          <RamSocketDialog step={false} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -157,6 +158,10 @@ const RamSocketUI = (props) => {
 RamSocketUI.propTypes = {
   errorMessage: PropTypes.string.isRequired,
   searchField: PropTypes.string.isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    socketRam: PropTypes.string,
+  }).isRequired,
 
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
@@ -170,6 +175,7 @@ RamSocketUI.propTypes = {
 const mapStateToProps = (state) => ({
   errorMessage: state.typeOfRam.backEndMessage,
   searchField: state.typeOfRam.searchField,
+  current: state.typeOfRam.currentType,
 });
 
 export default connect(mapStateToProps, {

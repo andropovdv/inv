@@ -11,6 +11,7 @@ import GraphSocketUI from "./GraphSocket/GraphSocketUI";
 import RamSocketUI from "./RamSocket/RamSocketUI";
 import FormFactorUI from "./FormFactor/FormFactorUI";
 import MBoardUI from "./MBoard/MBoardUI";
+import GraphCardUI from "./GraphCard/GraphCardUI";
 
 const drawerWidth = 250;
 
@@ -65,6 +66,7 @@ const First = () => {
         <Route path="/RamSockets" render={() => <RamSocketUI />} />
         <Route path="/FormFactor" render={() => <FormFactorUI />} />
         <Route path="/MBoard" render={() => <MBoardUI />} />
+        <Route path="/GraphCard" render={() => <GraphCardUI />} />
       </main>
     </div>
   );

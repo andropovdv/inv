@@ -23,12 +23,13 @@ const CpuSocketSM = (props) => {
         <Controller
           as={
             <Select
-              displayEmpty
+              // displayEmpty
               id="socketCpu"
               disabled={isLoading}
               fullWidth
               variant="outlined"
               margin="dense"
+              label="Разъем процессора"
               // defaultValue={value}
               defaultValue={current.socketCpu || cpuSocketsAll[0].label}
             >
@@ -39,7 +40,7 @@ const CpuSocketSM = (props) => {
               ))}
             </Select>
           }
-          name="socket"
+          name="socketCpu"
           control={control}
           // defaultValue={value}
           defaultValue={current.socketCpu || cpuSocketsAll[0].label}
@@ -59,8 +60,6 @@ CpuSocketSM.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
-    model: PropTypes.string,
     socketCpu: PropTypes.string,
   }).isRequired,
   getSocketAllCpu: PropTypes.func.isRequired,
@@ -69,7 +68,7 @@ CpuSocketSM.propTypes = {
 const mapStateToProps = (state) => ({
   cpuSocketsAll: state.typeCpuSocket.cpuSocketsAll,
   isLoading: state.typeCpuSocket.isLoading,
-  current: state.cpu.currentCpu,
+  // current: state.cpu.currentCpu,
 });
 
 export default connect(mapStateToProps, {

@@ -18,6 +18,7 @@ import Alert from "@material-ui/lab/Alert";
 import {
   changeSearch,
   getMboardData,
+  getSearchMboard,
   setBackEndMessage,
   setCurrentMboard,
   setError,
@@ -25,6 +26,11 @@ import {
 import { setMboardVisibility } from "../../BLL/modalWindowReducer";
 import MBoardTable from "./MBoardTable";
 import MBoardDialog from "./MBoardDialog";
+import VendorDialog from "../Vendors/VendorDialog";
+import CpuSocketDialog from "../CpuSocket/CpuSocketDialog";
+import RamSocketDialog from "../RamSocket/RamSocketDialog";
+import GraphSocketDialog from "../GraphSocket/GraphSocketDialog";
+import FormFactorDialog from "../FormFactor/FormFactorDialog";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -53,6 +59,7 @@ const MBoardUI = (props) => {
     setVisibility,
     getMboard,
     clearSearch,
+    getSearch,
   } = props;
 
   const classes = useStyles();
@@ -84,8 +91,7 @@ const MBoardUI = (props) => {
   };
 
   const onSearch = (e) => {
-    console.log(e);
-    // getSearch(e.target.value);
+    getSearch(e.target.value);
   };
 
   const onClear = () => {
@@ -105,7 +111,13 @@ const MBoardUI = (props) => {
           {errorMessage}
         </Alert>
       </Snackbar>
-      <MBoardDialog step={false} />
+      <VendorDialog step={false} />
+      <CpuSocketDialog step={false} />
+      <RamSocketDialog step={false} />
+      <GraphSocketDialog step={false} />
+      <FormFactorDialog step={false} />
+
+      <MBoardDialog step />
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -134,7 +146,7 @@ const MBoardUI = (props) => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment>
-                      <IconButton onClick={onClear}>
+                      <IconButton onClick={onClear} edge="end">
                         <CancelIcon />
                       </IconButton>
                     </InputAdornment>
@@ -234,6 +246,14 @@ const MBoardUI = (props) => {
                 </Box>
                 <Box display="flex" direction="row">
                   <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                    Количество слотов IDE:
+                  </Box>
+                  <Box textOverflow="ellipsis" overflow="hidden">
+                    {current.quantityIDE}
+                  </Box>
+                </Box>
+                <Box display="flex" direction="row">
+                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
                     Количество слотов SATA:
                   </Box>
                   <Box textOverflow="ellipsis" overflow="hidden">
@@ -271,6 +291,7 @@ MBoardUI.propTypes = {
     socketGraph: PropTypes.string,
     quantityPCI: PropTypes.number,
     quantityPCIE: PropTypes.number,
+    quantityIDE: PropTypes.number,
     quantitySATA: PropTypes.number,
     formFactor: PropTypes.string,
     intLAN: PropTypes.bool,
@@ -282,6 +303,7 @@ MBoardUI.propTypes = {
   setVisibility: PropTypes.func.isRequired,
   getMboard: PropTypes.func.isRequired,
   clearSearch: PropTypes.func.isRequired,
+  getSearch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -297,4 +319,5 @@ export default connect(mapStateToProps, {
   setVisibility: setMboardVisibility,
   getMboard: getMboardData,
   clearSearch: changeSearch,
+  getSearch: getSearchMboard,
 })(MBoardUI);

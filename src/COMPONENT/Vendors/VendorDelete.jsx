@@ -22,7 +22,7 @@ const VendorDelete = (props) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Удалить</DialogTitle>
       <DialogContent>
-        {`Вы действительно хотите удалить ${current.name}`}
+        {`Вы действительно хотите удалить ${current.vendor}`}
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={onClose}>
@@ -39,7 +39,7 @@ const VendorDelete = (props) => {
 VendorDelete.propTypes = {
   current: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
+    vendor: PropTypes.string,
     full: PropTypes.string,
     url: PropTypes.string,
   }).isRequired,

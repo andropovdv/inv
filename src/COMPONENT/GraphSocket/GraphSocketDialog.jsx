@@ -70,7 +70,7 @@ const GraphSocketDialog = (props) => {
     if (modal.type) {
       await addGraphSocket(data, pagination.current, searchField);
     } else {
-      const upSocket = { id: current.id, graphSocket: data.socketGraph };
+      const upSocket = { id: current.id, socketGraph: data.socketGraph };
       await updateGraphSocket(upSocket, pagination.current, searchField);
     }
     setVisibility({ type: false, header: "", visibility: false });
@@ -94,7 +94,11 @@ const GraphSocketDialog = (props) => {
                 fullWidth
                 variant="outlined"
                 margin="dense"
-                label={errors.model ? errors.model.message : null} // FIXME correct
+                label={
+                  errors.socketGraph
+                    ? errors.socketGraph.message
+                    : "Разъем видео карты"
+                }
                 error={!!errors.socketGraph}
               />
             }
@@ -104,7 +108,7 @@ const GraphSocketDialog = (props) => {
               required: "Обязательное",
               minLength: { value: 2, message: "Короткое" },
             }}
-            defaultValue={current.graphSocket || ""}
+            defaultValue={current.socketGraph || ""}
           />
         </DialogContent>
         <DialogActions>
@@ -121,7 +125,7 @@ const GraphSocketDialog = (props) => {
 };
 
 GraphSocketDialog.propTypes = {
-  step: PropTypes.bool.isRequired,
+  step: PropTypes.bool,
   pagination: PropTypes.shape({
     total: PropTypes.number,
     current: PropTypes.number,
@@ -135,8 +139,8 @@ GraphSocketDialog.propTypes = {
   }).isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    graphSocket: PropTypes.string,
-  }).isRequired,
+    socketGraph: PropTypes.string,
+  }),
   searchField: PropTypes.string.isRequired,
 
   setErrorCode: PropTypes.func.isRequired,
@@ -146,11 +150,18 @@ GraphSocketDialog.propTypes = {
   updateGraphSocket: PropTypes.func.isRequired,
 };
 
+GraphSocketDialog.defaultProps = {
+  step: true,
+  current: {
+    id: undefined,
+    socketGraph: undefined,
+  },
+};
+
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.typeOfGraphSlotVisibility,
   pagination: state.typeOfGraphSlot.pagination,
   searchField: state.typeOfGraphSlot.searchField,
-  current: state.typeOfGraphSlot.currentType,
 });
 
 export default connect(mapStateToProps, {

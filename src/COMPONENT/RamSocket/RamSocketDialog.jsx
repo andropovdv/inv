@@ -20,12 +20,19 @@ import {
 } from "../../BLL/typeOfRamReducer";
 import { setTypeOfRamVisibility } from "../../BLL/modalWindowReducer";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   dialog: {
     position: "absolute",
     left: "53%",
     top: "53%",
     transform: "translate(-53%, -53%)",
+  },
+  textField: {
+    marginTop: theme.spacing(1),
+  },
+  actionButton: {
+    paddingRight: 24,
+    paddingBottom: 24,
   },
 }));
 
@@ -90,9 +97,14 @@ const RamSocketDialog = (props) => {
                 autoFocus
                 fullWidth
                 variant="outlined"
-                placeholder="Ram Socket"
                 margin="dense"
-                label={errors.socketRam ? errors.socketRam.message : null}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                label={
+                  errors.socketRam ? errors.socketRam.message : "Разъем RAM"
+                }
                 error={!!errors.socketRam}
               />
             }
@@ -105,7 +117,7 @@ const RamSocketDialog = (props) => {
             defaultValue={current.socketRam || ""}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
@@ -119,7 +131,7 @@ const RamSocketDialog = (props) => {
 };
 
 RamSocketDialog.propTypes = {
-  step: PropTypes.bool.isRequired,
+  step: PropTypes.bool,
   modal: PropTypes.shape({
     type: PropTypes.bool,
     header: PropTypes.string,
@@ -134,7 +146,7 @@ RamSocketDialog.propTypes = {
   current: PropTypes.shape({
     id: PropTypes.number,
     socketRam: PropTypes.string,
-  }).isRequired,
+  }),
   searchField: PropTypes.string.isRequired,
 
   setErrorCode: PropTypes.func.isRequired,
@@ -144,11 +156,18 @@ RamSocketDialog.propTypes = {
   updateRamSocket: PropTypes.func.isRequired,
 };
 
+RamSocketDialog.defaultProps = {
+  step: true,
+  current: {
+    id: undefined,
+    socketRam: undefined,
+  },
+};
+
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.typeOfRamVisibility,
   pagination: state.typeOfRam.pagination,
   searchField: state.typeOfRam.searchField,
-  current: state.typeOfRam.currentType,
 });
 
 export default connect(mapStateToProps, {

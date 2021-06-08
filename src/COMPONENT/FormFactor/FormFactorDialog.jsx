@@ -20,12 +20,19 @@ import {
 } from "../../BLL/formFactorReducer";
 import { setFormFactorVisibility } from "../../BLL/modalWindowReducer";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   dialog: {
     position: "absolute",
     left: "53%",
     top: "53%",
     transform: "translate(-53%, -53%)",
+  },
+  textField: {
+    marginTop: theme.spacing(1),
+  },
+  actionButton: {
+    paddingRight: 24,
+    paddingBottom: 24,
   },
 }));
 
@@ -87,9 +94,14 @@ const FormFactorDialog = (props) => {
                 autoFocus
                 fullWidth
                 variant="outlined"
-                placeholder="Форм-фактор"
                 margin="dense"
-                label={errors.formFactor ? errors.formFactor.message : null}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                label={
+                  errors.formFactor ? errors.formFactor.message : "Форм-фактор"
+                }
                 error={!!errors.formFactor}
               />
             }
@@ -102,7 +114,7 @@ const FormFactorDialog = (props) => {
             defaultValue={current.formFactor || ""}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
@@ -116,7 +128,7 @@ const FormFactorDialog = (props) => {
 };
 
 FormFactorDialog.propTypes = {
-  step: PropTypes.bool.isRequired,
+  step: PropTypes.bool,
   searchField: PropTypes.string.isRequired,
   modal: PropTypes.shape({
     type: PropTypes.bool,
@@ -132,7 +144,7 @@ FormFactorDialog.propTypes = {
   current: PropTypes.shape({
     id: PropTypes.number,
     formFactor: PropTypes.string,
-  }).isRequired,
+  }),
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
@@ -140,11 +152,18 @@ FormFactorDialog.propTypes = {
   updateFactor: PropTypes.func.isRequired,
 };
 
+FormFactorDialog.defaultProps = {
+  step: true,
+  current: {
+    id: undefined,
+    formFactor: undefined,
+  },
+};
+
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.formFactorVisibility,
   pagination: state.formFactor.pagination,
   searchField: state.formFactor.searchField,
-  current: state.formFactor.currentType,
 });
 
 export default connect(mapStateToProps, {

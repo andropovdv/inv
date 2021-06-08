@@ -71,33 +71,35 @@ const typeOfGraphSlotReducer = (state = initialState, action) => {
 
 // AC
 
-export const changeSearch = (text) => {
-  return { type: SEARCH_SOCKET_GRAPH, text };
-};
+export const changeSearch = (text) => ({ type: SEARCH_SOCKET_GRAPH, text });
 
-export const toggleIsLoading = (isLoading) => {
-  return { type: TYPE_OF_GRAPH_SLOT_IS_LOADING, isLoading };
-};
+export const toggleIsLoading = (isLoading) => ({
+  type: TYPE_OF_GRAPH_SLOT_IS_LOADING,
+  isLoading,
+});
 
-export const setTypeOfGraphSlot = (typeSlot, pagination) => {
-  return { type: SET_TYPE_OF_GRAPH_SLOT, typeSlot, pagination };
-};
+export const setTypeOfGraphSlot = (typeSlot, pagination) => ({
+  type: SET_TYPE_OF_GRAPH_SLOT,
+  typeSlot,
+  pagination,
+});
 
-export const setCurrentTypeOfGraph = (current) => {
-  return { type: SET_CURRENT_TYPE_OF_GRAPH_SLOT, current };
-};
+export const setCurrentTypeOfGraph = (current) => ({
+  type: SET_CURRENT_TYPE_OF_GRAPH_SLOT,
+  current,
+});
 
-export const setError = (error) => {
-  return { type: SET_ERROR_TYPE_GRAPH_SLOT, error };
-};
+export const setError = (error) => ({ type: SET_ERROR_TYPE_GRAPH_SLOT, error });
 
-export const setBackEndMessage = (message) => {
-  return { type: SET_MESSAGE_TYPE_GRAPH, message };
-};
+export const setBackEndMessage = (message) => ({
+  type: SET_MESSAGE_TYPE_GRAPH,
+  message,
+});
 
-export const setAllTypeOfGraphSlot = (allTypeOfGraphSlot) => {
-  return { type: SET_ALL_TYPE_OF_GRAPH_SLOT, allTypeOfGraphSlot };
-};
+export const setAllTypeOfGraphSlot = (allTypeOfGraphSlot) => ({
+  type: SET_ALL_TYPE_OF_GRAPH_SLOT,
+  allTypeOfGraphSlot,
+});
 
 // THUNK
 
@@ -105,7 +107,7 @@ export const mapsFields = (resApi) => {
   const newRows = resApi.map((e) => {
     const row = {};
     row.id = e.idTypeOfGraphSlot;
-    row.graphSocket = e.typeOfGraphSlot;
+    row.socketGraph = e.typeOfGraphSlot;
     return row;
   });
   return newRows;
@@ -118,14 +120,13 @@ export const getTypeOfGraphSlot = (page) => async (dispatch) => {
     if (res.data.result) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setTypeOfGraphSlot(finalRes, res.data.pagination));
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setBackEndMessage(res.data.error));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
@@ -139,15 +140,14 @@ export const getSearchSocketGraph = (text, page) => async (dispatch) => {
         const finalRes = mapsFields(res.data.result);
         dispatch(setTypeOfGraphSlot(finalRes, res.data.pagination));
         dispatch(changeSearch(text));
-        dispatch(toggleIsLoading(false));
       } else {
         dispatch(setError(res.data.errorCode));
         dispatch(setBackEndMessage(res.data.message));
-        dispatch(toggleIsLoading(false));
       }
     } catch (e) {
       dispatch(setError(500));
       dispatch(setBackEndMessage(e.message));
+    } finally {
       dispatch(toggleIsLoading(false));
     }
   } else {
@@ -161,13 +161,8 @@ export const getAllTypeOfGraphSlot = () => async (dispatch) => {
   try {
     const res = await typeOfGraphSlotAPI.allToScroll();
     if (res.data.status) {
-      const newRows = res.data.result.map((e) => {
-        const row = {};
-        row.id = e.idTypeOfGraphSlot;
-        row.label = e.typeOfGraphSlot;
-        return row;
-      });
-      dispatch(setAllTypeOfGraphSlot(newRows));
+      const finalRes = mapsFields(res.data.result);
+      dispatch(setAllTypeOfGraphSlot(finalRes));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
@@ -188,15 +183,14 @@ export const addTypeOfGraphSlot = (socket, page, text) => async (dispatch) => {
     if (res.data.status) {
       dispatch(getTypeOfGraphSlot(page, text));
       dispatch(getAllTypeOfGraphSlot());
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
@@ -206,7 +200,7 @@ export const updateTypeOfGraphSlot = (socket, page, text) => async (
 ) => {
   const newObj = {
     idTypeOfGraphSlot: socket.id,
-    typeOfGraphSlot: socket.graphSocket,
+    typeOfGraphSlot: socket.socketGraph,
   };
   dispatch(toggleIsLoading(true));
   try {
@@ -214,16 +208,13 @@ export const updateTypeOfGraphSlot = (socket, page, text) => async (
     if (res.data.status) {
       dispatch(getTypeOfGraphSlot(page, text));
       dispatch(getAllTypeOfGraphSlot());
-      // dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      // dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
-    // dispatch(toggleIsLoading(false));
   } finally {
     dispatch(toggleIsLoading(false));
   }
@@ -235,15 +226,14 @@ export const deleteTypeOfGraphSlot = (id, page, text) => async (dispatch) => {
     const res = await typeOfGraphSlotAPI.delete(id);
     if (res.data.status) {
       dispatch(getTypeOfGraphSlot(page, text));
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
