@@ -170,7 +170,7 @@ const VendorDialog = (props) => {
         </DialogContent>
         <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
-            Отмера
+            Отмена
           </Button>
           <Button color="secondary" type="submit" variant="outlined">
             Записать
@@ -195,7 +195,7 @@ VendorDialog.propTypes = {
     url: PropTypes.string,
   }),
 
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
   pagination: PropTypes.shape({
     total: PropTypes.number,
     current: PropTypes.number,
@@ -218,6 +218,7 @@ VendorDialog.defaultProps = {
     url: undefined,
   },
   step: true,
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({

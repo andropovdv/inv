@@ -1,4 +1,4 @@
-import { IconButton } from "@material-ui/core";
+import { IconButton, Box } from "@material-ui/core";
 import React from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
@@ -63,45 +63,41 @@ const CpuSocketTable = (props) => {
       width: 120,
       headerName: "Действия",
       renderCell: () => (
-        <strong>
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexGrow: 1,
+          }}
+        >
           <IconButton color="primary" size="small" onClick={clickEdit}>
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton color="secondary" size="small" onClick={clickDelete}>
             <DeleteIcon fontSize="small" />
           </IconButton>
-        </strong>
+        </Box>
       ),
     },
   ];
 
-  const setRow = (idRow) => {
-    const res = socketCpus.find((e) => e.id === parseInt(idRow, 10));
-    setCurrent(res);
-  };
   return (
-    <div style={{ height: 300, width: "100%" }}>
-      <div style={{ display: "flex", height: "100%" }}>
-        <div style={{ flexGrow: 1 }}>
-          <DataGrid
-            loading={isLoading}
-            rows={socketCpus}
-            columns={columns}
-            autoHeight
-            density="compact"
-            onSelectionChange={(select) => {
-              setRow(select.rowIds);
-            }}
-            paginationMode="server"
-            onPageChange={handlePageChange}
-            rowCount={pagination.error ? 0 : pagination.total}
-            pageSize={pagination.perPage}
-          />
-          <CpuSocketDelete open={open} onClose={onClose} />
-          {/* <CpuSocketDialog current={current.socketCpu || ""} /> */}
-        </div>
-      </div>
-    </div>
+    <Box>
+      <CpuSocketDelete open={open} onClose={onClose} />
+      <DataGrid
+        loading={isLoading}
+        rows={socketCpus}
+        columns={columns}
+        autoHeight
+        density="compact"
+        onRowClick={(rowData) => setCurrent(rowData.row)}
+        paginationMode="server"
+        onPageChange={handlePageChange}
+        rowCount={pagination.error ? 0 : pagination.total}
+        pageSize={pagination.perPage}
+      />
+    </Box>
   );
 };
 

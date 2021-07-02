@@ -1,23 +1,22 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import { Controller } from "react-hook-form";
 import { connect } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
 import { PropTypes } from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
 import {
-  Box,
   CircularProgress,
+  Box,
   FormControl,
-  IconButton,
   InputLabel,
-  MenuItem,
   Select,
+  MenuItem,
+  IconButton,
 } from "@material-ui/core";
+import { Controller } from "react-hook-form";
 import AddBoxIcon from "@material-ui/icons/AddBox";
-import { getVendorAllData } from "../../../BLL/vendorReducer";
-import { setVendorVisibility } from "../../../BLL/modalWindowReducer";
-import VendorDialog from "../../Vendors/VendorDialog";
-// TODO посмотреть PropTypes => control
+import { getAllTypeOfGraphSlot } from "../../../BLL/typeOfGraphSlotReducer";
+import { setTypeOfGraphSlotVisibility } from "../../../BLL/modalWindowReducer";
+import GraphSocketDialog from "../../GraphSocket/GraphSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -30,26 +29,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const VendorSM = (props) => {
+const GraphSocketSM = (props) => {
   const {
-    setVisibilityVendor,
-    getVendor,
-    vendorsAll,
     isLoading,
+    socketGraphSC,
     control,
     current,
+    getSocketGraph,
+    setVisibilityGraphSocket,
   } = props;
 
   const classes = useStyles();
 
   React.useEffect(() => {
-    getVendor();
+    getSocketGraph();
   }, []);
 
-  const clickVendor = () => {
-    setVisibilityVendor({
+  const handleSocketGraph = () => {
+    setVisibilityGraphSocket({
       type: true,
-      header: "Добавить производителя",
+      header: "Добавить разъем видео карты",
       visibility: true,
     });
   };
@@ -60,14 +59,16 @@ const VendorSM = (props) => {
         <CircularProgress color="inherit" size={20} />
       ) : (
         <>
-          <VendorDialog step={false} />
+          <GraphSocketDialog step={false} />
 
           <Box display="flex" alignItems="flex-end">
             <Box flexGrow={1}>
               <Controller
-                name="vendor"
+                name="socketGraph"
                 control={control}
-                defaultValue={current.vendor || vendorsAll[0].label}
+                defaultValue={
+                  current.socketGraph || socketGraphSC[0].socketGraph
+                }
                 render={({ onChange, value }) => (
                   <>
                     <FormControl
@@ -75,22 +76,22 @@ const VendorSM = (props) => {
                       fullWidth
                       className={classes.textField}
                     >
-                      <InputLabel shrink id="labelVendor">
-                        Производитель
+                      <InputLabel shrink id="labelSocketGraph">
+                        Разъем видеокарты
                       </InputLabel>
                       <Select
-                        labelId="labelVendor"
+                        labelId="labelSocketGraph"
                         disabled={isLoading}
                         fullWidth
                         variant="outlined"
                         margin="dense"
-                        label="Производитель"
+                        label="Разъем видеокарты"
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
                       >
-                        {vendorsAll.map((e) => (
-                          <MenuItem key={e.id} value={e.label}>
-                            {e.label}
+                        {socketGraphSC.map((e) => (
+                          <MenuItem key={e.id} value={e.socketGraph}>
+                            {e.socketGraph}
                           </MenuItem>
                         ))}
                       </Select>
@@ -100,7 +101,10 @@ const VendorSM = (props) => {
               />
             </Box>
             <Box alignItems="flex-end">
-              <IconButton className={classes.button} onClick={clickVendor}>
+              <IconButton
+                className={classes.button}
+                onClick={handleSocketGraph}
+              >
                 <AddBoxIcon fontSize="large" />
               </IconButton>
             </Box>
@@ -111,28 +115,27 @@ const VendorSM = (props) => {
   );
 };
 
-VendorSM.propTypes = {
-  getVendor: PropTypes.func.isRequired,
-  setVisibilityVendor: PropTypes.func.isRequired,
-  vendorsAll: PropTypes.arrayOf(
+GraphSocketSM.propTypes = {
+  socketGraphSC: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
-      label: PropTypes.string,
+      socketGraph: PropTypes.string,
     })
   ).isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    vendor: PropTypes.string,
+    socketGraph: PropTypes.string,
   }).isRequired,
-  isLoading: PropTypes.bool.isRequired,
+  getSocketGraph: PropTypes.func.isRequired,
+  setVisibilityGraphSocket: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  vendorsAll: state.vendor.vendorsAll,
-  isLoading: state.vendor.isLoading,
+  socketGraphSC: state.typeOfGraphSlot.typeAllOfGraphSlot,
+  isLoading: state.typeOfGraphSlot.isLoading,
 });
 
 export default connect(mapStateToProps, {
-  getVendor: getVendorAllData,
-  setVisibilityVendor: setVendorVisibility,
-})(VendorSM);
+  getSocketGraph: getAllTypeOfGraphSlot,
+  setVisibilityGraphSocket: setTypeOfGraphSlotVisibility,
+})(GraphSocketSM);

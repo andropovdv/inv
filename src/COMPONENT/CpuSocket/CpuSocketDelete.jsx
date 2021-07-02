@@ -25,8 +25,7 @@ const CpuSocketDelete = (props) => {
   } = props;
 
   const submit = async () => {
-    const delSocket = { id: current.id };
-    await deleteSocket(delSocket, pagination.current, searchField);
+    await deleteSocket(current.id, pagination.current, searchField);
     setCurrent(null, null);
     onClose();
   };

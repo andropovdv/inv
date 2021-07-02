@@ -2,7 +2,7 @@ import { DataGrid } from "@material-ui/data-grid";
 import React from "react";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
-import { IconButton } from "@material-ui/core";
+import { IconButton, Box } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { getVendorsData, setCurrentVendor } from "../../BLL/vendorReducer";
@@ -43,22 +43,6 @@ const VendorTable = (props) => {
     });
   };
 
-  const [page, setPage] = React.useState(1);
-
-  const handlePageChange = (params) => {
-    if (params.page > page) {
-      getVendors(pagination.current + 1, searchField);
-    } else {
-      getVendors(pagination.current - 1, searchField);
-    }
-    setPage(params.page);
-  };
-
-  const setRow = (idRow) => {
-    const res = vendors.find((e) => e.id === parseInt(idRow, 10));
-    setCurrent(res);
-  };
-
   const columns = [
     { field: "id", headerName: "ID", hide: true },
     { field: "vendor", headerName: "Наименование", flex: 0.5 },
@@ -69,39 +53,42 @@ const VendorTable = (props) => {
       width: 120,
       headerName: "Действие",
       renderCell: () => (
-        <strong>
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexGrow: 1,
+          }}
+        >
           <IconButton color="primary" size="small" onClick={clickEdit}>
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton color="secondary" size="small" onClick={clickDelete}>
             <DeleteIcon fontSize="small" />
           </IconButton>
-        </strong>
+        </Box>
       ),
     },
   ];
 
   return (
-    <div style={{ height: 300, width: "100%" }}>
-      <div style={{ display: "flex", height: "100%" }}>
-        <div style={{ flexGrow: 1 }}>
-          <VendorDelete open={openDelete} onClose={onClose} />
-          <DataGrid
-            rows={vendors}
-            columns={columns}
-            loading={isLoading}
-            density="compact"
-            onSelectionChange={(select) => {
-              setRow(select.rowIds);
-            }}
-            paginationMode="server"
-            onPageChange={handlePageChange}
-            rowCount={pagination.total}
-            pageSize={pagination.perPage}
-          />
-        </div>
-      </div>
-    </div>
+    <>
+      <VendorDelete open={openDelete} onClose={onClose} />
+      <DataGrid
+        // localeText={ruRU.props.MuiDataGrid.localeText}
+        rows={vendors}
+        columns={columns}
+        loading={isLoading}
+        density="compact"
+        onRowClick={(rowData) => setCurrent(rowData.row)}
+        paginationMode="server"
+        onPageChange={(params) => getVendors(params.page, searchField)}
+        rowCount={pagination.total}
+        pageSize={pagination.perPage}
+        autoHeight
+      />
+    </>
   );
 };
 
@@ -115,7 +102,7 @@ VendorTable.propTypes = {
     })
   ).isRequired,
   isLoading: PropTypes.bool.isRequired,
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
   pagination: PropTypes.shape({
     total: PropTypes.number,
     current: PropTypes.number,
@@ -126,6 +113,10 @@ VendorTable.propTypes = {
   setCurrent: PropTypes.func.isRequired,
   getVendors: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
+};
+
+VendorTable.defaultProps = {
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({

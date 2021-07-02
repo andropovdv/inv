@@ -1,9 +1,8 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import { Controller } from "react-hook-form";
 import { connect } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
 import { PropTypes } from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
   CircularProgress,
@@ -13,61 +12,60 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
+import { Controller } from "react-hook-form";
 import AddBoxIcon from "@material-ui/icons/AddBox";
-import { getVendorAllData } from "../../../BLL/vendorReducer";
-import { setVendorVisibility } from "../../../BLL/modalWindowReducer";
-import VendorDialog from "../../Vendors/VendorDialog";
-// TODO посмотреть PropTypes => control
+import FormFactorDialog from "../../FormFactor/FormFactorDialog";
+import { getAllFormFactor } from "../../../BLL/formFactorReducer";
+import { setFormFactorVisibility } from "../../../BLL/modalWindowReducer";
 
 const useStyles = makeStyles((theme) => ({
   textField: {
     marginTop: theme.spacing(1),
   },
   button: {
-    display: "inline-block",
+    display: "inline=block",
     padding: 0,
     minHeight: "1.1876 em",
   },
 }));
 
-const VendorSM = (props) => {
+const FormFactorSM = (props) => {
   const {
-    setVisibilityVendor,
-    getVendor,
-    vendorsAll,
     isLoading,
+    formFactorSC,
+    getFactor,
     control,
     current,
+    setVisibilityFormFactor,
   } = props;
 
   const classes = useStyles();
 
   React.useEffect(() => {
-    getVendor();
+    getFactor();
   }, []);
 
-  const clickVendor = () => {
-    setVisibilityVendor({
+  const handleFormFactor = () => {
+    setVisibilityFormFactor({
       type: true,
-      header: "Добавить производителя",
+      header: "Добавить форм-фактор",
       visibility: true,
     });
   };
 
   return (
     <>
-      {isLoading ? (
+      {formFactorSC.length === 0 ? (
         <CircularProgress color="inherit" size={20} />
       ) : (
         <>
-          <VendorDialog step={false} />
-
+          <FormFactorDialog step={false} />
           <Box display="flex" alignItems="flex-end">
             <Box flexGrow={1}>
               <Controller
-                name="vendor"
+                name="formFactor"
                 control={control}
-                defaultValue={current.vendor || vendorsAll[0].label}
+                defaultValue={current.formFactor || formFactorSC[0].formFactor}
                 render={({ onChange, value }) => (
                   <>
                     <FormControl
@@ -75,22 +73,22 @@ const VendorSM = (props) => {
                       fullWidth
                       className={classes.textField}
                     >
-                      <InputLabel shrink id="labelVendor">
-                        Производитель
+                      <InputLabel shrink id="labelFactor">
+                        ФормФактор
                       </InputLabel>
                       <Select
-                        labelId="labelVendor"
+                        labelId="labelFactor"
                         disabled={isLoading}
                         fullWidth
                         variant="outlined"
                         margin="dense"
-                        label="Производитель"
+                        label="Форм-фактор"
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
                       >
-                        {vendorsAll.map((e) => (
-                          <MenuItem key={e.id} value={e.label}>
-                            {e.label}
+                        {formFactorSC.map((e) => (
+                          <MenuItem key={e.id} value={e.formFactor}>
+                            {e.formFactor}
                           </MenuItem>
                         ))}
                       </Select>
@@ -100,7 +98,7 @@ const VendorSM = (props) => {
               />
             </Box>
             <Box alignItems="flex-end">
-              <IconButton className={classes.button} onClick={clickVendor}>
+              <IconButton className={classes.button} onClick={handleFormFactor}>
                 <AddBoxIcon fontSize="large" />
               </IconButton>
             </Box>
@@ -111,28 +109,28 @@ const VendorSM = (props) => {
   );
 };
 
-VendorSM.propTypes = {
-  getVendor: PropTypes.func.isRequired,
-  setVisibilityVendor: PropTypes.func.isRequired,
-  vendorsAll: PropTypes.arrayOf(
+FormFactorSM.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  formFactorSC: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
-      label: PropTypes.string,
+      formFactor: PropTypes.string,
     })
   ).isRequired,
   current: PropTypes.shape({
-    id: PropTypes.number,
-    vendor: PropTypes.string,
+    is: PropTypes.number,
+    formFactor: PropTypes.string,
   }).isRequired,
-  isLoading: PropTypes.bool.isRequired,
+  getFactor: PropTypes.func.isRequired,
+  setVisibilityFormFactor: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  vendorsAll: state.vendor.vendorsAll,
-  isLoading: state.vendor.isLoading,
+  formFactorSC: state.formFactor.allFormFactor,
+  isLoading: state.formFactor.isLoading,
 });
 
 export default connect(mapStateToProps, {
-  getVendor: getVendorAllData,
-  setVisibilityVendor: setVendorVisibility,
-})(VendorSM);
+  getFactor: getAllFormFactor,
+  setVisibilityFormFactor: setFormFactorVisibility,
+})(FormFactorSM);

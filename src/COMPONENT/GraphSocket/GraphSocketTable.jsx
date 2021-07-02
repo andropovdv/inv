@@ -1,4 +1,4 @@
-import { IconButton } from "@material-ui/core";
+import { IconButton, LinearProgress, Box } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import React from "react";
@@ -46,21 +46,7 @@ const GraphSocketTable = (props) => {
     });
   };
 
-  const [page, setPage] = React.useState(1);
-
-  const handlePageChange = (params) => {
-    if (params.page > page) {
-      getGraphSocket(pagination.current + 1, searchField);
-    } else {
-      getGraphSocket(pagination.current - 1, searchField);
-    }
-    setPage(params.page);
-  };
-
-  const setRow = (idRow) => {
-    const res = graphSockets.find((e) => e.id === parseInt(idRow, 10));
-    setCurrent(res);
-  };
+  const handlePageChange = (params) => getGraphSocket(params.page, searchField);
 
   const columns = [
     { field: "id", headerName: "ID", hide: true },
@@ -70,40 +56,49 @@ const GraphSocketTable = (props) => {
       width: 120,
       headerName: "Действия",
       renderCell: () => (
-        <strong>
+        <Box
+          styles={{
+            display: "flex",
+            alignItem: "center",
+            justifyContent: "center",
+            frexGrow: 1,
+          }}
+        >
           <IconButton color="primary" size="small" onClick={clickEdit}>
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton color="secondary" size="small" onClick={clickDelete}>
             <DeleteIcon fontSize="small" />
           </IconButton>
-        </strong>
+        </Box>
       ),
     },
   ];
 
   return (
-    <div style={{ height: 300, width: "100%" }}>
-      <div style={{ display: "flex", height: "100%" }}>
-        <div style={{ flexGrow: 1 }}>
+    <>
+      {isLoading ? (
+        <div>
+          <LinearProgress color="primary" />
+        </div>
+      ) : (
+        <>
           <DataGrid
             rows={graphSockets}
             columns={columns}
             loading={isLoading}
             autoHeight
             density="compact"
-            onSelectionChange={(select) => {
-              setRow(select.rowIds);
-            }}
+            onRowClick={(rowData) => setCurrent(rowData.row)}
             pagination="server"
             onPageChange={handlePageChange}
             rowCount={pagination.total}
             pageSize={pagination.perPage}
           />
           <GraphSocketDelete open={open} onClose={onClose} />
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </>
   );
 };
 
@@ -120,12 +115,16 @@ GraphSocketTable.propTypes = {
     numPages: PropTypes.number,
     perPage: PropTypes.number,
   }).isRequired,
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
   isLoading: PropTypes.bool.isRequired,
 
   getGraphSocket: PropTypes.func.isRequired,
   setVisibilitySocket: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
+};
+
+GraphSocketTable.defaultProps = {
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({

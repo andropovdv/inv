@@ -12,7 +12,7 @@ const initialState = {
   graphCard: [],
   allGraphCard: [],
   pagination: {},
-  currentRow: {},
+  current: {},
   isLoading: false,
   errorCode: 0,
   backEndMessage: "",
@@ -37,7 +37,7 @@ const graphCardReducer = (state = initialState, action) => {
     case SET_CURRENT_GRAPH_CARD: {
       return {
         ...state,
-        currentRow: { ...action.current },
+        current: { ...action.current },
       };
     }
 
@@ -50,13 +50,13 @@ const graphCardReducer = (state = initialState, action) => {
     case SET_ALL_GRAPHCARD: {
       return {
         ...state,
-        allGraphCard: [...action.grapgCard],
+        allGraphCard: [...action.graphCard],
       };
     }
     case SET_MESSAGE_GRAPHCARD: {
       return {
         ...state,
-        backEndMessage: action.text,
+        backEndMessage: action.message,
       };
     }
     case SEARCH_GRAPHCARD: {
@@ -110,23 +110,119 @@ export const changeSearch = (text) => ({
 const mapsField = (resData) => {
   const newRows = resData.map((e) => {
     const row = {};
-    row.id = e.graph_id;
+    row.id = e.idGraph;
     row.vendor = e.name;
     row.model = e.model;
     row.socketGraph = e.typeOfGraphSlot;
-    row.volume = e.volume;
+    row.volume = parseInt(e.volume, 10);
     return row;
   });
   return newRows;
 };
 
-export const getGraphCard = (page, text) => async (dispatch) => {
+const unMapsField = (graphCard) => {
+  const toApiData = {
+    idGraph: graphCard.id,
+    name: graphCard.vendor,
+    model: graphCard.model,
+    typeOfGraphSlot: graphCard.socketGraph,
+    volume: graphCard.volume,
+  };
+  return toApiData;
+};
+
+export const getGraphCardData = (page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   try {
     const res = await graphCardApi.all(page, text);
     if (res.data.result) {
-      const finalRes = mapsField(res.data.resutl);
-      dispatch(setGraphCard(finalRes));
+      const finalRes = mapsField(res.data.result);
+      dispatch(setGraphCard(finalRes, res.data.pagination));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const getAllGraphCard = () => async (dispatch) => {
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await graphCardApi.allToScroll();
+    if (res.data.status) {
+      const finalRes = mapsField(res.data.result);
+      dispatch(setAllGraphCard(finalRes));
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const addGraphCardData = (graphCard, page, text) => async (dispatch) => {
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await graphCardApi.add(unMapsField(graphCard));
+    if (res.data.status) {
+      dispatch(getGraphCardData(page, text));
+      dispatch(getAllGraphCard());
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const updateGraphCardData = (graphCard, page, text) => async (
+  dispatch
+) => {
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await graphCardApi.update(unMapsField(graphCard));
+    if (res.data.status) {
+      dispatch(getGraphCardData(page, text));
+      dispatch(getAllGraphCard());
+      dispatch(
+        setCurrentGraphCard({
+          ...graphCard,
+          volume: parseInt(graphCard.volume, 10),
+        })
+      );
+    } else {
+      dispatch(setError(res.data.errorCode));
+      dispatch(setBackEndMessage(res.data.message));
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const deleteGraphCard = (id, page, text) => async (dispatch) => {
+  const delItem = { idGraph: id.id };
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await graphCardApi.delete(delItem);
+    if (res.data.status) {
+      dispatch(getGraphCardData(page, text));
+      dispatch(getAllGraphCard());
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));

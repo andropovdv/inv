@@ -6,39 +6,27 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  FormControlLabel,
   Grid,
-  IconButton,
-  InputLabel,
-  TextField,
 } from "@material-ui/core";
-import AddBoxIcon from "@material-ui/icons/AddBox";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import TextFieldSM from "../Common/Scroll/TextFieldSM";
+import CheckBoxSM from "../Common/Scroll/CheckBoxSM";
 import {
   addMboardData,
   setBackEndMessage,
   setError,
   updateMboardData,
 } from "../../BLL/mboardReducer";
-import {
-  setCpuSoketVisibility,
-  setFormFactorVisibility,
-  setMboardVisibility,
-  setTypeOfGraphSlotVisibility,
-  setTypeOfRamVisibility,
-  setVendorVisibility,
-} from "../../BLL/modalWindowReducer";
+import { setMboardVisibility } from "../../BLL/modalWindowReducer";
 import VendorSM from "../Common/Scroll/VendorSM";
 import CpuSocketSM from "../Common/Scroll/CpuSocketSM";
-import RamSocketSM from "../RamSocket/RamSocketSM";
-import GraphSocketSM from "../GraphSocket/GraphSocketSM";
-import FormFactorSM from "../FormFactor/FormFactorSM";
+import RamSocketSM from "../Common/Scroll/RamSocketSM";
+import GraphSocketSM from "../Common/Scroll/GraphSocketSM";
+import FormFactorSM from "../Common/Scroll/FormFactorSM";
 
 const useStyles = makeStyles((theme) => ({
   dialog: {
@@ -48,21 +36,8 @@ const useStyles = makeStyles((theme) => ({
     transform: "translate(-53%, -53%)",
   },
   paper: {
-    // padding: theme.spacing(2),
     textAlign: "left",
     color: theme.palette.text.secondary,
-  },
-  formControl: {
-    // margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  button: {
-    display: "inline-block",
-    padding: 0,
-    minHeight: "1.1876 em",
-  },
-  textField: {
-    marginTop: theme.spacing(1),
   },
   actionButton: {
     paddingRight: 24,
@@ -82,11 +57,6 @@ const MBoardDialog = (props) => {
     setVisibility,
     addMboard,
     updateMboard,
-    setVisibilityVendor,
-    setVisibilityCpuSocket,
-    setVisibilityRamSocket,
-    setVisibilityFormFactor,
-    setVisibilityGraphSocket,
   } = props;
 
   const classes = useStyles();
@@ -110,50 +80,13 @@ const MBoardDialog = (props) => {
     if (modal.type) {
       await addMboard(data, pagination.current, searchField);
     } else {
-      const res = { ...data, id: current.id };
+      const res = {
+        ...data,
+        id: current.id,
+      };
       await updateMboard(res, pagination.current, searchField);
     }
     setVisibility({ type: false, header: "", visibility: false });
-  };
-
-  const handleVendor = () => {
-    setVisibilityVendor({
-      type: true,
-      header: "Добавить производителя",
-      visibility: true,
-    });
-  };
-
-  const handletSocketCpu = () => {
-    setVisibilityCpuSocket({
-      type: true,
-      header: "Добавить разъем CPU",
-      visibility: true,
-    });
-  };
-
-  const handleSocketRam = () => {
-    setVisibilityRamSocket({
-      type: true,
-      header: "Добавить разъем RAM",
-      visibility: true,
-    });
-  };
-
-  const handleFormFactor = () => {
-    setVisibilityFormFactor({
-      type: true,
-      header: "Добавить форм-фактор",
-      visibility: true,
-    });
-  };
-
-  const handleSocketGraph = () => {
-    setVisibilityGraphSocket({
-      type: true,
-      header: "Добавить разъем видео карты",
-      visibility: true,
-    });
   };
 
   return (
@@ -170,357 +103,100 @@ const MBoardDialog = (props) => {
           <Grid container spacing={1}>
             <Grid item xs={12} className={classes.paper}>
               {/* Модель */}
-              <Controller
-                as={
-                  <TextField
-                    autoFocus
-                    fullWidth
-                    className={classes.textField}
-                    id="modelInput"
-                    variant="outlined"
-                    size="small"
-                    error={!!errors.model}
-                    label={errors.model ? errors.model.message : "Модель"}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                }
-                name="model"
+              <TextFieldSM
                 control={control}
-                rules={{
-                  required: "Обязательное",
-                  minLength: { value: 2, message: "Короткое" },
-                }}
-                defaultValue={current.model || ""}
+                current={current.model}
+                errors={errors}
+                nameField="model"
+                desc="Модель"
               />
             </Grid>
             <Grid item xs={6} className={classes.paper}>
               {/* производители */}
-              <FormControl variant="outlined" fullWidth>
-                <Box display="flex" alignItems="flex-end">
-                  <Box flexGrow={1}>
-                    <InputLabel id="labelVendor">Производитель</InputLabel>
-                    <VendorSM control={control} current={current} />
-                  </Box>
-                  <Box alignItems="flex-end">
-                    <IconButton
-                      className={classes.button}
-                      onClick={handleVendor}
-                    >
-                      <AddBoxIcon fontSize="large" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </FormControl>
+              <VendorSM control={control} current={current} />
               {/* Cpu Socket */}
-              <FormControl
-                variant="outlined"
-                fullWidth
-                className={classes.textField}
-              >
-                <Box display="flex" alignItems="flex-end">
-                  <Box flexGrow={1}>
-                    <InputLabel id="socketCpu">Разъем процессора</InputLabel>
-                    <CpuSocketSM control={control} current={current} />
-                  </Box>
-                  <Box alignItems="flex-end">
-                    <IconButton
-                      className={classes.button}
-                      onClick={handletSocketCpu}
-                    >
-                      <AddBoxIcon fontSize="large" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </FormControl>
+              <CpuSocketSM control={control} current={current} />
               {/* Ram Socket */}
-              <FormControl
-                variant="outlined"
-                fullWidth
-                className={classes.textField}
-              >
-                <Box display="flex" alignItems="flex-end">
-                  <Box flexGrow={1}>
-                    <InputLabel id="labelSocketRam">Разъем памяти</InputLabel>
-                    <RamSocketSM control={control} current={current} />
-                  </Box>
-                  <Box alignItems="flex-end">
-                    <IconButton
-                      className={classes.button}
-                      onClick={handleSocketRam}
-                    >
-                      <AddBoxIcon fontSize="large" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </FormControl>
+              <RamSocketSM control={control} current={current} />
               {/* SocketGraph */}
-              <FormControl
-                variant="outlined"
-                fullWidth
-                className={classes.textField}
-              >
-                <Box display="flex" alignItems="flex-end">
-                  <Box flexGrow={1}>
-                    <InputLabel id="labelSocketGraph">
-                      Разъем видео карты
-                    </InputLabel>
-                    <GraphSocketSM control={control} current={current} />
-                  </Box>
-                  <Box alignItems="flex-end">
-                    <IconButton
-                      className={classes.button}
-                      onClick={handleSocketGraph}
-                    >
-                      <AddBoxIcon fontSize="large" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </FormControl>
+              <GraphSocketSM control={control} current={current} />
               {/* FormFactor */}
-              <FormControl
-                variant="outlined"
-                fullWidth
-                className={classes.textField}
-              >
-                <Box display="flex" alignItems="flex-end">
-                  <Box flexGrow={1}>
-                    <InputLabel id="labelFormFactor">Форм Фактор</InputLabel>
-                    <FormFactorSM control={control} current={current} />
-                  </Box>
-                  <Box alignItems="flex-end">
-                    <IconButton
-                      className={classes.button}
-                      onClick={handleFormFactor}
-                    >
-                      <AddBoxIcon fontSize="large" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </FormControl>
+              <FormFactorSM control={control} current={current} />
             </Grid>
             <Grid item xs={6} className={classes.paper}>
               {/* quantitySocketRam */}
-              <Controller
-                as={
-                  <TextField
-                    fullWidth
-                    type="number"
-                    // className={classes.textField}
-                    id="quantitySocketRam"
-                    variant="outlined"
-                    size="small"
-                    error={!!errors.quantitySocketRam}
-                    label={
-                      errors.quantitySocketRam
-                        ? errors.quantitySocketRam.message
-                        : "Кол-во слотов RAM"
-                    }
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                }
-                name="quantitySocketRam"
+              <TextFieldSM
                 control={control}
-                rules={{
-                  required: "Обязательное",
-                  min: { value: 0, message: "проверьте количество" },
-                  max: { value: 10, message: "проверьте количество" },
-                }}
-                defaultValue={current.quantitySocketRam || 0}
+                errors={errors}
+                current={current.quantitySocketRam}
+                nameField="quantitySocketRam"
+                desc="Кол-во слотов RAM"
+                num
               />
               {/* quantityPCI */}
-              <Controller
-                as={
-                  <TextField
-                    fullWidth
-                    type="number"
-                    className={classes.textField}
-                    id="quantityPCI"
-                    variant="outlined"
-                    size="small"
-                    error={!!errors.quantityPCI}
-                    label={
-                      errors.quantityPCI
-                        ? errors.quantityPCI.message
-                        : "Кол-во слотов PCI"
-                    }
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                }
-                name="quantityPCI"
+              <TextFieldSM
                 control={control}
-                rules={{
-                  required: "Обязательное",
-                  min: { value: 0, message: "проверьте количество" },
-                  max: { value: 10, message: "проверьте количество" },
-                }}
-                defaultValue={current.quantityPCI || 0}
+                errors={errors}
+                current={current.quantityPCI}
+                nameField="quantityPCI"
+                desc="Кол-во слотов PCI"
+                num
               />
               {/* quantityPCIE */}
-              <Controller
-                as={
-                  <TextField
-                    fullWidth
-                    type="number"
-                    className={classes.textField}
-                    id="quantityPCIE"
-                    variant="outlined"
-                    size="small"
-                    error={!!errors.quantityPCIE}
-                    label={
-                      errors.quantityPCIE
-                        ? errors.quantityPCIE.message
-                        : "Кол-во слотов PCI Express"
-                    }
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                }
-                name="quantityPCIE"
+              <TextFieldSM
                 control={control}
-                rules={{
-                  required: "Обязательное",
-                  min: { value: 0, message: "проверьте количество" },
-                  max: { value: 10, message: "проверьте количество" },
-                }}
-                defaultValue={current.quantityPCIE || 0}
+                errors={errors}
+                current={current.quantityPCIE}
+                nameField="quantityPCIE"
+                desc="Кол-во слотов PCIE"
+                num
               />
               {/* quantityIDE */}
-              <Controller
-                as={
-                  <TextField
-                    fullWidth
-                    type="number"
-                    className={classes.textField}
-                    id="quantityIDE"
-                    variant="outlined"
-                    size="small"
-                    error={!!errors.quantityIDE}
-                    label={
-                      errors.quantityIDE
-                        ? errors.quantityIDE.message
-                        : "Кол-во слотов IDE"
-                    }
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                }
-                name="quantityIDE"
+              <TextFieldSM
                 control={control}
-                rules={{
-                  required: "Обязательное",
-                  min: { value: 0, message: "проверьте количество" },
-                  max: { value: 10, message: "проверьте количество" },
-                }}
-                defaultValue={current.quantityIDE || 0}
+                errors={errors}
+                current={current.quantityIDE}
+                nameField="quantityIDE"
+                desc="Кол-во слотов IDE"
+                num
               />
               {/* quantitySATA */}
-              <Controller
-                as={
-                  <TextField
-                    fullWidth
-                    type="number"
-                    className={classes.textField}
-                    id="quantitySATA"
-                    variant="outlined"
-                    size="small"
-                    error={!!errors.quantitySATA}
-                    label={
-                      errors.quantitySATA
-                        ? errors.quantitySATA.message
-                        : "Кол-во слотов SATA"
-                    }
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                }
-                name="quantitySATA"
+              <TextFieldSM
                 control={control}
-                rules={{
-                  required: "Обязательное",
-                  min: { value: 0, message: "проверьте количество" },
-                  max: { value: 10, message: "проверьте количество" },
-                }}
-                defaultValue={current.quantitySATA || 0}
+                errors={errors}
+                current={current.quantitySATA}
+                nameField="quantitySATA"
+                desc="Кол-во слотов SATA"
+                num
               />
             </Grid>
             <Grid item xs={12} className={classes.paper}>
               <Box display="flex">
                 <Box flexGrow={0.33} textAlign="center">
                   {/* intGraph */}
-                  <Controller
-                    name="intGraph"
+                  <CheckBoxSM
                     control={control}
-                    defaultValue={current.intGraph || false}
-                    render={({ onChange }) => (
-                      <FormControl>
-                        <FormControlLabel
-                          label="Встроенная графика"
-                          labelPlacement="end"
-                          control={
-                            <Checkbox
-                              defaultChecked={current.intGraph || false}
-                              color="primary"
-                              onChange={(e) => onChange(e.target.checked)}
-                            />
-                          }
-                        />
-                      </FormControl>
-                    )}
+                    nameField="intGraph"
+                    desc="Встроенная графика"
+                    current={current.intGraph}
                   />
                 </Box>
                 <Box flexGrow={0.33} textAlign="center">
                   {/* intSound */}
-                  <Controller
-                    name="intSound"
+                  <CheckBoxSM
                     control={control}
-                    defaultValue={current.intSound || false}
-                    render={({ onChange }) => (
-                      <FormControl>
-                        <FormControlLabel
-                          label="Встроенная звуковая карта"
-                          labelPlacement="end"
-                          control={
-                            <Checkbox
-                              defaultChecked={current.intSound || false}
-                              color="primary"
-                              onChange={(e) => onChange(e.target.checked)}
-                            />
-                          }
-                        />
-                      </FormControl>
-                    )}
+                    nameField="intSound"
+                    desc="Встроенная звуковая карта"
+                    current={current.intSound}
                   />
                 </Box>
                 <Box flexGrow={0.33} textAlign="center">
                   {/* intLan */}
-                  <Controller
-                    name="intLAN"
+                  <CheckBoxSM
                     control={control}
-                    defaultValue={current.intLAN || false}
-                    render={({ onChange }) => (
-                      <FormControl>
-                        <FormControlLabel
-                          label="Встроенная сетевая карта"
-                          labelPlacement="end"
-                          control={
-                            <Checkbox
-                              defaultChecked={current.intLAN || false}
-                              color="primary"
-                              onChange={(e) => onChange(e.target.checked)}
-                            />
-                          }
-                        />
-                      </FormControl>
-                    )}
+                    nameField="intLan"
+                    desc="Встроенная звуковая карта"
+                    current={current.intLAN}
                   />
                 </Box>
               </Box>
@@ -580,11 +256,6 @@ MBoardDialog.propTypes = {
   setVisibility: PropTypes.func.isRequired,
   addMboard: PropTypes.func.isRequired,
   updateMboard: PropTypes.func.isRequired,
-  setVisibilityVendor: PropTypes.func.isRequired,
-  setVisibilityCpuSocket: PropTypes.func.isRequired,
-  setVisibilityRamSocket: PropTypes.func.isRequired,
-  setVisibilityFormFactor: PropTypes.func.isRequired,
-  setVisibilityGraphSocket: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -600,9 +271,4 @@ export default connect(mapStateToProps, {
   setVisibility: setMboardVisibility,
   addMboard: addMboardData,
   updateMboard: updateMboardData,
-  setVisibilityVendor: setVendorVisibility,
-  setVisibilityCpuSocket: setCpuSoketVisibility,
-  setVisibilityRamSocket: setTypeOfRamVisibility,
-  setVisibilityFormFactor: setFormFactorVisibility,
-  setVisibilityGraphSocket: setTypeOfGraphSlotVisibility,
 })(MBoardDialog);

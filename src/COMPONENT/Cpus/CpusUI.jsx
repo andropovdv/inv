@@ -26,8 +26,6 @@ import {
   changeSearch,
   getCpusData,
 } from "../../BLL/cpuReducer";
-import CpuSocketDialog from "../CpuSocket/CpuSocketDialog";
-import VendorDialog from "../Vendors/VendorDialog";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -154,8 +152,6 @@ const CpusUI = (props) => {
           </Paper>
           <CpusTable />
           <CpuDialog />
-          <CpuSocketDialog current={current} step={false} />
-          <VendorDialog step={false} />
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>

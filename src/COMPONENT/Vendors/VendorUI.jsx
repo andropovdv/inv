@@ -4,17 +4,13 @@ import {
   Box,
   Button,
   Grid,
-  IconButton,
-  InputAdornment,
   Paper,
-  Snackbar,
-  TextField,
   Typography,
+  Hidden,
 } from "@material-ui/core";
-import CancelIcon from "@material-ui/icons/Cancel";
-import Alert from "@material-ui/lab/Alert";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
+import VendorComplete from "../Common/AutoComplete/VendorComplete";
 import {
   setError,
   setBackEndMessage,
@@ -26,6 +22,7 @@ import {
 import { setVendorVisibility } from "../../BLL/modalWindowReducer";
 import VendorTable from "./VendorTable";
 import VendorDialog from "./VendorDialog";
+import SoldOut from "../Common/SoldOut";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -54,13 +51,9 @@ const VendorUI = (props) => {
     setErrorMessage,
     setCurrent,
     setVisibility,
-    getSearch,
-    clearSearch,
-    getVendor,
     current,
 
     errorMessage,
-    searchField,
   } = props;
   const classes = useStyles();
 
@@ -90,28 +83,14 @@ const VendorUI = (props) => {
     });
   };
 
-  const onSearch = (e) => {
-    getSearch(e.target.value);
-  };
-
-  const onClear = () => {
-    clearSearch("");
-    getVendor();
-  };
-
   return (
     <>
       <VendorDialog current={current} />
-      <Snackbar
+      <SoldOut
         open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-      >
-        <Alert onClose={handleClose} severity="warning">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        errorMessage={errorMessage}
+        handleClose={handleClose}
+      />
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -120,7 +99,8 @@ const VendorUI = (props) => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={9}>
+
+        <Grid item xs={12} lg={9}>
           <Paper className={classes.paper}>
             <Box display="flex" alignItems="center">
               <Button
@@ -131,69 +111,103 @@ const VendorUI = (props) => {
               >
                 Добавить
               </Button>
-              <TextField
-                size="small"
-                variant="outlined"
-                className={classes.buttonArea}
-                label="Search"
-                onChange={onSearch}
-                value={searchField}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={onClear} edge="end">
-                        <CancelIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <VendorComplete />
             </Box>
           </Paper>
-          <VendorTable />
         </Grid>
-        <Grid item xs={3}>
+
+        <Hidden mdDown>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Информация:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <Box direction="column">
+                  <Box display="flex" direction="row">
+                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                      Производитель:
+                    </Box>
+                    <Box textOverflow="ellipsis" overflow="hidden">
+                      <b>{current.vendor}</b>
+                    </Box>
+                  </Box>
+                  <Box display="flex" direction="row">
+                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                      Полное:
+                    </Box>
+                    <Box textOverflow="ellipsis" overflow="hidden">
+                      <b>{current.full}</b>
+                    </Box>
+                  </Box>
+                  <Box display="flex" direction="row">
+                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                      Сайт:
+                    </Box>
+                    <Box textOverflow="ellipsis" overflow="hidden">
+                      {/* <b>{current.url}</b> */}
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={`https://${current.url}`}
+                      >
+                        {current.url}
+                      </a>
+                    </Box>
+                  </Box>
+                </Box>
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
+        <Grid item xs={12} lg={9}>
           <Paper className={classes.paper}>
-            <Typography variant="h6" align="left" component="span">
-              Информация:
-            </Typography>
-            {Object.keys(current).length !== 0 ? (
-              <Box direction="column">
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                    Производитель:
-                  </Box>
-                  <Box textOverflow="ellipsis" overflow="hidden">
-                    <b>{current.vendor}</b>
-                  </Box>
-                </Box>
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                    Полное:
-                  </Box>
-                  <Box textOverflow="ellipsis" overflow="hidden">
-                    <b>{current.full}</b>
-                  </Box>
-                </Box>
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                    Сайт:
-                  </Box>
-                  <Box textOverflow="ellipsis" overflow="hidden">
-                    {/* <b>{current.url}</b> */}
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={`https://${current.url}`}
-                    >
-                      {current.url}
-                    </a>
-                  </Box>
-                </Box>
-              </Box>
-            ) : null}
+            <VendorTable />
           </Paper>
         </Grid>
+        <Hidden lgUp>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Информация:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <Box direction="column">
+                  <Box display="flex" direction="row">
+                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                      Производитель:
+                    </Box>
+                    <Box textOverflow="ellipsis" overflow="hidden">
+                      <b>{current.vendor}</b>
+                    </Box>
+                  </Box>
+                  <Box display="flex" direction="row">
+                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                      Полное:
+                    </Box>
+                    <Box textOverflow="ellipsis" overflow="hidden">
+                      <b>{current.full}</b>
+                    </Box>
+                  </Box>
+                  <Box display="flex" direction="row">
+                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
+                      Сайт:
+                    </Box>
+                    <Box textOverflow="ellipsis" overflow="hidden">
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={`https://${current.url}`}
+                      >
+                        {current.url}
+                      </a>
+                    </Box>
+                  </Box>
+                </Box>
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
       </Grid>
     </>
   );
@@ -204,12 +218,8 @@ VendorUI.propTypes = {
   setErrorMessage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  getSearch: PropTypes.func.isRequired,
-  clearSearch: PropTypes.func.isRequired,
-  getVendor: PropTypes.func.isRequired,
 
   errorMessage: PropTypes.string.isRequired,
-  searchField: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
     vendor: PropTypes.string,

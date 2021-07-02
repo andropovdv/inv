@@ -21,10 +21,13 @@ const appReducer = (state = initialState, action) => {
 export const initializedSuccess = () => ({ type: INITIALIZED_SUCCESS });
 
 export const initializeApp = () => (dispatch) => {
+  // if (localStorage.getItem("token")) {
   const promise = dispatch(getAuthData());
   Promise.all([promise]).then(() => {
     dispatch(initializedSuccess());
   });
+  // }
+  // dispatch(initializedSuccess());
 };
 
 export default appReducer;

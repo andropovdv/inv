@@ -11,13 +11,28 @@ import { PropTypes } from "prop-types";
 import { deleteVendorData, setCurrentVendor } from "../../BLL/vendorReducer";
 
 const VendorDelete = (props) => {
-  const { current, open, onClose, deleteVendor, setCurrent } = props;
+  const {
+    vendors,
+    searchField,
+    pagination,
+    current,
+    open,
+    onClose,
+    deleteVendor,
+    setCurrent,
+  } = props;
 
-  const submit = async () => {
-    deleteVendor(current.id);
+  const submit = () => {
+    console.log("vendors: ", vendors.length);
+    let page = pagination.current;
+    if (vendors.length === 1 && pagination.current !== 0) {
+      page -= 1;
+    }
+    deleteVendor(current.id, page, searchField);
     setCurrent(null, null, null, null);
     onClose();
   };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Удалить</DialogTitle>
@@ -44,14 +59,35 @@ VendorDelete.propTypes = {
     url: PropTypes.string,
   }).isRequired,
   open: PropTypes.bool.isRequired,
-
+  searchField: PropTypes.string,
+  pagination: PropTypes.shape({
+    total: PropTypes.number,
+    current: PropTypes.number,
+    numPages: PropTypes.number,
+    perPage: PropTypes.number,
+  }).isRequired,
+  vendors: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      vendor: PropTypes.string,
+      full: PropTypes.string,
+      url: PropTypes.string,
+    })
+  ).isRequired,
   onClose: PropTypes.func.isRequired,
   deleteVendor: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
 };
 
+VendorDelete.defaultProps = {
+  searchField: "",
+};
+
 const mapStateToProps = (state) => ({
   current: state.vendor.currentVendor,
+  pagination: state.vendor.pagination,
+  searchField: state.vendor.searchField,
+  vendors: state.vendor.vendors,
 });
 
 export default connect(mapStateToProps, {

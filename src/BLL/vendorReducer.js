@@ -115,21 +115,20 @@ export const mapsFields = (resApi) => {
   return newRows;
 };
 
-export const getVendorsData = (page) => async (dispatch) => {
+export const getVendorsData = (page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.all(page);
+    const res = await vendorAPI.all(page, text);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setVendorsData(finalRes, res.data.pagination));
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setBackEndMessage(res.data.error));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
@@ -154,7 +153,7 @@ export const getVendorAllData = () => async (dispatch) => {
 };
 
 export const getSearchData = (text, page) => async (dispatch) => {
-  if (text.length >= 3) {
+  if (text && text.length >= 3) {
     dispatch(toggleIsLoading(true));
     try {
       const res = await vendorAPI.all(page, text);
@@ -162,15 +161,14 @@ export const getSearchData = (text, page) => async (dispatch) => {
         const finalRes = mapsFields(res.data.result);
         dispatch(setVendorsData(finalRes, res.data.pagination));
         dispatch(changeSearch(text));
-        dispatch(toggleIsLoading(false));
       } else {
         dispatch(setError(res.data.errorCode));
         dispatch(setBackEndMessage(res.data.message));
-        dispatch(toggleIsLoading(false));
       }
     } catch (e) {
       dispatch(setError(500));
       dispatch(setBackEndMessage(e.message));
+    } finally {
       dispatch(toggleIsLoading(false));
     }
   } else {
@@ -179,22 +177,21 @@ export const getSearchData = (text, page) => async (dispatch) => {
   }
 };
 
-export const deleteVendorData = (idVendor) => async (dispatch) => {
+export const deleteVendorData = (idVendor, page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   const responce = { id_vendor: idVendor };
   try {
     const res = await vendorAPI.delete(responce);
     if (res.data.status) {
-      dispatch(getVendorsData());
-      dispatch(toggleIsLoading(false));
+      dispatch(getVendorsData(page, text));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };

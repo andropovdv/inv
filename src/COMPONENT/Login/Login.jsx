@@ -1,44 +1,109 @@
+/* eslint-disable react/jsx-wrap-multilines */
 import React from "react";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
-// import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import {
-  Container,
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogActions,
+  TextField,
+  Button,
 } from "@material-ui/core";
-import { LoginReduxForm } from "./LoginForm";
+// import { LoginReduxForm } from "./LoginForm";
+import { Controller, useForm } from "react-hook-form";
 import { signin } from "../../BLL/authReducer";
 
-// const useStyles = makeStyles((theme) => ({
-//   paper: {
-//     mardinTop: theme.spacing(8),
-//     display: "flex",
-//     flexDirection: "colunm",
-//     alignItem: "center",
-//   },
-//   avatar: {},
-//   form: {},
-//   submit: {},
-// }));
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    mardinTop: theme.spacing(8),
+    display: "flex",
+    flexDirection: "colunm",
+    alignItem: "center",
+  },
+  avatar: {},
+  form: {},
+  submit: {},
+  textField: {
+    marginTop: theme.spacing(1),
+  },
+  actionButton: {
+    paddingRight: 24,
+    paddingBottom: 24,
+    paddingLeft: 24,
+  },
+}));
 
 const Login = (props) => {
   const { login, isAuth } = props;
 
-  const onSubmit = (formData) => {
-    login(formData.email, formData.pass);
+  const classes = useStyles();
+
+  const { handleSubmit, control, errors } = useForm();
+
+  const onSubmit = (data) => {
+    login(data.email, data.pass);
   };
 
   return (
-    <Container component="main" minWidth="xs">
-      <Dialog open={!isAuth}>
-        <DialogTitle>Вход в систему</DialogTitle>
+    <Dialog open={!isAuth}>
+      <DialogTitle>Вход в систему</DialogTitle>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <LoginReduxForm onSubmit={onSubmit} />
+          {/* <LoginReduxForm onSubmit={onSubmit} /> */}
+          <Controller
+            name="email"
+            control={control}
+            rules={{
+              required: "Обязательное",
+            }}
+            defaultValue=""
+            as={
+              <TextField
+                autoFocus
+                fullWidth
+                variant="outlined"
+                className={classes.TextField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                margin="dense"
+                label={errors.email ? errors.email.message : "Email"}
+                error={!!errors.email}
+              />
+            }
+          />
+          <Controller
+            name="pass"
+            control={control}
+            rules={{
+              required: "Обязательное",
+            }}
+            defaultValue=""
+            as={
+              <TextField
+                fullWidth
+                type="password"
+                variant="outlined"
+                className={classes.TextField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                margin="dense"
+                label={errors.pass ? errors.email.pass : "Password"}
+                error={!!errors.pass}
+              />
+            }
+          />
         </DialogContent>
-      </Dialog>
-    </Container>
+        <DialogActions className={classes.actionButton}>
+          <Button color="primary" type="submit" variant="outlined" fullWidth>
+            LOGIN
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 

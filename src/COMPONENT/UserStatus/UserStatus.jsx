@@ -6,10 +6,15 @@ import { logout } from "../../BLL/authReducer";
 
 const UserStatus = (props) => {
   const { name, isLogout } = props;
+
+  const handleClick = () => {
+    isLogout();
+  };
+
   return (
     <div>
       {name}
-      <Button variant="outlined" color="inherit" onClick={isLogout}>
+      <Button variant="outlined" color="inherit" onClick={handleClick}>
         Logout
       </Button>
     </div>

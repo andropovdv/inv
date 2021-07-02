@@ -26,11 +26,11 @@ import {
 import { setMboardVisibility } from "../../BLL/modalWindowReducer";
 import MBoardTable from "./MBoardTable";
 import MBoardDialog from "./MBoardDialog";
-import VendorDialog from "../Vendors/VendorDialog";
-import CpuSocketDialog from "../CpuSocket/CpuSocketDialog";
-import RamSocketDialog from "../RamSocket/RamSocketDialog";
-import GraphSocketDialog from "../GraphSocket/GraphSocketDialog";
-import FormFactorDialog from "../FormFactor/FormFactorDialog";
+// import VendorDialog from "../Vendors/VendorDialog";
+// import CpuSocketDialog from "../CpuSocket/CpuSocketDialog";
+// import RamSocketDialog from "../RamSocket/RamSocketDialog";
+// import GraphSocketDialog from "../GraphSocket/GraphSocketDialog";
+// import FormFactorDialog from "../FormFactor/FormFactorDialog";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -111,11 +111,6 @@ const MBoardUI = (props) => {
           {errorMessage}
         </Alert>
       </Snackbar>
-      <VendorDialog step={false} />
-      <CpuSocketDialog step={false} />
-      <RamSocketDialog step={false} />
-      <GraphSocketDialog step={false} />
-      <FormFactorDialog step={false} />
 
       <MBoardDialog step />
       <Grid container spacing={1}>

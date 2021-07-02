@@ -141,7 +141,7 @@ GraphSocketDialog.propTypes = {
     id: PropTypes.number,
     socketGraph: PropTypes.string,
   }),
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
 
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
@@ -156,6 +156,7 @@ GraphSocketDialog.defaultProps = {
     id: undefined,
     socketGraph: undefined,
   },
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({

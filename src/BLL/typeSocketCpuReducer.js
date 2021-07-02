@@ -113,10 +113,10 @@ const mapsFields = (resApi) => {
   return newRows;
 };
 
-export const getSocketCpuData = (page) => async (dispatch) => {
+export const getSocketCpuData = (page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeSocketCpuAPI.all(page);
+    const res = await typeSocketCpuAPI.all(page, text);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setSocketCpuData(finalRes, res.data.pagination));
@@ -202,12 +202,13 @@ export const updateSocketCpuData = (socket, page, text) => async (dispatch) => {
   }
 };
 
-export const deleteSoketCpuData = (id) => async (dispatch) => {
+export const deleteSoketCpuData = (id, page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
+  const responce = { id_typeSocketCpu: id };
   try {
-    const res = await typeSocketCpuAPI.delete(id);
+    const res = await typeSocketCpuAPI.delete(responce);
     if (res.data.status) {
-      dispatch(getSocketCpuData());
+      dispatch(getSocketCpuData(page, text));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));

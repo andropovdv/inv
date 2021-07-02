@@ -1,5 +1,7 @@
-import { stopSubmit } from "redux-form";
+// import { stopSubmit } from "redux-form";
 import { authAPI } from "../DAL/authAPI";
+import { authIn } from "../DAL/authIn";
+// import { authNoKeyAPI } from "../DAL/authNoKeyAPI";
 
 const SET_USER_DATA = "SET_USER_DATA";
 
@@ -27,33 +29,45 @@ export const setAuthData = (userID, name, email, isAuth) => ({
   payload: { userID, email, name, isAuth },
 });
 
-export const getAuthData = () => (dispatch) => {
-  return authAPI.me().then((responce) => {
-    if (responce.data.status) {
-      const { userID, name, email } = responce.data.result;
-      dispatch(setAuthData(userID, name, email, true));
+// me()
+export const getAuthData = () => async (dispatch) => {
+  try {
+    if (!localStorage.getItem("token")) {
+      dispatch(setAuthData(null, null, null, false));
+      throw new Error("not token Error");
     }
-  });
+    const res = await authIn.me();
+    // const res = await authAPI.me();
+    if (res.data.status) {
+      const { userID, name, email } = res.data.result;
+      dispatch(setAuthData(userID, name, email, true));
+    } else {
+      dispatch(setAuthData(null, null, null, false));
+    }
+  } catch (e) {
+    // localStorage.removeItem("token");
+    console.log(e);
+  }
 };
 
-export const signin = (email, pass) => (dispatch) => {
-  authAPI.login(email, pass).then((responce) => {
-    if (responce.data.status) {
-      dispatch(getAuthData());
-    } else {
-      const message =
-        responce.data.message.length > 0 ? responce.data.message : "Some Error";
-      dispatch(stopSubmit("login", { _error: message }));
-    }
-  });
+export const signin = (email, pass) => async (dispatch) => {
+  localStorage.removeItem("token");
+  const res = await authAPI.login(email, pass);
+
+  if (res.data.status) {
+    localStorage.setItem("token", res.data.token);
+    dispatch(getAuthData());
+  }
+  // } else {
+  //   const message =
+  //     res.data.message.length > 0 ? res.data.message : "Some Error";
+  //   dispatch(stopSubmit("login", { _error: message }));
+  // }
 };
 
 export const logout = () => (dispatch) => {
-  authAPI.logout().then((responce) => {
-    if (responce.data.status) {
-      dispatch(setAuthData(null, null, null, false));
-    }
-  });
+  dispatch(setAuthData(null, null, null, false));
+  localStorage.removeItem("token");
 };
 
 export default authReducer;

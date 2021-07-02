@@ -1,28 +1,38 @@
 import Axios from "axios";
 
-const instance = Axios.create({
-  baseURL: "http://localhost:4000/api/socketCpu",
-  withCredentials: true,
-});
+const setToken = (conf) => {
+  const token = localStorage.getItem("token");
+  const config = { ...conf };
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+  return config;
+};
+
+Axios.interceptors.request.use(setToken);
+
+const baseUrl = "http://localhost:4000/api/socketCpu";
 
 const typeSocketCpuAPI = {
   all(page, text) {
-    return instance.get(`?page=${page}&text=${text}`);
+    return Axios.get(`${baseUrl}?page=${page}&text=${text}`);
   },
   update(typeSocket) {
-    return instance.put("/update", typeSocket);
+    return Axios.put(baseUrl, typeSocket);
   },
   add(typeSocket) {
-    return instance.post("/add", typeSocket);
+    return Axios.post(baseUrl, typeSocket);
   },
   delete(id) {
-    return instance.post("/delete", id);
+    return Axios.delete(baseUrl, { data: id });
   },
   allToScroll() {
-    return instance.get("/all");
+    return Axios.get(`${baseUrl}/all`);
   },
   searchItem(text) {
-    return instance.post("searchItem", text);
+    return Axios.post("searchItem", text);
   },
 };
 

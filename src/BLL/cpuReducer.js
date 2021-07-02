@@ -142,7 +142,6 @@ export const updateCpusData = (cpu, page, text) => async (dispatch) => {
     if (res.data.status) {
       dispatch(getCpusData(page, text));
       dispatch(setCurrentCpu(cpu));
-      dispatch(setCurrentCpu(cpu));
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
@@ -160,7 +159,7 @@ export const deleteCpusData = (id_cpu, page, text) => async (dispatch) => {
   try {
     const res = await cpuAPI.delete(id_cpu);
     if (res.data.status) {
-      dispatch(getCpusData(page, text));
+      dispatch(getCpusData(page, text)); // FIXME занулить current
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));

@@ -1,6 +1,6 @@
 import React from "react";
-import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
+import { connect } from "react-redux";
 import {
   Button,
   Dialog,
@@ -9,24 +9,25 @@ import {
   DialogTitle,
 } from "@material-ui/core";
 import {
-  deleteTypeOfGraphSlot,
-  setCurrentTypeOfGraph,
-} from "../../BLL/typeOfGraphSlotReducer";
+  deleteGraphCard,
+  setCurrentGraphCard,
+} from "../../BLL/graphCardReducer";
 
-const GraphSocketDelete = (props) => {
+const GraphCardDelete = (props) => {
   const {
     open,
     current,
     pagination,
     searchField,
     onClose,
-    deleteSocket,
+    deleteGraph,
     setCurrent,
   } = props;
 
   const submit = async () => {
-    await deleteSocket(current.id, pagination.current, searchField);
-    setCurrent(null, null);
+    const delItem = { id: current.id };
+    await deleteGraph(delItem, pagination.current, searchField);
+    setCurrent({});
     onClose();
   };
 
@@ -34,7 +35,9 @@ const GraphSocketDelete = (props) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Удалить</DialogTitle>
       <DialogContent>
-        {`Вы действительно хотите удалить ${current.socketGraph}`}
+        Вы действительно хотите удалить:
+        <br />
+        <b>{`${current.vendor} ${current.model}`}</b>
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={onClose}>
@@ -48,36 +51,34 @@ const GraphSocketDelete = (props) => {
   );
 };
 
-GraphSocketDelete.propTypes = {
+GraphCardDelete.propTypes = {
   open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  deleteSocket: PropTypes.func.isRequired,
-  setCurrent: PropTypes.func.isRequired,
-
+  searchField: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
+    vendor: PropTypes.string,
+    model: PropTypes.string,
     socketGraph: PropTypes.string,
+    volume: PropTypes.number,
   }).isRequired,
   pagination: PropTypes.shape({
     total: PropTypes.number,
-    current: PropTypes.number,
-    numPages: PropTypes.number,
+    current: PropTypes.isRequired,
+    numPages: PropTypes.isRequired,
     perPage: PropTypes.number,
   }).isRequired,
-  searchField: PropTypes.string,
-};
-
-GraphSocketDelete.defaultProps = {
-  searchField: "",
+  onClose: PropTypes.func.isRequired,
+  deleteGraph: PropTypes.func.isRequired,
+  setCurrent: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  current: state.typeOfGraphSlot.currentType,
-  pagination: state.typeOfGraphSlot.pagination,
-  searchField: state.typeOfGraphSlot.searchField,
+  current: state.graphCard.current,
+  pagination: state.graphCard.pagination,
+  searchField: state.graphCard.searchField,
 });
 
 export default connect(mapStateToProps, {
-  deleteSocket: deleteTypeOfGraphSlot,
-  setCurrent: setCurrentTypeOfGraph,
-})(GraphSocketDelete);
+  deleteGraph: deleteGraphCard,
+  setCurrent: setCurrentGraphCard,
+})(GraphCardDelete);

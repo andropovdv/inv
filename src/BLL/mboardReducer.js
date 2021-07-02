@@ -239,7 +239,16 @@ export const updateMboardData = (mboard, page, text) => async (dispatch) => {
     if (res.data.status) {
       dispatch(getMboardData(page, text));
       dispatch(getAllMboardData());
-      dispatch(setCurrentMboard(mboard));
+      dispatch(
+        setCurrentMboard({
+          ...mboard,
+          quantitySocketRam: parseInt(mboard.quantitySocketRam, 10),
+          quantityPCI: parseInt(mboard.quantityPCI, 10),
+          quantityPCIE: parseInt(mboard.quantityPCIE, 10),
+          quantityIDE: parseInt(mboard.quantityPCIE, 10),
+          quantitySATA: parseInt(mboard.quantitySATA, 10),
+        })
+      );
     } else {
       dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
