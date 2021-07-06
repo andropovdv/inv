@@ -1,6 +1,6 @@
 import { applyMiddleware, combineReducers, createStore } from "redux";
 import thunkMiddleware from "redux-thunk";
-import { reducer as formReducer } from "redux-form";
+// import { reducer as formReducer } from "redux-form";
 
 import authReducer from "./authReducer";
 import appReducer from "./appReducer";
@@ -13,6 +13,7 @@ import typeOfGraphSlotReducer from "./typeOfGraphSlotReducer";
 import formFactorReducer from "./formFactorReducer";
 import graphCardReducer from "./graphCardReducer";
 import mboardReducer from "./mboardReducer";
+import errorReducer from "./errorReducer";
 
 const reducers = combineReducers({
   app: appReducer,
@@ -26,7 +27,8 @@ const reducers = combineReducers({
   formFactor: formFactorReducer,
   graphCard: graphCardReducer,
   mboard: mboardReducer,
-  form: formReducer,
+  // form: formReducer,
+  error: errorReducer,
 });
 
 const store = createStore(reducers, applyMiddleware(thunkMiddleware));

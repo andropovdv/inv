@@ -5,47 +5,24 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
 } from "@material-ui/core";
 import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { makeStyles } from "@material-ui/core/styles";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
-import {
-  addVendorData,
-  setBackEndMessage,
-  setError,
-  updateVendorData,
-} from "../../BLL/vendorReducer";
+import { addVendorData, updateVendorData } from "../../BLL/vendorReducer";
+import { setError, setBackEndMessage } from "../../BLL/errorReducer";
 import { setVendorVisibility } from "../../BLL/modalWindowReducer";
+import TextFieldSM from "../Common/Scroll/TextFieldSM";
+import TextFieldRM from "../Common/Scroll/TextFieldRM";
 
-const useStyles = makeStyles((theme) => ({
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    margin: "auto",
-    width: "fit-content",
-  },
-  formControl: {
-    minWidth: 320,
-    margin: theme.spacing(1),
-  },
-  title: {
-    flexGrow: 1,
-  },
-  bottonArea: {
-    display: "flex",
-    padding: 0,
-  },
+const useStyles = makeStyles(() => ({
   dialog: {
     position: "absolute",
     left: "53%",
     top: "53%",
     transform: "translate(-53%, -53%)",
-  },
-  textField: {
-    marginTop: theme.spacing(1),
   },
   actionButton: {
     paddingRight: 24,
@@ -108,71 +85,40 @@ const VendorDialog = (props) => {
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Controller
-            as={
-              <TextField
-                autoFocus
-                fullWidth
-                variant="outlined"
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                margin="dense"
-                label={errors.name ? errors.name.message : "Наименование"}
-                error={!!errors.name}
-              />
-            }
-            name="vendor"
+          {/* Vendor */}
+          <TextFieldSM
             control={control}
-            rules={{
-              required: "Обязательное",
-              minLength: { value: 2, message: "Короткое" },
-            }}
-            defaultValue={current.vendor || ""}
+            errors={errors}
+            current={current.vendor}
+            nameField="vendor"
+            desc="Наименование"
           />
-          <Controller
-            as={
-              <TextField
-                fullWidth
-                variant="outlined"
-                margin="dense"
-                label="Полное наименование"
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                error={!!errors.full}
-              />
-            }
-            name="full"
+          {/* Full Vendor */}
+          <TextFieldRM
             control={control}
-            defaultValue={current.full || ""}
+            errors={errors}
+            current={current.full}
+            nameField="full"
+            desc="Полное наименование"
           />
-          <Controller
-            as={
-              <TextField
-                fullWidth
-                variant="outlined"
-                margin="dense"
-                label="Сайт"
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                error={!!errors.url}
-              />
-            }
-            name="url"
+          <TextFieldRM
             control={control}
-            defaultValue={current.url || ""}
+            errors={errors}
+            current={current.full}
+            nameField="url"
+            desc="Сайт"
           />
         </DialogContent>
         <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
-          <Button color="secondary" type="submit" variant="outlined">
+          <Button
+            color="secondary"
+            type="submit"
+            variant="outlined"
+            disabled={Object.keys(errors).length > 0}
+          >
             Записать
           </Button>
         </DialogActions>

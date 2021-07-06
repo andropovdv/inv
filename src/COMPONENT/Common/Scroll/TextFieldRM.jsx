@@ -1,42 +1,36 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import { PropTypes } from "prop-types";
-import { Controller } from "react-hook-form";
 import { makeStyles } from "@material-ui/core/styles";
+import { Controller } from "react-hook-form";
 import { TextField } from "@material-ui/core";
+import { PropTypes } from "prop-types";
 
 const useStyles = makeStyles((theme) => ({
-  textField: {
-    marginTop: theme.spacing(1),
+  textFieled: {
+    marginTop: theme.spacing(2),
   },
 }));
 
-const TextFieldSM = (props) => {
-  const { control, current, errors, nameField, num, desc } = props;
+const TextFieldRM = (props) => {
+  const { control, errors, current, nameField, num, desc } = props;
 
   const classes = useStyles();
+
   return (
     <Controller
       name={nameField}
       control={control}
       defaultValue={current}
-      rules={{
-        required: "Обязательное",
-        // TODO понять насколько нужна проверка и на каком этапе ее производить
-        // min: num ? { value: 0, message: "проверьте количество" } : undefined,
-        // max: num ? { value: 10, message: "проверьте количество" } : undefined,
-        minLength: num ? undefined : { value: 2, message: "Короткое" },
-      }}
       render={({ value, name, onChange }) => (
         <TextField
           type={num ? "number" : "text"}
           fullWidth
-          className={classes.textField}
+          className={classes.textFieled}
           id={`label-${name}`}
           variant="outlined"
           size="small"
           error={!!errors[name]}
-          label={errors[name] ? errors[name].message : desc}
+          label={errors[name] ? errors[name.message] : desc}
           InputLabelProps={{ shrink: true }}
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -46,17 +40,17 @@ const TextFieldSM = (props) => {
   );
 };
 
-TextFieldSM.propTypes = {
+TextFieldRM.propTypes = {
   current: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   nameField: PropTypes.string.isRequired,
   num: PropTypes.bool,
   desc: PropTypes.string,
 };
 
-TextFieldSM.defaultProps = {
-  num: false,
+TextFieldRM.defaultProps = {
   current: "",
+  num: false,
   desc: "NOT Label",
 };
 
-export default TextFieldSM;
+export default TextFieldRM;

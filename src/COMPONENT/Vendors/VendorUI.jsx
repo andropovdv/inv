@@ -10,19 +10,20 @@ import {
 } from "@material-ui/core";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
+import { compose } from "redux";
 import VendorComplete from "../Common/AutoComplete/VendorComplete";
 import {
-  setError,
-  setBackEndMessage,
   setCurrentVendor,
-  getSearchData,
   changeSearch,
   getVendorsData,
 } from "../../BLL/vendorReducer";
+import { setError, setBackEndMessage } from "../../BLL/errorReducer";
 import { setVendorVisibility } from "../../BLL/modalWindowReducer";
 import VendorTable from "./VendorTable";
 import VendorDialog from "./VendorDialog";
 import SoldOut from "../Common/SoldOut";
+import InfoBlock from "../Common/InfoBlock";
+import withAuthRedirect from "../HOC/withAuthRedirect";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -38,11 +39,6 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(2),
     },
   },
-  dialog: {
-    position: "absolute",
-    left: 10,
-    top: 50,
-  },
 }));
 
 const VendorUI = (props) => {
@@ -51,8 +47,8 @@ const VendorUI = (props) => {
     setErrorMessage,
     setCurrent,
     setVisibility,
-    current,
 
+    current,
     errorMessage,
   } = props;
   const classes = useStyles();
@@ -63,7 +59,7 @@ const VendorUI = (props) => {
     if (errorMessage && errorMessage.length > 0) {
       setOpen(true);
     }
-  });
+  }, [errorMessage]);
 
   const handleClose = (reason) => {
     if (reason === "clickaway") {
@@ -83,6 +79,12 @@ const VendorUI = (props) => {
     });
   };
 
+  const rowInfo = [
+    { name: "Наименование", val: current.vendor },
+    { name: "Полное", val: current.full },
+    { name: "Сайт", val: current.url },
+  ];
+
   return (
     <>
       <VendorDialog current={current} />
@@ -100,7 +102,7 @@ const VendorUI = (props) => {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} lg={9}>
+        <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Box display="flex" alignItems="center">
               <Button
@@ -116,94 +118,33 @@ const VendorUI = (props) => {
           </Paper>
         </Grid>
 
-        <Hidden mdDown>
-          <Grid item xs={3}>
-            <Paper className={classes.paper}>
-              <Typography variant="h6" align="left" component="span">
-                Информация:
-              </Typography>
-              {Object.keys(current).length !== 0 ? (
-                <Box direction="column">
-                  <Box display="flex" direction="row">
-                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                      Производитель:
-                    </Box>
-                    <Box textOverflow="ellipsis" overflow="hidden">
-                      <b>{current.vendor}</b>
-                    </Box>
-                  </Box>
-                  <Box display="flex" direction="row">
-                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                      Полное:
-                    </Box>
-                    <Box textOverflow="ellipsis" overflow="hidden">
-                      <b>{current.full}</b>
-                    </Box>
-                  </Box>
-                  <Box display="flex" direction="row">
-                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                      Сайт:
-                    </Box>
-                    <Box textOverflow="ellipsis" overflow="hidden">
-                      {/* <b>{current.url}</b> */}
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={`https://${current.url}`}
-                      >
-                        {current.url}
-                      </a>
-                    </Box>
-                  </Box>
-                </Box>
-              ) : null}
-            </Paper>
-          </Grid>
-        </Hidden>
         <Grid item xs={12} lg={9}>
           <Paper className={classes.paper}>
             <VendorTable />
           </Paper>
         </Grid>
+
+        <Hidden mdDown>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
+
         <Hidden lgUp>
           <Grid item xs={12}>
             <Paper className={classes.paper}>
               <Typography variant="h6" align="left" component="span">
-                Информация:
+                Подробно:
               </Typography>
               {Object.keys(current).length !== 0 ? (
-                <Box direction="column">
-                  <Box display="flex" direction="row">
-                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                      Производитель:
-                    </Box>
-                    <Box textOverflow="ellipsis" overflow="hidden">
-                      <b>{current.vendor}</b>
-                    </Box>
-                  </Box>
-                  <Box display="flex" direction="row">
-                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                      Полное:
-                    </Box>
-                    <Box textOverflow="ellipsis" overflow="hidden">
-                      <b>{current.full}</b>
-                    </Box>
-                  </Box>
-                  <Box display="flex" direction="row">
-                    <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                      Сайт:
-                    </Box>
-                    <Box textOverflow="ellipsis" overflow="hidden">
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={`https://${current.url}`}
-                      >
-                        {current.url}
-                      </a>
-                    </Box>
-                  </Box>
-                </Box>
+                <InfoBlock rowInfo={rowInfo} />
               ) : null}
             </Paper>
           </Grid>
@@ -229,17 +170,18 @@ VendorUI.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.vendor.backEndMessage,
-  searchField: state.vendor.searchField,
   current: state.vendor.currentVendor,
+  errorMessage: state.error.backEndMessage,
 });
 
-export default connect(mapStateToProps, {
-  setErrorCode: setError,
-  setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentVendor,
-  setVisibility: setVendorVisibility,
-  getSearch: getSearchData,
-  clearSearch: changeSearch,
-  getVendor: getVendorsData,
-})(VendorUI);
+export default compose(
+  connect(mapStateToProps, {
+    setErrorCode: setError,
+    setErrorMessage: setBackEndMessage,
+    setCurrent: setCurrentVendor,
+    setVisibility: setVendorVisibility,
+    clearSearch: changeSearch,
+    getVendor: getVendorsData,
+  }),
+  withAuthRedirect
+)(VendorUI);

@@ -1,18 +1,21 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { PropTypes } from "prop-types";
-import { TextField, CircularProgress } from "@material-ui/core";
 import { connect } from "react-redux";
-import { getVendorAllData, getVendorsData } from "../../../BLL/vendorReducer";
+import { PropTypes } from "prop-types";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { CircularProgress, TextField } from "@material-ui/core";
+import {
+  getAllSocketCpuData,
+  getSocketCpuData,
+} from "../../../BLL/typeSocketCpuReducer";
 
 const useStyles = makeStyles((theme) => ({
   buttonArea: theme.spacing(2),
 }));
 
-const VendorComplete = (props) => {
-  const { vendors, getVendor, getVendorSearch } = props;
+const SocketCpuComplete = (props) => {
+  const { searchField, socket, getSocket, socketSearch } = props;
 
   const classes = useStyles();
 
@@ -20,27 +23,38 @@ const VendorComplete = (props) => {
 
   React.useEffect(() => {
     if (open) {
-      getVendor();
+      getSocket();
     }
   }, [open]);
 
-  const mapsFields = (ven) => {
-    const newRows = ven.map((e) => {
-      let row = [];
-      row = e.vendor;
+  const mapsField = (soc) => {
+    const newRows = soc.map((e) => {
+      // let row = [];
+      const row = e.socketCpu;
       return row;
     });
     return newRows;
   };
 
-  const vendorOption = mapsFields(vendors);
-  vendorOption.push("");
+  // let socketOption = [];
+  // React.useEffect(() => {
+  //   if (!isLoading) {
+  //     socketOption = [];
+  //     socketOption = mapsField(socket);
+  //     socketOption.push("");
+  //     console.warn("EDIT");
+  //   }
+  // }, [isLoading]);
 
-  const loading = open && vendorOption.length === 0;
+  const socketOption = mapsField(socket);
+  socketOption.push("");
+
+  const loading = open && socketOption.length === 0;
 
   return (
     <>
       <Autocomplete
+        value={searchField}
         className={classes.buttonArea}
         open={open}
         onOpen={() => {
@@ -51,10 +65,10 @@ const VendorComplete = (props) => {
         }}
         loading={loading}
         onChange={(event, newValue) => {
-          getVendorSearch(null, newValue);
+          socketSearch(null, newValue);
         }}
-        id="controllable-states-demo"
-        options={vendorOption}
+        id="socketCpu"
+        options={socketOption}
         style={{ width: 300 }}
         renderInput={(params) => (
           <TextField
@@ -80,24 +94,28 @@ const VendorComplete = (props) => {
   );
 };
 
-VendorComplete.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  vendors: PropTypes.arrayOf(
+SocketCpuComplete.propTypes = {
+  socket: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
-      label: PropTypes.string,
+      socketCpu: PropTypes.string,
     })
   ).isRequired,
-  getVendor: PropTypes.func.isRequired,
-  getVendorSearch: PropTypes.func.isRequired,
+  searchField: PropTypes.string,
+  getSocket: PropTypes.func.isRequired,
+  socketSearch: PropTypes.func.isRequired,
+};
+
+SocketCpuComplete.defaultProps = {
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({
-  vendors: state.vendor.vendorsAll,
-  isLoading: state.vendor.isLoading,
+  socket: state.typeCpuSocket.cpuSocketsAll,
+  searchField: state.typeCpuSocket.searchField,
 });
 
 export default connect(mapStateToProps, {
-  getVendor: getVendorAllData,
-  getVendorSearch: getVendorsData,
-})(React.memo(VendorComplete));
+  getSocket: getAllSocketCpuData,
+  socketSearch: getSocketCpuData,
+})(SocketCpuComplete);

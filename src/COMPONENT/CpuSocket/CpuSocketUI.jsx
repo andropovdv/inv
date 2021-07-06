@@ -6,26 +6,18 @@ import {
   Box,
   Button,
   Grid,
-  InputAdornment,
   Paper,
-  Snackbar,
-  TextField,
   Typography,
-  IconButton,
+  Hidden,
 } from "@material-ui/core";
-import CancelIcon from "@material-ui/icons/Cancel";
-import Alert from "@material-ui/lab/Alert";
 import { setCpuSoketVisibility } from "../../BLL/modalWindowReducer";
 import CpuSocketTable from "./CpuSocketTable";
-import {
-  setError,
-  setBackEndMessage,
-  setCurrentSocketCpu,
-  getSearchSocketCpu,
-  getSocketCpuData,
-  changeSearch,
-} from "../../BLL/typeSocketCpuReducer";
+import { setCurrentSocketCpu } from "../../BLL/typeSocketCpuReducer";
 import CpuSocketDialog from "./CpuSocketDialog";
+import SoldOut from "../Common/SoldOut";
+import SocketCpuComplete from "../Common/AutoComplete/SocketCpuComplete";
+import { setError, setBackEndMessage } from "../../BLL/errorReducer";
+import InfoBlock from "../Common/InfoBlock";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -46,17 +38,15 @@ const useStyles = makeStyles((theme) => ({
 const CpuSocketUI = (props) => {
   const {
     errorMessage,
+    current,
+
     setVisibility,
     setErrorCode,
     setErrorMessage,
     setCurrent,
-    current,
-    searchField,
-    getSearch,
-    getSocket,
-    clearSearch,
   } = props;
   const classes = useStyles();
+
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -65,7 +55,7 @@ const CpuSocketUI = (props) => {
     }
   }, [errorMessage]);
 
-  const handleClick = () => {
+  const handleAdd = () => {
     setCurrent(null, null);
     setVisibility({ type: true, header: "Добавить разъем", visibility: true });
   };
@@ -79,28 +69,16 @@ const CpuSocketUI = (props) => {
     setOpen(false);
   };
 
-  const onClear = () => {
-    getSocket();
-    clearSearch("");
-  };
-
-  const onSearch = (e) => {
-    getSearch(e.target.value);
-  };
+  const rowInfo = [{ name: "wiki", val: "wiki" }];
 
   return (
     <>
       <CpuSocketDialog current={current} />
-      <Snackbar
+      <SoldOut
         open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-      >
-        <Alert onClose={handleClose} severity="warning">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        errorMessage={errorMessage}
+        handleClose={handleClose}
+      />
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -109,52 +87,65 @@ const CpuSocketUI = (props) => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={9}>
+
+        <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Box display="flex" alignItems="center">
               <Button
                 color="primary"
                 variant="contained"
                 className={classes.buttonArea}
-                onClick={handleClick}
+                onClick={handleAdd}
               >
                 Добавить
               </Button>
-              <TextField
-                onChange={onSearch}
-                value={searchField}
-                size="small"
-                variant="outlined"
-                label="Search"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment>
-                      <IconButton onClick={onClear}>
-                        <CancelIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <SocketCpuComplete />
             </Box>
           </Paper>
-          <CpuSocketTable />
         </Grid>
+
+        <Grid item xs={12} lg={9}>
+          <Paper className={classes.paper}>
+            <CpuSocketTable />
+          </Paper>
+        </Grid>
+
+        <Hidden mdDown>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
+
+        <Hidden lgUp>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
       </Grid>
     </>
   );
 };
 
 CpuSocketUI.propTypes = {
-  searchField: PropTypes.string.isRequired,
   errorMessage: PropTypes.string.isRequired,
   setVisibility: PropTypes.func.isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
-  getSearch: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
-  getSocket: PropTypes.func.isRequired,
-  clearSearch: PropTypes.func.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
     socketCpu: PropTypes.string,
@@ -162,9 +153,8 @@ CpuSocketUI.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.typeCpuSocket.backEndMessage,
+  errorMessage: state.error.backEndMessage,
   current: state.typeCpuSocket.currentType,
-  searchField: state.typeCpuSocket.searchField,
   isLoading: state.typeCpuSocket.isLoading,
 });
 
@@ -173,7 +163,4 @@ export default connect(mapStateToProps, {
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
   setCurrent: setCurrentSocketCpu,
-  getSearch: getSearchSocketCpu,
-  getSocket: getSocketCpuData,
-  clearSearch: changeSearch,
 })(CpuSocketUI);

@@ -4,7 +4,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid, ruRU } from "@material-ui/data-grid";
 import {
   setCurrentSocketCpu,
   getSocketCpuData,
@@ -15,12 +15,13 @@ import CpuSocketDelete from "./CpuSocketDelete";
 const CpuSocketTable = (props) => {
   const {
     socketCpus,
-    getSocketCpu,
-    setCurrent,
     pagination,
     isLoading,
-    setVisibility,
     searchField,
+
+    getSocketCpu,
+    setCurrent,
+    setVisibility,
   } = props;
 
   React.useEffect(() => {
@@ -28,22 +29,12 @@ const CpuSocketTable = (props) => {
   }, []);
 
   const [open, setOpen] = React.useState(false);
-  const [page, setPage] = React.useState(1);
-
-  const handlePageChange = (params) => {
-    if (params.page > page) {
-      getSocketCpu(pagination.current + 1, searchField);
-    } else {
-      getSocketCpu(pagination.current - 1, searchField);
-    }
-    setPage(params.page);
-  };
 
   const clickDelete = () => {
     setOpen(true);
   };
 
-  const onClose = () => {
+  const closeDelete = () => {
     setOpen(false);
   };
 
@@ -83,9 +74,10 @@ const CpuSocketTable = (props) => {
   ];
 
   return (
-    <Box>
-      <CpuSocketDelete open={open} onClose={onClose} />
+    <>
+      <CpuSocketDelete open={open} onClose={closeDelete} />
       <DataGrid
+        localeText={ruRU.props.MuiDataGrid.localeText}
         loading={isLoading}
         rows={socketCpus}
         columns={columns}
@@ -93,11 +85,11 @@ const CpuSocketTable = (props) => {
         density="compact"
         onRowClick={(rowData) => setCurrent(rowData.row)}
         paginationMode="server"
-        onPageChange={handlePageChange}
+        onPageChange={(params) => getSocketCpu(params.page, searchField)}
         rowCount={pagination.error ? 0 : pagination.total}
         pageSize={pagination.perPage}
       />
-    </Box>
+    </>
   );
 };
 

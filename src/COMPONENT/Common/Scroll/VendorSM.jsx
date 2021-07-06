@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+// FIXME Проверить модернизацию, сделал загрузку при клике
 import React from "react";
 import { Controller } from "react-hook-form";
 import { connect } from "react-redux";
@@ -42,9 +43,13 @@ const VendorSM = (props) => {
 
   const classes = useStyles();
 
+  const [open, setOpen] = React.useState(false);
+
   React.useEffect(() => {
-    getVendor();
-  }, []);
+    if (open) {
+      getVendor();
+    }
+  }, [open]);
 
   const clickVendor = () => {
     setVisibilityVendor({
@@ -79,6 +84,13 @@ const VendorSM = (props) => {
                         Производитель
                       </InputLabel>
                       <Select
+                        open={open}
+                        onOpen={() => {
+                          setOpen(true);
+                        }}
+                        onClose={() => {
+                          setOpen(false);
+                        }}
                         labelId="labelVendor"
                         disabled={isLoading}
                         fullWidth

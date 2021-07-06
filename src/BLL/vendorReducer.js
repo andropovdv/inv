@@ -1,12 +1,12 @@
 import vendorAPI from "../DAL/vendorAPI";
+import { setAuthData } from "./authReducer";
+import { setBackEndMessage, setError } from "./errorReducer";
 
-const VENDOR_IS_LOADING = "VENDOR_IS LOADING";
+const VENDOR_IS_LOADING = "VENDOR_IS_LOADING";
 const SET_VENDORS = "SET_VENDORS";
 const SET_VENDORS_ALL = "SET_VENDORS_ALL";
 const SET_CURRENT_VENDOR = "SET_CURRENT_VENDOR";
-const SET_ERROR_VENDOR = "SET_ERROR_VENDOR";
 const SET_SEARCH_FIELD = "SET_SEARCH_FIELD";
-const SET_VENDOR_MESSAGE = "SET_VENDOR_MESSAGE";
 
 const initialState = {
   vendors: [],
@@ -14,8 +14,6 @@ const initialState = {
   vendorsAll: [],
   pagination: {},
   isLoading: true,
-  errorCode: null,
-  backEndMessage: "",
   searchField: "",
 };
 
@@ -46,22 +44,10 @@ const vendorReducer = (state = initialState, action) => {
         currentVendor: { ...action.currentVendor },
       };
     }
-    case SET_ERROR_VENDOR: {
-      return {
-        ...state,
-        errorCode: action.code,
-      };
-    }
     case SET_SEARCH_FIELD: {
       return {
         ...state,
         searchField: action.text,
-      };
-    }
-    case SET_VENDOR_MESSAGE: {
-      return {
-        ...state,
-        backEndMessage: action.message,
       };
     }
     default:
@@ -70,11 +56,6 @@ const vendorReducer = (state = initialState, action) => {
 };
 
 // AS
-
-export const setBackEndMessage = (message) => ({
-  type: SET_VENDOR_MESSAGE,
-  message,
-});
 
 export const toggleIsLoading = (isLoading) => ({
   type: VENDOR_IS_LOADING,
@@ -97,13 +78,11 @@ export const setCurrentVendor = (currentVendor) => ({
   currentVendor,
 });
 
-export const setError = (code) => ({ type: SET_ERROR_VENDOR, code });
-
 export const changeSearch = (text) => ({ type: SET_SEARCH_FIELD, text });
 
 // THUNK
 
-export const mapsFields = (resApi) => {
+const mapsFields = (resApi) => {
   const newRows = resApi.map((e) => {
     const row = {};
     row.id = e.id_vendor;
@@ -115,15 +94,35 @@ export const mapsFields = (resApi) => {
   return newRows;
 };
 
+const unMapsField = (vendor) => {
+  const toApi = {
+    id_vendor: vendor.id,
+    name: vendor.vendor,
+    full_name: vendor.full,
+    url: vendor.url,
+  };
+  return toApi;
+};
+
 export const getVendorsData = (page, text) => async (dispatch) => {
+  let search;
+  if (text) {
+    search = text;
+  } else {
+    search = undefined;
+  }
+  dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.all(page, text);
+    const res = await vendorAPI.all(page, search);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setVendorsData(finalRes, res.data.pagination));
     } else {
-      dispatch(setBackEndMessage(res.data.error));
+      dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -135,45 +134,22 @@ export const getVendorsData = (page, text) => async (dispatch) => {
 
 export const getVendorAllData = () => async (dispatch) => {
   dispatch(toggleIsLoading(true));
-  const res = await vendorAPI.allToScroll();
-  if (res.data.status) {
-    const newRows = res.data.result.map((e) => {
-      const row = {};
-      row.id = e.id_vendor;
-      row.label = e.name;
-      return row;
-    });
-    await dispatch(setVendorsAllData(newRows));
-    dispatch(toggleIsLoading(false));
-  } else {
-    dispatch(setError(res.data.errorCode));
-    dispatch(setBackEndMessage(res.data.message));
-    dispatch(toggleIsLoading(false));
-  }
-};
-
-export const getSearchData = (text, page) => async (dispatch) => {
-  if (text && text.length >= 3) {
-    dispatch(toggleIsLoading(true));
-    try {
-      const res = await vendorAPI.all(page, text);
-      if (res.data.status) {
-        const finalRes = mapsFields(res.data.result);
-        dispatch(setVendorsData(finalRes, res.data.pagination));
-        dispatch(changeSearch(text));
-      } else {
-        dispatch(setError(res.data.errorCode));
-        dispatch(setBackEndMessage(res.data.message));
+  try {
+    const res = await vendorAPI.allToScroll();
+    if (res.data.status) {
+      const finalRes = mapsFields(res.data.result);
+      await dispatch(setVendorsAllData(finalRes));
+    } else {
+      dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
       }
-    } catch (e) {
-      dispatch(setError(500));
-      dispatch(setBackEndMessage(e.message));
-    } finally {
-      dispatch(toggleIsLoading(false));
     }
-  } else {
-    dispatch(changeSearch(text));
-    dispatch(getVendorsData());
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
   }
 };
 
@@ -185,8 +161,33 @@ export const deleteVendorData = (idVendor, page, text) => async (dispatch) => {
     if (res.data.status) {
       dispatch(getVendorsData(page, text));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(changeSearch(""));
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const addVendorData = (vendor, page, text) => async (dispatch) => {
+  const finalRes = unMapsField(vendor);
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await vendorAPI.add(finalRes);
+    if (res.data.status) {
+      dispatch(getVendorsData(page, text));
+      dispatch(getVendorAllData());
+    } else {
+      dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -196,55 +197,25 @@ export const deleteVendorData = (idVendor, page, text) => async (dispatch) => {
   }
 };
 
-export const addVendorData = (vendor, page, text) => async (dispatch) => {
-  const newObj = {
-    name: vendor.vendor,
-    full_name: vendor.full,
-    url: vendor.url,
-  };
+export const updateVendorData = (vendor, page, text) => async (dispatch) => {
+  const finalRes = unMapsField(vendor);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.add(newObj);
+    const res = await vendorAPI.update(finalRes);
     if (res.data.status) {
       dispatch(getVendorsData(page, text));
       dispatch(getVendorAllData());
-      dispatch(toggleIsLoading(false));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
-    dispatch(toggleIsLoading(false));
-  }
-};
-
-export const updateVendorData = (updateVendor, page, text) => async (
-  dispatch
-) => {
-  const newObj = {
-    id_vendor: updateVendor.id,
-    name: updateVendor.vendor,
-    full_name: updateVendor.full,
-    url: updateVendor.url,
-  };
-  dispatch(toggleIsLoading(true));
-  try {
-    const res = await vendorAPI.update(newObj);
-    if (res.data.status) {
-      dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
-      dispatch(toggleIsLoading(false));
-    } else {
-      dispatch(setError(res.data.errorCode));
-      dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
-    }
-  } catch (e) {
-    dispatch(setError(500));
-    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(changeSearch(""));
     dispatch(toggleIsLoading(false));
   }
 };

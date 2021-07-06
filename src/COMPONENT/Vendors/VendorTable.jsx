@@ -1,8 +1,8 @@
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid, ruRU } from "@material-ui/data-grid";
 import React from "react";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
-import { IconButton, Box } from "@material-ui/core";
+import { IconButton, Box, LinearProgress } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { getVendorsData, setCurrentVendor } from "../../BLL/vendorReducer";
@@ -75,19 +75,25 @@ const VendorTable = (props) => {
   return (
     <>
       <VendorDelete open={openDelete} onClose={onClose} />
-      <DataGrid
-        // localeText={ruRU.props.MuiDataGrid.localeText}
-        rows={vendors}
-        columns={columns}
-        loading={isLoading}
-        density="compact"
-        onRowClick={(rowData) => setCurrent(rowData.row)}
-        paginationMode="server"
-        onPageChange={(params) => getVendors(params.page, searchField)}
-        rowCount={pagination.total}
-        pageSize={pagination.perPage}
-        autoHeight
-      />
+      {vendors.length === 0 ? (
+        <div>
+          <LinearProgress />
+        </div>
+      ) : (
+        <DataGrid
+          localeText={ruRU.props.MuiDataGrid.localeText}
+          rows={vendors}
+          columns={columns}
+          loading={isLoading}
+          density="compact"
+          onRowClick={(rowData) => setCurrent(rowData.row)}
+          paginationMode="server"
+          onPageChange={(params) => getVendors(params.page, searchField)}
+          rowCount={pagination.total}
+          pageSize={pagination.perPage}
+          autoHeight
+        />
+      )}
     </>
   );
 };

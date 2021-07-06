@@ -1,6 +1,7 @@
 // import { stopSubmit } from "redux-form";
 import { authAPI } from "../DAL/authAPI";
 import { authIn } from "../DAL/authIn";
+import { setBackEndMessage } from "./errorReducer";
 // import { authNoKeyAPI } from "../DAL/authNoKeyAPI";
 
 const SET_USER_DATA = "SET_USER_DATA";
@@ -46,7 +47,7 @@ export const getAuthData = () => async (dispatch) => {
     }
   } catch (e) {
     // localStorage.removeItem("token");
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -56,6 +57,7 @@ export const signin = (email, pass) => async (dispatch) => {
 
   if (res.data.status) {
     localStorage.setItem("token", res.data.token);
+    dispatch(setBackEndMessage(""));
     dispatch(getAuthData());
   }
   // } else {

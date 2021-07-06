@@ -1,11 +1,13 @@
 import typeSocketCpuAPI from "../DAL/typeSocketCpuAPI";
+import { setAuthData } from "./authReducer";
+import { setBackEndMessage, setError } from "./errorReducer";
 
 const SET_TYPE_CPU_SOKET = "SET_TYPE_CPU_SOKET";
 const SET_ALL_TYPE_CPU_SOKET = "SET_ALL_TYPE_CPU_SOKET";
 const TYPE_CPU_SOCKET_IS_LOADING = "TYPE_CPU_SOCKET_IS_LOADING";
 const SET_CURRENT_TYPE_CPU_SOCKET = "SET_CURREN_TYPE_CPU_SOCKET";
-const SET_ERROR_TYPE_CPU_SOCKET = "SET_ERROR_TYPE_CPU_SOCKET";
-const SET_SOCKETCPU_MESSAGE = "SET_SOCKETCPU_MESSAGE";
+// const SET_ERROR_TYPE_CPU_SOCKET = "SET_ERROR_TYPE_CPU_SOCKET";
+// const SET_SOCKETCPU_MESSAGE = "SET_SOCKETCPU_MESSAGE";
 const SEARCH_SOCKET_CPU = "SEARCH_SOCKET_CPU";
 
 const initialState = {
@@ -14,8 +16,8 @@ const initialState = {
   pagination: {},
   currentType: {},
   isLoading: true,
-  errorCode: null,
-  backEndMessage: "",
+  // errorCode: null,
+  // backEndMessage: "",
   searchField: "",
 };
 
@@ -40,24 +42,24 @@ const typeSocketCpuReducer = (state = initialState, action) => {
         currentType: { ...action.currentType },
       };
     }
-    case SET_ERROR_TYPE_CPU_SOCKET: {
-      return {
-        ...state,
-        errorCode: action.code,
-      };
-    }
+    // case SET_ERROR_TYPE_CPU_SOCKET: {
+    //   return {
+    //     ...state,
+    //     errorCode: action.code,
+    //   };
+    // }
     case SET_ALL_TYPE_CPU_SOKET: {
       return {
         ...state,
         cpuSocketsAll: [...action.socketCpu],
       };
     }
-    case SET_SOCKETCPU_MESSAGE: {
-      return {
-        ...state,
-        backEndMessage: action.message,
-      };
-    }
+    // case SET_SOCKETCPU_MESSAGE: {
+    //   return {
+    //     ...state,
+    //     backEndMessage: action.message,
+    //   };
+    // }
     case SEARCH_SOCKET_CPU: {
       return {
         ...state,
@@ -73,10 +75,10 @@ const typeSocketCpuReducer = (state = initialState, action) => {
 
 export const changeSearch = (text) => ({ type: SEARCH_SOCKET_CPU, text });
 
-export const setBackEndMessage = (message) => ({
-  type: SET_SOCKETCPU_MESSAGE,
-  message,
-});
+// export const setBackEndMessage = (message) => ({
+//   type: SET_SOCKETCPU_MESSAGE,
+//   message,
+// });
 
 export const toggleIsLoading = (isLoading) => ({
   type: TYPE_CPU_SOCKET_IS_LOADING,
@@ -99,7 +101,7 @@ export const setCurrentSocketCpu = (currentType) => ({
   currentType,
 });
 
-export const setError = (code) => ({ type: SET_ERROR_TYPE_CPU_SOCKET, code });
+// export const setError = (code) => ({ type: SET_ERROR_TYPE_CPU_SOCKET, code });
 
 // THUNK
 
@@ -113,21 +115,38 @@ const mapsFields = (resApi) => {
   return newRows;
 };
 
+const unMapsField = (socketCpu) => {
+  const toApi = {
+    id_typeSocketCpu: socketCpu.id,
+    name_typeSocketCpu: socketCpu.socketCpu,
+  };
+  return toApi;
+};
+
 export const getSocketCpuData = (page, text) => async (dispatch) => {
+  let search;
+  if (text) {
+    search = text;
+  } else {
+    search = undefined;
+  }
+  dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeSocketCpuAPI.all(page, text);
+    const res = await typeSocketCpuAPI.all(page, search);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setSocketCpuData(finalRes, res.data.pagination));
-      dispatch(toggleIsLoading(false));
     } else {
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
     dispatch(toggleIsLoading(false));
   }
 };
@@ -137,16 +156,13 @@ export const getAllSocketCpuData = () => async (dispatch) => {
   try {
     const res = await typeSocketCpuAPI.allToScroll();
     if (res.data.status) {
-      const newRows = res.data.result.map((e) => {
-        const row = {};
-        row.id = e.id_typeSocketCpu;
-        row.label = e.name_typeSocketCpu;
-        return row;
-      });
-      dispatch(setAllSocketCpuData(newRows));
+      const finalRes = mapsFields(res.data.result);
+      dispatch(setAllSocketCpuData(finalRes));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -157,18 +173,18 @@ export const getAllSocketCpuData = () => async (dispatch) => {
 };
 
 export const addSocketCpuData = (socket, page, text) => async (dispatch) => {
-  const newObj = {
-    name_typeSocketCpu: socket.socketCpu,
-  };
+  const finalRes = unMapsField(socket);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeSocketCpuAPI.add(newObj);
+    const res = await typeSocketCpuAPI.add(finalRes);
     if (res.data.status) {
       dispatch(getSocketCpuData(page, text));
       dispatch(getAllSocketCpuData());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -179,25 +195,24 @@ export const addSocketCpuData = (socket, page, text) => async (dispatch) => {
 };
 
 export const updateSocketCpuData = (socket, page, text) => async (dispatch) => {
-  const newObj = {
-    id_typeSocketCpu: socket.id,
-    name_typeSocketCpu: socket.socketCpu,
-  };
+  const finalRes = unMapsField(socket);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeSocketCpuAPI.update(newObj);
+    const res = await typeSocketCpuAPI.update(finalRes);
     if (res.data.status) {
       dispatch(getSocketCpuData(page, text));
       dispatch(getAllSocketCpuData());
-      dispatch(toggleIsLoading(false));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
-      dispatch(toggleIsLoading(false));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(changeSearch(""));
     dispatch(toggleIsLoading(false));
   }
 };
@@ -210,40 +225,17 @@ export const deleteSoketCpuData = (id, page, text) => async (dispatch) => {
     if (res.data.status) {
       dispatch(getSocketCpuData(page, text));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
   } finally {
+    dispatch(changeSearch(""));
     dispatch(toggleIsLoading(false));
-  }
-};
-
-export const getSearchSocketCpu = (text, page) => async (dispatch) => {
-  if (text.length >= 3) {
-    dispatch(toggleIsLoading(true));
-    try {
-      const res = await typeSocketCpuAPI.all(page, text);
-      if (res.data.status) {
-        const finalRes = mapsFields(res.data.result);
-        dispatch(setSocketCpuData(finalRes, res.data.pagination));
-        dispatch(changeSearch(text));
-        dispatch(toggleIsLoading(false));
-      } else {
-        dispatch(setError(res.data.errorCode));
-        dispatch(setBackEndMessage(res.data.message));
-        dispatch(toggleIsLoading(false));
-      }
-    } catch (e) {
-      dispatch(setError(500));
-      dispatch(setBackEndMessage(e.message));
-      dispatch(toggleIsLoading(false));
-    }
-  } else {
-    dispatch(changeSearch(text));
-    dispatch(getSocketCpuData());
   }
 };
 

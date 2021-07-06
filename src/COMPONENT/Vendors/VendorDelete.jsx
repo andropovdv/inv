@@ -23,7 +23,6 @@ const VendorDelete = (props) => {
   } = props;
 
   const submit = () => {
-    console.log("vendors: ", vendors.length);
     let page = pagination.current;
     if (vendors.length === 1 && pagination.current !== 0) {
       page -= 1;

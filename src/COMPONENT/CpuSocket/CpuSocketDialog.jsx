@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-wrap-multilines */
 import React from "react";
 import { PropTypes } from "prop-types";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import {
   Button,
@@ -9,32 +9,22 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { setCpuSoketVisibility } from "../../BLL/modalWindowReducer";
 import {
-  setError,
-  setBackEndMessage,
   addSocketCpuData,
   updateSocketCpuData,
 } from "../../BLL/typeSocketCpuReducer";
+import { setError, setBackEndMessage } from "../../BLL/errorReducer";
+import TextFieldSM from "../Common/Scroll/TextFieldSM";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   dialog: {
     position: "absolute",
     left: "53%",
     top: "53%",
     transform: "translate(-53%, -53%)",
-  },
-  dialog1: {
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-  },
-  textField: {
-    marginTop: theme.spacing(1),
   },
   actionButton: {
     paddingRight: 24,
@@ -49,9 +39,9 @@ const CpuSocketDialog = (props) => {
     setErrorMessage,
     addCpuSocket,
     updateSocket,
+
     searchField,
     pagination,
-
     modal,
     current,
     step,
@@ -93,39 +83,24 @@ const CpuSocketDialog = (props) => {
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Controller
-            as={
-              <TextField
-                autoFocus
-                fullWidth
-                variant="outlined"
-                margin="dense"
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                label={
-                  errors.socketCpu
-                    ? errors.socketCpu.message
-                    : "Разъем процессора"
-                }
-                error={!!errors.socketCpu}
-              />
-            }
-            name="socketCpu"
+          <TextFieldSM
             control={control}
-            rules={{
-              required: "Обязательное",
-              minLength: { value: 2, message: "Короткое" },
-            }}
-            defaultValue={current.socketCpu || ""}
+            errors={errors}
+            current={current.socketCpu}
+            nameField="socketCpu"
+            desc="Разъем процессора"
           />
         </DialogContent>
         <DialogActions className={classes.actionButton}>
           <Button color="primary" variant="outlined" onClick={onClose}>
             Отмена
           </Button>
-          <Button type="submit" variant="outlined" color="secondary">
+          <Button
+            type="submit"
+            variant="outlined"
+            color="secondary"
+            disabled={Object.keys(errors).length > 0}
+          >
             Записать
           </Button>
         </DialogActions>
@@ -140,6 +115,7 @@ CpuSocketDialog.defaultProps = {
     id: undefined,
     socketCpu: undefined,
   },
+  searchField: "",
 };
 
 CpuSocketDialog.propTypes = {
@@ -153,7 +129,7 @@ CpuSocketDialog.propTypes = {
     id: PropTypes.number,
     socketCpu: PropTypes.string,
   }),
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
   pagination: PropTypes.shape({
     total: PropTypes.number,
     current: PropTypes.number,
