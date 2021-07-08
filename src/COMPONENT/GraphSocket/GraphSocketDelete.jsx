@@ -15,6 +15,7 @@ import {
 
 const GraphSocketDelete = (props) => {
   const {
+    sockets,
     open,
     current,
     pagination,
@@ -25,7 +26,11 @@ const GraphSocketDelete = (props) => {
   } = props;
 
   const submit = async () => {
-    await deleteSocket(current.id, pagination.current, searchField);
+    let page = pagination.current;
+    if (sockets.length === 1 && pagination.current !== 0) {
+      page -= 1;
+    }
+    await deleteSocket(current.id, page, searchField);
     setCurrent(null, null);
     onClose();
   };
@@ -64,6 +69,12 @@ GraphSocketDelete.propTypes = {
     numPages: PropTypes.number,
     perPage: PropTypes.number,
   }).isRequired,
+  sockets: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      socketGraph: PropTypes.string,
+    })
+  ).isRequired,
   searchField: PropTypes.string,
 };
 
@@ -75,6 +86,7 @@ const mapStateToProps = (state) => ({
   current: state.typeOfGraphSlot.currentType,
   pagination: state.typeOfGraphSlot.pagination,
   searchField: state.typeOfGraphSlot.searchField,
+  sockets: state.typeOfGraphSlot.typeOfGraphSlot,
 });
 
 export default connect(mapStateToProps, {

@@ -1,25 +1,35 @@
+/* eslint-disable no-param-reassign */
 import Axios from "axios";
 
-const instance = Axios.create({
-  baseURL: "http://localhost:4000/api/socketRam",
-  withCredentials: true,
-});
+const setToken = (config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+  return config;
+};
+
+const baseUrl = "http://localhost:4000/api/socketRam/";
+
+Axios.interceptors.request.use(setToken);
 
 const typeOfRamAPI = {
   all(page, text) {
-    return instance.get(`?page=${page}&text=${text}`);
+    return Axios.get(`${baseUrl}?page=${page}&text=${text}`);
   },
   add(typeOfRam) {
-    return instance.post("/add", typeOfRam);
+    return Axios.post(baseUrl, typeOfRam);
   },
   update(typeOfRam) {
-    return instance.put("/update", typeOfRam);
+    return Axios.put(baseUrl, typeOfRam);
   },
-  delete(id) {
-    return instance.post("/delete", id);
+  delete(socket) {
+    return Axios.delete(baseUrl, { data: socket });
   },
   allToScroll() {
-    return instance.get("/all");
+    return Axios.get(`${baseUrl}all`);
   },
 };
 

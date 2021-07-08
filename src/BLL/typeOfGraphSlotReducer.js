@@ -1,11 +1,11 @@
 import typeOfGraphSlotAPI from "../DAL/typeOfGraphSlotAPI";
+import { setBackEndMessage, setError } from "./errorReducer";
+import { setAuthData } from "./authReducer";
 
 const SET_TYPE_OF_GRAPH_SLOT = "SET_TYPE_OF_GRAPH_SLOT";
 const SET_CURRENT_TYPE_OF_GRAPH_SLOT = "SET_CURRENT_TYPE_OF_GRAPH_SLOT";
 const SET_ALL_TYPE_OF_GRAPH_SLOT = "SET_ALL_TYPE_OF_GRAPH_SLOT";
 const TYPE_OF_GRAPH_SLOT_IS_LOADING = "TYPE_OF_GRAPH_SOLT_IS_LOADING";
-const SET_ERROR_TYPE_GRAPH_SLOT = "SET_ERROR_TYPE_GROPH_SLOT";
-const SET_MESSAGE_TYPE_GRAPH = "SET_MESSAGE_TYPE_GRAPH";
 const SEARCH_SOCKET_GRAPH = "SEARCH_SOCKET_GRAPH";
 
 const initialState = {
@@ -14,8 +14,6 @@ const initialState = {
   pagination: {},
   currentType: {},
   isLoading: true,
-  errorCode: null,
-  backEndMessage: "",
   searchField: "",
 };
 
@@ -38,18 +36,6 @@ const typeOfGraphSlotReducer = (state = initialState, action) => {
       return {
         ...state,
         currentType: { ...action.current },
-      };
-    }
-    case SET_ERROR_TYPE_GRAPH_SLOT: {
-      return {
-        ...state,
-        errorCode: action.error,
-      };
-    }
-    case SET_MESSAGE_TYPE_GRAPH: {
-      return {
-        ...state,
-        backEndMessage: action.message,
       };
     }
     case SET_ALL_TYPE_OF_GRAPH_SLOT: {
@@ -89,13 +75,6 @@ export const setCurrentTypeOfGraph = (current) => ({
   current,
 });
 
-export const setError = (error) => ({ type: SET_ERROR_TYPE_GRAPH_SLOT, error });
-
-export const setBackEndMessage = (message) => ({
-  type: SET_MESSAGE_TYPE_GRAPH,
-  message,
-});
-
 export const setAllTypeOfGraphSlot = (allTypeOfGraphSlot) => ({
   type: SET_ALL_TYPE_OF_GRAPH_SLOT,
   allTypeOfGraphSlot,
@@ -103,7 +82,7 @@ export const setAllTypeOfGraphSlot = (allTypeOfGraphSlot) => ({
 
 // THUNK
 
-export const mapsFields = (resApi) => {
+const mapsFields = (resApi) => {
   const newRows = resApi.map((e) => {
     const row = {};
     row.id = e.idTypeOfGraphSlot;
@@ -113,46 +92,37 @@ export const mapsFields = (resApi) => {
   return newRows;
 };
 
-export const getTypeOfGraphSlot = (page) => async (dispatch) => {
+const unMapsFields = (socket) => {
+  const toApi = {
+    idTypeOfGraphSlot: socket.is,
+    typeOfGraphSlot: socket.socketGraph,
+  };
+  return toApi;
+};
+
+export const getTypeOfGraphSlot = (page, text) => async (dispatch) => {
+  let search;
+  if (text) {
+    search = text;
+  }
+  dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeOfGraphSlotAPI.all(page);
-    if (res.data.result) {
+    const res = await typeOfGraphSlotAPI.all(page, search);
+    if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setTypeOfGraphSlot(finalRes, res.data.pagination));
     } else {
       dispatch(setBackEndMessage(res.data.error));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
   } finally {
     dispatch(toggleIsLoading(false));
-  }
-};
-
-export const getSearchSocketGraph = (text, page) => async (dispatch) => {
-  if (text.length >= 3) {
-    dispatch(toggleIsLoading(true));
-    try {
-      const res = await typeOfGraphSlotAPI.all(page, text);
-      if (res.data.status) {
-        const finalRes = mapsFields(res.data.result);
-        dispatch(setTypeOfGraphSlot(finalRes, res.data.pagination));
-        dispatch(changeSearch(text));
-      } else {
-        dispatch(setError(res.data.errorCode));
-        dispatch(setBackEndMessage(res.data.message));
-      }
-    } catch (e) {
-      dispatch(setError(500));
-      dispatch(setBackEndMessage(e.message));
-    } finally {
-      dispatch(toggleIsLoading(false));
-    }
-  } else {
-    dispatch(changeSearch(text));
-    dispatch(getTypeOfGraphSlot());
   }
 };
 
@@ -164,8 +134,10 @@ export const getAllTypeOfGraphSlot = () => async (dispatch) => {
       const finalRes = mapsFields(res.data.result);
       dispatch(setAllTypeOfGraphSlot(finalRes));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -176,16 +148,18 @@ export const getAllTypeOfGraphSlot = () => async (dispatch) => {
 };
 
 export const addTypeOfGraphSlot = (socket, page, text) => async (dispatch) => {
-  const newObj = { typeOfGraphSlot: socket.socketGraph };
+  const finalRes = unMapsFields(socket);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeOfGraphSlotAPI.add(newObj);
+    const res = await typeOfGraphSlotAPI.add(finalRes);
     if (res.data.status) {
       dispatch(getTypeOfGraphSlot(page, text));
       dispatch(getAllTypeOfGraphSlot());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -198,19 +172,18 @@ export const addTypeOfGraphSlot = (socket, page, text) => async (dispatch) => {
 export const updateTypeOfGraphSlot = (socket, page, text) => async (
   dispatch
 ) => {
-  const newObj = {
-    idTypeOfGraphSlot: socket.id,
-    typeOfGraphSlot: socket.socketGraph,
-  };
+  const finalRes = unMapsFields(socket);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeOfGraphSlotAPI.update(newObj);
+    const res = await typeOfGraphSlotAPI.update(finalRes);
     if (res.data.status) {
       dispatch(getTypeOfGraphSlot(page, text));
       dispatch(getAllTypeOfGraphSlot());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -221,14 +194,17 @@ export const updateTypeOfGraphSlot = (socket, page, text) => async (
 };
 
 export const deleteTypeOfGraphSlot = (id, page, text) => async (dispatch) => {
+  const responce = { idTypeOfGraphSlot: id };
   dispatch(toggleIsLoading(true));
   try {
-    const res = await typeOfGraphSlotAPI.delete(id);
+    const res = await typeOfGraphSlotAPI.delete(responce);
     if (res.data.status) {
       dispatch(getTypeOfGraphSlot(page, text));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));

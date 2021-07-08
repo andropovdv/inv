@@ -1,34 +1,29 @@
-/* eslint-disable react/jsx-wrap-multilines */
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
 } from "@material-ui/core";
 import { PropTypes } from "prop-types";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import {
   addTypeOfRamData,
-  setBackEndMessage,
-  setError,
   updateTypeOfRamData,
 } from "../../BLL/typeOfRamReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 import { setTypeOfRamVisibility } from "../../BLL/modalWindowReducer";
+import TextFieldSM from "../Common/Scroll/TextFieldSM";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   dialog: {
     position: "absolute",
     left: "53%",
     top: "53%",
     transform: "translate(-53%, -53%)",
-  },
-  textField: {
-    marginTop: theme.spacing(1),
   },
   actionButton: {
     paddingRight: 24,
@@ -74,7 +69,7 @@ const RamSocketDialog = (props) => {
     if (modal.type) {
       await addRamSocket(data, pagination.current, searchField);
     } else {
-      const upSocket = { id: current.id, ramSocket: data.socketRam };
+      const upSocket = { id: current.id, socketRam: data.socketRam };
       await updateRamSocket(upSocket, pagination.current, searchField);
     }
     setVisibility({ type: false, header: "", visibility: false });
@@ -91,37 +86,24 @@ const RamSocketDialog = (props) => {
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Controller
-            as={
-              <TextField
-                autoFocus
-                fullWidth
-                variant="outlined"
-                margin="dense"
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                label={
-                  errors.socketRam ? errors.socketRam.message : "Разъем RAM"
-                }
-                error={!!errors.socketRam}
-              />
-            }
-            name="socketRam"
+          <TextFieldSM
             control={control}
-            rules={{
-              required: "Обязательное",
-              minLength: { value: 2, message: "Короткое" },
-            }}
-            defaultValue={current.socketRam || ""}
+            errors={errors}
+            current={current.socketRam}
+            nameField="socketRam"
+            desc="Разъем RAM"
           />
         </DialogContent>
         <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
-          <Button color="secondary" type="submit" variant="outlined">
+          <Button
+            color="secondary"
+            type="submit"
+            variant="outlined"
+            disabled={Object.keys(errors).length > 0}
+          >
             Записать
           </Button>
         </DialogActions>
@@ -147,7 +129,7 @@ RamSocketDialog.propTypes = {
     id: PropTypes.number,
     socketRam: PropTypes.string,
   }),
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
 
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
@@ -162,6 +144,7 @@ RamSocketDialog.defaultProps = {
     id: undefined,
     socketRam: undefined,
   },
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({

@@ -79,7 +79,6 @@ const GraphCardDialog = (props) => {
         ...data,
         id: current.id,
       };
-      console.log("update GraphCard: ", res);
       await updateGraphCard(res, pagination.current, searchField);
     }
     setVisibility({ type: false, header: "", visibility: false });

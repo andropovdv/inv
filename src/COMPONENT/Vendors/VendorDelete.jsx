@@ -40,10 +40,10 @@ const VendorDelete = (props) => {
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={onClose}>
-          Cancel
+          Отмена
         </Button>
         <Button color="secondary" onClick={submit}>
-          Delete
+          Удалить
         </Button>
       </DialogActions>
     </Dialog>

@@ -3,22 +3,18 @@ import React from "react";
 import { PropTypes } from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
 } from "@material-ui/core";
-import {
-  addFormFactor,
-  setBackEndMessage,
-  setError,
-  updateFormFactor,
-} from "../../BLL/formFactorReducer";
+import { addFormFactor, updateFormFactor } from "../../BLL/formFactorReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 import { setFormFactorVisibility } from "../../BLL/modalWindowReducer";
+import TextFieldSM from "../Common/Scroll/TextFieldSM";
 
 const useStyles = makeStyles((theme) => ({
   dialog: {
@@ -88,37 +84,24 @@ const FormFactorDialog = (props) => {
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Controller
-            as={
-              <TextField
-                autoFocus
-                fullWidth
-                variant="outlined"
-                margin="dense"
-                className={classes.textField}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                label={
-                  errors.formFactor ? errors.formFactor.message : "Форм-фактор"
-                }
-                error={!!errors.formFactor}
-              />
-            }
-            name="formFactor"
+          <TextFieldSM
             control={control}
-            rules={{
-              required: "Обязательное",
-              minLength: { value: 2, message: "Короткое" },
-            }}
-            defaultValue={current.formFactor || ""}
+            errors={errors}
+            current={current.formFactor}
+            nameField="formFactor"
+            desc="Форм-фактор"
           />
         </DialogContent>
         <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
-          <Button color="secondary" type="submit" variant="outlined">
+          <Button
+            color="secondary"
+            type="submit"
+            variant="outlined"
+            disabled={Object.keys(errors).length > 0}
+          >
             Записать
           </Button>
         </DialogActions>

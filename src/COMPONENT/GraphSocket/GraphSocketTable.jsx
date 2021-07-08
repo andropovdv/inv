@@ -4,7 +4,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import React from "react";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid, ruRU } from "@material-ui/data-grid";
 import {
   getTypeOfGraphSlot,
   setCurrentTypeOfGraph,
@@ -77,13 +77,14 @@ const GraphSocketTable = (props) => {
 
   return (
     <>
-      {isLoading ? (
+      {graphSockets.length === 0 ? (
         <div>
           <LinearProgress color="primary" />
         </div>
       ) : (
         <>
           <DataGrid
+            localeText={ruRU.props.MuiDataGrid.localeText}
             rows={graphSockets}
             columns={columns}
             loading={isLoading}

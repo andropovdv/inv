@@ -1,11 +1,11 @@
 import formFactorAPI from "../DAL/formFactorAPI";
+import { setBackEndMessage, setError } from "./errorReducer";
+import { setAuthData } from "./authReducer";
 
 const SET_FORM_FACTOR = "SET_FORM_FACTOR";
 const FORM_FACTOR_IS_LOADING = "FORM_FACTOR_IS_LOADING";
 const SET_CURRENT_FORM_FACTOR = "SET_CURRENT_FORM_FACTOR";
-const SET_ERROR_FORM_FACTOR = "SET_ERROR_FORM_FACTOR";
 const SET_ALL_FORM_FACTOR = "SET_ALL_FORM_FACTOR";
-const SET_FORMFACTOR_MESSAGE = "SET_FORMFACTOR_MESSAGE";
 const SEARCH_FORMFACTOR = "SEARCH_FORMFACTOR";
 
 const initialState = {
@@ -14,8 +14,6 @@ const initialState = {
   pagination: {},
   currentType: {},
   isLoading: false,
-  errorCode: 0,
-  backEndMessage: "",
   searchField: "",
 };
 
@@ -25,12 +23,6 @@ const formFactorReducer = (state = initialState, action) => {
       return {
         ...state,
         allFormFactor: [...action.formFactor],
-      };
-    }
-    case SET_ERROR_FORM_FACTOR: {
-      return {
-        ...state,
-        errorCode: action.error,
       };
     }
     case SET_CURRENT_FORM_FACTOR: {
@@ -50,12 +42,6 @@ const formFactorReducer = (state = initialState, action) => {
       return {
         ...state,
         isLoading: action.isLoading,
-      };
-    }
-    case SET_FORMFACTOR_MESSAGE: {
-      return {
-        ...state,
-        backEndMessage: action.message,
       };
     }
     case SEARCH_FORMFACTOR: {
@@ -92,16 +78,6 @@ export const setCurrentFormFactor = (current) => ({
   current,
 });
 
-export const setError = (error) => ({
-  type: SET_ERROR_FORM_FACTOR,
-  error,
-});
-
-export const setBackEndMessage = (message) => ({
-  type: SET_FORMFACTOR_MESSAGE,
-  message,
-});
-
 export const changeSearch = (text) => ({
   type: SEARCH_FORMFACTOR,
   text,
@@ -119,16 +95,31 @@ const mapsFields = (resApi) => {
   return newRows;
 };
 
+const unMapsField = (factor) => {
+  const toApi = {
+    idFormFactor: factor.id,
+    formFactor: factor.formFactor,
+  };
+  return toApi;
+};
+
 export const getFormFactor = (page, text) => async (dispatch) => {
+  let search;
+  if (text) {
+    search = text;
+  }
+  dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await formFactorAPI.all(page, text);
+    const res = await formFactorAPI.all(page, search);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setFormFactor(finalRes, res.data.pagination));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "е авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -146,8 +137,10 @@ export const getAllFormFactor = () => async (dispatch) => {
       const finalRes = mapsFields(res.data.result);
       dispatch(setAllFormFactor(finalRes));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -158,16 +151,18 @@ export const getAllFormFactor = () => async (dispatch) => {
 };
 
 export const addFormFactor = (formFactor, page, text) => async (dispatch) => {
-  const newObj = { formFactor: formFactor.formFactor };
+  const finalRes = unMapsField(formFactor);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await formFactorAPI.add(newObj);
+    const res = await formFactorAPI.add(finalRes);
     if (res.data.status) {
       dispatch(getFormFactor(page, text));
       dispatch(getAllFormFactor());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -180,13 +175,10 @@ export const addFormFactor = (formFactor, page, text) => async (dispatch) => {
 export const updateFormFactor = (formFactor, page, text) => async (
   dispatch
 ) => {
-  const newObj = {
-    idFormFactor: formFactor.id,
-    formFactor: formFactor.formFactor,
-  };
+  const finalRes = unMapsField(formFactor);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await formFactorAPI.update(newObj);
+    const res = await formFactorAPI.update(finalRes);
     if (res.data.status) {
       dispatch(getFormFactor(page, text));
       dispatch(getAllFormFactor());
@@ -211,8 +203,10 @@ export const deleteFormFactor = (id, page, text) => async (dispatch) => {
       dispatch(getFormFactor(page, text));
       dispatch(getAllFormFactor());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));

@@ -1,5 +1,3 @@
-/* eslint-disable react/jsx-wrap-multilines */
-
 import React from "react";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
@@ -9,17 +7,16 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   addTypeOfGraphSlot,
-  setBackEndMessage,
-  setError,
   updateTypeOfGraphSlot,
 } from "../../BLL/typeOfGraphSlotReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 import { setTypeOfGraphSlotVisibility } from "../../BLL/modalWindowReducer";
+import TextFieldSM from "../Common/Scroll/TextFieldSM";
 
 const useStyles = makeStyles(() => ({
   dialog: {
@@ -33,6 +30,10 @@ const useStyles = makeStyles(() => ({
     left: "50%",
     top: "50%",
     transform: "translate(-50%, -50%)",
+  },
+  actionButton: {
+    paddingRight: 24,
+    paddingBottom: 24,
   },
 }));
 
@@ -87,35 +88,24 @@ const GraphSocketDialog = (props) => {
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          <Controller
-            as={
-              <TextField
-                autoFocus
-                fullWidth
-                variant="outlined"
-                margin="dense"
-                label={
-                  errors.socketGraph
-                    ? errors.socketGraph.message
-                    : "Разъем видео карты"
-                }
-                error={!!errors.socketGraph}
-              />
-            }
-            name="socketGraph"
+          <TextFieldSM
             control={control}
-            rules={{
-              required: "Обязательное",
-              minLength: { value: 2, message: "Короткое" },
-            }}
-            defaultValue={current.socketGraph || ""}
+            errors={errors}
+            current={current.socketGraph}
+            nameField="socketGraph"
+            desc="Разъем видео карты"
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
-          <Button color="secondary" type="submit" variant="outlined">
+          <Button
+            color="secondary"
+            type="submit"
+            variant="outlined"
+            disabled={Object.keys(errors).length > 0}
+          >
             Записать
           </Button>
         </DialogActions>

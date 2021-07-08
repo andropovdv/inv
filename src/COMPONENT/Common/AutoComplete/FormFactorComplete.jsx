@@ -1,18 +1,21 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { PropTypes } from "prop-types";
-import { TextField, CircularProgress } from "@material-ui/core";
 import { connect } from "react-redux";
-import { getVendorAllData, getVendorsData } from "../../../BLL/vendorReducer";
+import { PropTypes } from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { CircularProgress, TextField } from "@material-ui/core";
+import {
+  getAllFormFactor,
+  getFormFactor,
+} from "../../../BLL/formFactorReducer";
 
 const useStyles = makeStyles((theme) => ({
   buttonArea: theme.spacing(2),
 }));
 
-const VendorComplete = (props) => {
-  const { vendors, getVendor, getVendorSearch } = props;
+const FormFactorComplete = (props) => {
+  const { factorSearch, getFactor, formFactor } = props;
 
   const classes = useStyles();
 
@@ -20,23 +23,23 @@ const VendorComplete = (props) => {
 
   React.useEffect(() => {
     if (open) {
-      getVendor();
+      getFactor();
     }
   }, [open]);
 
-  const mapsFields = (ven) => {
-    const newRows = ven.map((e) => {
+  const mapsField = (fac) => {
+    const newRows = fac.map((e) => {
       let row = [];
-      row = e.vendor;
+      row = e.formFactor;
       return row;
     });
     return newRows;
   };
 
-  const vendorOption = mapsFields(vendors);
-  vendorOption.push("");
+  const factorOption = mapsField(formFactor);
+  factorOption.push("");
 
-  const loading = open && vendorOption.length === 0;
+  const loading = open && factorOption.length === 0;
 
   return (
     <>
@@ -51,10 +54,10 @@ const VendorComplete = (props) => {
         }}
         loading={loading}
         onChange={(event, newValue) => {
-          getVendorSearch(null, newValue);
+          factorSearch(null, newValue);
         }}
-        id="controllable-states-demo"
-        options={vendorOption}
+        id="formFactor"
+        options={factorOption}
         style={{ width: 300 }}
         renderInput={(params) => (
           <TextField
@@ -79,24 +82,22 @@ const VendorComplete = (props) => {
     </>
   );
 };
-
-VendorComplete.propTypes = {
-  vendors: PropTypes.arrayOf(
+FormFactorComplete.propTypes = {
+  getFactor: PropTypes.func.isRequired,
+  factorSearch: PropTypes.func.isRequired,
+  formFactor: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
-      label: PropTypes.string,
+      formFactor: PropTypes.string,
     })
   ).isRequired,
-  getVendor: PropTypes.func.isRequired,
-  getVendorSearch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  vendors: state.vendor.vendorsAll,
-  isLoading: state.vendor.isLoading,
+  formFactor: state.formFactor.formFactor,
 });
 
 export default connect(mapStateToProps, {
-  getVendor: getVendorAllData,
-  getVendorSearch: getVendorsData,
-})(React.memo(VendorComplete));
+  getFactor: getAllFormFactor,
+  factorSearch: getFormFactor,
+})(React.memo(FormFactorComplete));

@@ -5,27 +5,21 @@ import {
   Box,
   Button,
   Grid,
-  IconButton,
-  InputAdornment,
+  Hidden,
   Paper,
-  Snackbar,
-  TextField,
   Typography,
 } from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
-import CancelIcon from "@material-ui/icons/Cancel";
 import { connect } from "react-redux";
-import {
-  changeSearch,
-  getSearchSocketGraph,
-  getTypeOfGraphSlot,
-  setBackEndMessage,
-  setCurrentTypeOfGraph,
-  setError,
-} from "../../BLL/typeOfGraphSlotReducer";
+import { compose } from "redux";
+import { setCurrentTypeOfGraph } from "../../BLL/typeOfGraphSlotReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 import { setTypeOfGraphSlotVisibility } from "../../BLL/modalWindowReducer";
 import GraphSocketTable from "./GraphSocketTable";
 import GraphSocketDialog from "./GraphSocketDialog";
+import SoldOut from "../Common/SoldOut";
+import InfoBlock from "../Common/InfoBlock";
+import withAuthRedirect from "../HOC/withAuthRedirect";
+import GraphSocketComplete from "../Common/AutoComplete/GraphSocketComplete";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -41,11 +35,6 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(2),
     },
   },
-  dialog: {
-    position: "absolute",
-    left: 10,
-    top: 50,
-  },
 }));
 
 const GraphSocketUI = (props) => {
@@ -54,12 +43,8 @@ const GraphSocketUI = (props) => {
     setErrorMessage,
     setVisibility,
     setCurrent,
-    clearSearch,
-    getGraphSocket,
-    getSearch,
 
     errorMessage,
-    searchField,
     current,
   } = props;
 
@@ -91,28 +76,16 @@ const GraphSocketUI = (props) => {
     });
   };
 
-  const onClear = () => {
-    clearSearch("");
-    getGraphSocket();
-  };
-
-  const onSearch = (e) => {
-    getSearch(e.target.value);
-  };
+  const rowInfo = [{ name: "wii", val: "wiki" }];
 
   return (
     <>
       <GraphSocketDialog current={current} />
-      <Snackbar
+      <SoldOut
         open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-      >
-        <Alert onClose={handleClose} severity="error">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        errorMessage={errorMessage}
+        handleClose={handleClose}
+      />
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -121,7 +94,8 @@ const GraphSocketUI = (props) => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={9}>
+
+        <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Box display="flex" alignItems="center">
               <Button
@@ -132,46 +106,42 @@ const GraphSocketUI = (props) => {
               >
                 Добавить
               </Button>
-              <TextField
-                size="small"
-                variant="outlined"
-                className={classes.buttonArea}
-                label="Search"
-                onChange={onSearch}
-                value={searchField}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={onClear} edge="end">
-                        <CancelIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <GraphSocketComplete />
             </Box>
           </Paper>
-          <GraphSocketTable />
         </Grid>
-        <Grid item xs={3}>
+
+        <Grid item xs={12} lg={9}>
           <Paper className={classes.paper}>
-            <Typography variant="h6" align="left" component="span">
-              Информация
-            </Typography>
-            {Object.keys(current).length !== 0 ? (
-              <Box direction="colunm">
-                <Box display="flex" direction="row">
-                  <Box flexGrow={1} textOverflow="ellipsis" overflow="hidden">
-                    Название:
-                  </Box>
-                  <Box textOverflow="ellipsis" overflow="hidden">
-                    {current.socketGraph}
-                  </Box>
-                </Box>
-              </Box>
-            ) : null}
+            <GraphSocketTable />
           </Paper>
         </Grid>
+
+        <Hidden mdDown>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Информация
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
+
+        <Hidden lgUp>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Информация
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
       </Grid>
     </>
   );
@@ -182,12 +152,8 @@ GraphSocketUI.propTypes = {
   setErrorMessage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  clearSearch: PropTypes.func.isRequired,
-  getGraphSocket: PropTypes.func.isRequired,
-  getSearch: PropTypes.func.isRequired,
 
   errorMessage: PropTypes.string.isRequired,
-  searchField: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
     socketGraph: PropTypes.string,
@@ -195,17 +161,16 @@ GraphSocketUI.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.typeOfGraphSlot.backEndMessage,
-  searchField: state.typeOfGraphSlot.searchField,
+  errorMessage: state.error.backEndMessage,
   current: state.typeOfGraphSlot.currentType,
 });
 
-export default connect(mapStateToProps, {
-  setErrorCode: setError,
-  setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentTypeOfGraph,
-  setVisibility: setTypeOfGraphSlotVisibility,
-  clearSearch: changeSearch,
-  getGraphSocket: getTypeOfGraphSlot,
-  getSearch: getSearchSocketGraph,
-})(GraphSocketUI);
+export default compose(
+  connect(mapStateToProps, {
+    setErrorCode: setError,
+    setErrorMessage: setBackEndMessage,
+    setCurrent: setCurrentTypeOfGraph,
+    setVisibility: setTypeOfGraphSlotVisibility,
+  }),
+  withAuthRedirect
+)(GraphSocketUI);

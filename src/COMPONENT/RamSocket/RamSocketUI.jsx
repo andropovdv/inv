@@ -1,31 +1,25 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { PropTypes } from "prop-types";
-import CancelIcon from "@material-ui/icons/Cancel";
 import {
   Box,
   Button,
   Grid,
-  IconButton,
-  InputAdornment,
+  Hidden,
   Paper,
-  Snackbar,
-  TextField,
   Typography,
 } from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
 import { connect } from "react-redux";
-import {
-  changeSearch,
-  getSearchSocketRam,
-  getTypeOfRamData,
-  setBackEndMessage,
-  setCurrentTypeOfRam,
-  setError,
-} from "../../BLL/typeOfRamReducer";
+import { compose } from "redux";
+import { setCurrentTypeOfRam } from "../../BLL/typeOfRamReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 import { setTypeOfRamVisibility } from "../../BLL/modalWindowReducer";
 import RamSocketTable from "./RamSocketTable";
 import RamSocketDialog from "./RamSocketDialog";
+import SoldOut from "../Common/SoldOut";
+import InfoBlock from "../Common/InfoBlock";
+import withAuthRedirect from "../HOC/withAuthRedirect";
+import RamSocketComplete from "../Common/AutoComplete/RamSocketComplete";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -46,16 +40,12 @@ const useStyles = makeStyles((theme) => ({
 const RamSocketUI = (props) => {
   const {
     errorMessage,
-    searchField,
     current,
 
     setErrorCode,
     setErrorMessage,
     setCurrent,
     setVisibility,
-    getSearch,
-    getSocket,
-    clearSearch,
   } = props;
 
   const classes = useStyles();
@@ -82,28 +72,17 @@ const RamSocketUI = (props) => {
     setVisibility({ type: true, header: "Добавить разъем", visibility: true });
   };
 
-  const onSearch = (e) => {
-    getSearch(e.target.value);
-  };
-
-  const onClear = () => {
-    getSocket();
-    clearSearch("");
-  };
+  const rowInfo = [{ name: "wiki", val: "wiki" }];
 
   return (
     <>
       <RamSocketDialog current={current} />
-      <Snackbar
+      <SoldOut
         open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-      >
-        <Alert onClose={handleClose} severity="error">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        errorMessage={errorMessage}
+        handleClose={handleClose}
+      />
+
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -112,7 +91,8 @@ const RamSocketUI = (props) => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={9}>
+
+        <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Box display="flex" alignItems="center">
               <Button
@@ -123,33 +103,42 @@ const RamSocketUI = (props) => {
               >
                 Добавить
               </Button>
-              <TextField
-                onChange={onSearch}
-                value={searchField}
-                size="small"
-                variant="outlined"
-                label="Search"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment>
-                      <IconButton onClick={onClear}>
-                        <CancelIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <RamSocketComplete />
             </Box>
           </Paper>
-          <RamSocketTable />
         </Grid>
-        <Grid item xs={3}>
+
+        <Grid item xs={12} lg={9}>
           <Paper className={classes.paper}>
-            <Typography variant="h6" align="left" component="span">
-              Информация (Доделать)
-            </Typography>
+            <RamSocketTable />
           </Paper>
         </Grid>
+
+        <Hidden mdDown>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
+
+        <Hidden lgUp>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
       </Grid>
     </>
   );
@@ -157,7 +146,6 @@ const RamSocketUI = (props) => {
 
 RamSocketUI.propTypes = {
   errorMessage: PropTypes.string.isRequired,
-  searchField: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
     socketRam: PropTypes.string,
@@ -167,23 +155,20 @@ RamSocketUI.propTypes = {
   setErrorMessage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  getSearch: PropTypes.func.isRequired,
-  getSocket: PropTypes.func.isRequired,
-  clearSearch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.typeOfRam.backEndMessage,
+  errorMessage: state.error.backEndMessage,
   searchField: state.typeOfRam.searchField,
   current: state.typeOfRam.currentType,
 });
 
-export default connect(mapStateToProps, {
-  setErrorCode: setError,
-  setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentTypeOfRam,
-  setVisibility: setTypeOfRamVisibility,
-  getSearch: getSearchSocketRam,
-  getSocket: getTypeOfRamData,
-  clearSearch: changeSearch,
-})(RamSocketUI);
+export default compose(
+  connect(mapStateToProps, {
+    setErrorCode: setError,
+    setErrorMessage: setBackEndMessage,
+    setCurrent: setCurrentTypeOfRam,
+    setVisibility: setTypeOfRamVisibility,
+  }),
+  withAuthRedirect
+)(RamSocketUI);

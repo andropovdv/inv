@@ -1,25 +1,40 @@
+/* eslint-disable no-param-reassign */
 import Axios from "axios";
 
-const instance = Axios.create({
-  baseURL: "http://localhost:4000/api/formFactor",
-  withCredentials: true,
-});
+const setToken = (config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+  return config;
+};
+
+const baseUrl = "http://localhost:4000/api/formFactor/";
+
+Axios.interceptors.request.use(setToken);
+
+// const instance = Axios.create({
+//   baseURL: "http://localhost:4000/api/formFactor",
+//   withCredentials: true,
+// });
 
 const formFactorAPI = {
   all(page, text) {
-    return instance.get(`?page=${page}&text=${text}`);
+    return Axios.get(`${baseUrl}?page=${page}&text=${text}`);
   },
   add(formFactor) {
-    return instance.post("/add", formFactor);
+    return Axios.post(baseUrl, formFactor);
   },
   update(formFactor) {
-    return instance.put("/update", formFactor);
+    return Axios.put(baseUrl, formFactor);
   },
-  delete(id) {
-    return instance.post("/delete", id);
+  delete(factor) {
+    return Axios.delete(baseUrl, { data: factor });
   },
   allToScroll() {
-    return instance.get("/all");
+    return Axios.get(`${baseUrl}all`);
   },
 };
 

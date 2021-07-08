@@ -15,6 +15,7 @@ import {
 
 const RamSocketDelete = (props) => {
   const {
+    socketRams,
     open,
     current,
     pagination,
@@ -25,8 +26,11 @@ const RamSocketDelete = (props) => {
   } = props;
 
   const submit = async () => {
-    const delSocket = { id: current.id };
-    await deleteSocket(delSocket, pagination.current, searchField);
+    let page = pagination.current;
+    if (socketRams.length === 1 && pagination.current !== 0) {
+      page -= 1;
+    }
+    await deleteSocket(current.id, page, searchField);
     setCurrent(null, null);
     onClose();
   };
@@ -41,10 +45,10 @@ const RamSocketDelete = (props) => {
       </DialogContent>
       <DialogActions>
         <Button color="primary" onClick={onClose}>
-          Cancel
+          Отмена
         </Button>
         <Button color="secondary" onClick={submit}>
-          Delete
+          Удалить
         </Button>
       </DialogActions>
     </Dialog>
@@ -63,17 +67,28 @@ RamSocketDelete.propTypes = {
     numPages: PropTypes.isRequired,
     perPage: PropTypes.number,
   }).isRequired,
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
+  socketRams: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      socketRam: PropTypes.string,
+    })
+  ).isRequired,
 
   onClose: PropTypes.func.isRequired,
   deleteSocket: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
 };
 
+RamSocketDelete.defaultProps = {
+  searchField: "",
+};
+
 const mapStateToProps = (state) => ({
   current: state.typeOfRam.currentType,
   pagination: state.typeOfRam.pagination,
   searchField: state.typeOfRam.searchField,
+  socketRams: state.typeOfRam.typeOfRam,
 });
 
 export default connect(mapStateToProps, {

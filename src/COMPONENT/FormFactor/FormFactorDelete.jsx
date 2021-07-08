@@ -15,6 +15,7 @@ import {
 
 const FormFactorDelete = (props) => {
   const {
+    formFactor,
     searchField,
     pagination,
     current,
@@ -25,8 +26,11 @@ const FormFactorDelete = (props) => {
   } = props;
 
   const submit = async () => {
-    const delItem = { id: current.id };
-    await deleteFactor(delItem, pagination.current, searchField);
+    let page = pagination.current;
+    if (formFactor.length === 1 && pagination.current !== 0) {
+      page -= 1;
+    }
+    await deleteFactor(current.id, page, searchField);
     setCurrent(null, null);
     onClose();
   };
@@ -63,16 +67,27 @@ FormFactorDelete.propTypes = {
     numPages: PropTypes.isRequired,
     perPage: PropTypes.number,
   }).isRequired,
-  searchField: PropTypes.string.isRequired,
+  formFactor: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      formFactor: PropTypes.string,
+    })
+  ).isRequired,
+  searchField: PropTypes.string,
   onClose: PropTypes.func.isRequired,
   deleteFactor: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
+};
+
+FormFactorDelete.defaultProps = {
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({
   pagination: state.formFactor.pagination,
   searchField: state.formFactor.searchField,
   current: state.formFactor.currentType,
+  formFactor: state.formFactor.formFactor,
 });
 
 export default connect(mapStateToProps, {

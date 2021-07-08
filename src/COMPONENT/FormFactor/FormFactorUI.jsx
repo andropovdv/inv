@@ -1,4 +1,4 @@
-import CancelIcon from "@material-ui/icons/Cancel";
+// import CancelIcon from "@material-ui/icons/Cancel";
 import { PropTypes } from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import React from "react";
@@ -7,25 +7,20 @@ import {
   Box,
   Button,
   Grid,
-  IconButton,
-  InputAdornment,
+  Hidden,
   Paper,
-  Snackbar,
-  TextField,
   Typography,
 } from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
-import {
-  changeSearch,
-  getFormFactor,
-  getSearchFormFactor,
-  setBackEndMessage,
-  setCurrentFormFactor,
-  setError,
-} from "../../BLL/formFactorReducer";
+import { compose } from "redux";
+import { setCurrentFormFactor } from "../../BLL/formFactorReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 import { setFormFactorVisibility } from "../../BLL/modalWindowReducer";
 import FormFactorTable from "./FormFactorTable";
 import FormFactorDialog from "./FormFactorDialog";
+import SoldOut from "../Common/SoldOut";
+import InfoBlock from "../Common/InfoBlock";
+import withAuthRedirect from "../HOC/withAuthRedirect";
+import FormFactorComplete from "../Common/AutoComplete/FormFactorComplete";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -46,15 +41,11 @@ const useStyles = makeStyles((theme) => ({
 const FormFactorUI = (props) => {
   const {
     current,
-    searchField,
     errorMessage,
     setErrorCode,
     setErrorMessage,
     setCurrent,
     setVisibility,
-    getSearch,
-    getFactor,
-    clearSearch,
   } = props;
 
   const classes = useStyles();
@@ -85,28 +76,16 @@ const FormFactorUI = (props) => {
     });
   };
 
-  const onSearch = (e) => {
-    getSearch(e.target.value);
-  };
-
-  const onClear = () => {
-    getFactor();
-    clearSearch("");
-  };
+  const rowInfo = [{ name: "wiki", val: "wiki" }];
 
   return (
     <>
       <FormFactorDialog current={current} />
-      <Snackbar
+      <SoldOut
         open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-      >
-        <Alert onClose={handleClose} severity="error">
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+        errorMessage={errorMessage}
+        handleClose={handleClose}
+      />
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -115,7 +94,8 @@ const FormFactorUI = (props) => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={9}>
+
+        <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Box display="flex" alignItems="center">
               <Button
@@ -126,33 +106,42 @@ const FormFactorUI = (props) => {
               >
                 Добавить
               </Button>
-              <TextField
-                onChange={onSearch}
-                value={searchField}
-                variant="outlined"
-                size="small"
-                label="Search"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment>
-                      <IconButton onClick={onClear}>
-                        <CancelIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              <FormFactorComplete />
             </Box>
           </Paper>
-          <FormFactorTable />
         </Grid>
-        <Grid item xs={3}>
+
+        <Grid item xs={12} lg={9}>
           <Paper className={classes.paper}>
-            <Typography variant="h6" align="left" component="span">
-              Информация (Доделать)
-            </Typography>
+            <FormFactorTable />
           </Paper>
         </Grid>
+
+        <Hidden mdDown>
+          <Grid item xs={3}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
+
+        <Hidden lgUp>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
+              </Typography>
+              {Object.keys(current).length !== 0 ? (
+                <InfoBlock rowInfo={rowInfo} />
+              ) : null}
+            </Paper>
+          </Grid>
+        </Hidden>
       </Grid>
     </>
   );
@@ -160,7 +149,6 @@ const FormFactorUI = (props) => {
 
 FormFactorUI.propTypes = {
   errorMessage: PropTypes.string.isRequired,
-  searchField: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
     formFactor: PropTypes.string,
@@ -170,23 +158,20 @@ FormFactorUI.propTypes = {
   setErrorMessage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  getSearch: PropTypes.func.isRequired,
-  getFactor: PropTypes.func.isRequired,
-  clearSearch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.formFactor.backEndMessage,
+  errorMessage: state.error.backEndMessage,
   searchField: state.formFactor.searchField,
   current: state.formFactor.currentType,
 });
 
-export default connect(mapStateToProps, {
-  setErrorCode: setError,
-  setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentFormFactor,
-  setVisibility: setFormFactorVisibility,
-  getSearch: getSearchFormFactor,
-  getFactor: getFormFactor,
-  clearSearch: changeSearch,
-})(FormFactorUI);
+export default compose(
+  connect(mapStateToProps, {
+    setErrorCode: setError,
+    setErrorMessage: setBackEndMessage,
+    setCurrent: setCurrentFormFactor,
+    setVisibility: setFormFactorVisibility,
+  }),
+  withAuthRedirect
+)(FormFactorUI);

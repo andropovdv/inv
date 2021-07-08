@@ -15,16 +15,9 @@ const baseUrl = "http://localhost:4000/api/vendors/";
 
 Axios.interceptors.request.use(setToken);
 
-// const instance = Axios.create({
-//   baseURL: "http://localhost:4000/api/vendors/",
-//   withCredentials: true,
-//   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-// });
-
 const vendorAPI = {
   all(page, text) {
     return Axios.get(`${baseUrl}?page=${page}&text=${text}`);
-    // return instance.get(`?page=${page}&text=${text}`);
   },
   update(vendor) {
     return Axios.put(baseUrl, vendor);
@@ -37,9 +30,6 @@ const vendorAPI = {
   },
   allToScroll() {
     return Axios.get(`${baseUrl}all`);
-  },
-  searchItem(text) {
-    return Axios.post(`${baseUrl}searchItem`, text);
   },
 };
 

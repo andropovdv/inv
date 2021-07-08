@@ -1,10 +1,10 @@
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid, ruRU } from "@material-ui/data-grid";
 import React from "react";
 import { PropTypes } from "prop-types";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { connect } from "react-redux";
-import { IconButton } from "@material-ui/core";
+import { Box, IconButton, LinearProgress } from "@material-ui/core";
 import {
   getTypeOfRamData,
   setCurrentTypeOfRam,
@@ -27,10 +27,10 @@ const RamSocketTable = (props) => {
     getSocketRam(pagination.current, searchField);
   }, []);
 
-  const [open, setOpen] = React.useState(false);
+  const [openDelete, setDelete] = React.useState(false);
 
   const clickDelete = () => {
-    setOpen(true);
+    setDelete(true);
   };
 
   const clickEdit = () => {
@@ -42,23 +42,7 @@ const RamSocketTable = (props) => {
   };
 
   const onClose = () => {
-    setOpen(false);
-  };
-
-  const [page, setPage] = React.useState(1);
-
-  const handlePageChange = (params) => {
-    if (params.page > page) {
-      getSocketRam(pagination.current + 1, searchField);
-    } else {
-      getSocketRam(pagination.current - 1, searchField);
-    }
-    setPage(params.page);
-  };
-
-  const setRow = (idRow) => {
-    const res = socketRams.find((e) => e.id === parseInt(idRow, 10));
-    setCurrent(res);
+    setDelete(false);
   };
 
   const columns = [
@@ -69,45 +53,53 @@ const RamSocketTable = (props) => {
       width: 120,
       headerName: "Действия",
       renderCell: () => (
-        <strong>
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexGrow: 1,
+          }}
+        >
           <IconButton color="primary" size="small" onClick={clickEdit}>
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton color="secondary" size="small" onClick={clickDelete}>
             <DeleteIcon fontSize="small" />
           </IconButton>
-        </strong>
+        </Box>
       ),
     },
   ];
 
   return (
-    <div style={{ height: 300, width: "100%" }}>
-      <div style={{ display: "flex", height: "100%" }}>
-        <div style={{ flexGrow: 1 }}>
-          <DataGrid
-            loading={isLoading}
-            rows={socketRams}
-            columns={columns}
-            autoHeight
-            density="compact"
-            onSelectionChange={(select) => {
-              setRow(select.rowIds);
-            }}
-            paginationMode="server"
-            onPageChange={handlePageChange}
-            rowCount={pagination.error ? 0 : pagination.total}
-            pageSize={pagination.perPage}
-          />
-          <RamSocketDelete open={open} onClose={onClose} />
+    <>
+      <RamSocketDelete open={openDelete} onClose={onClose} />
+      {socketRams.length === 0 ? (
+        <div>
+          <LinearProgress />
         </div>
-      </div>
-    </div>
+      ) : (
+        <DataGrid
+          localeText={ruRU.props.MuiDataGrid.localeText}
+          loading={isLoading}
+          rows={socketRams}
+          columns={columns}
+          autoHeight
+          density="compact"
+          onRowClick={(rowData) => setCurrent(rowData.row)}
+          paginationMode="server"
+          onPageChange={(params) => getSocketRam(params.page, searchField)}
+          rowCount={pagination.error ? 0 : pagination.total}
+          pageSize={pagination.perPage}
+        />
+      )}
+    </>
   );
 };
 
 RamSocketTable.propTypes = {
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
   isLoading: PropTypes.bool.isRequired,
   pagination: PropTypes.shape({
     total: PropTypes.number,
@@ -126,6 +118,10 @@ RamSocketTable.propTypes = {
   getSocketRam: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
+};
+
+RamSocketTable.defaultProps = {
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({

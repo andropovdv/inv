@@ -10,6 +10,7 @@ import {
   Typography,
   Hidden,
 } from "@material-ui/core";
+import { compose } from "redux";
 import { setCpuSoketVisibility } from "../../BLL/modalWindowReducer";
 import CpuSocketTable from "./CpuSocketTable";
 import { setCurrentSocketCpu } from "../../BLL/typeSocketCpuReducer";
@@ -18,6 +19,7 @@ import SoldOut from "../Common/SoldOut";
 import SocketCpuComplete from "../Common/AutoComplete/SocketCpuComplete";
 import { setError, setBackEndMessage } from "../../BLL/errorReducer";
 import InfoBlock from "../Common/InfoBlock";
+import withAuthRedirect from "../HOC/withAuthRedirect";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -158,9 +160,19 @@ const mapStateToProps = (state) => ({
   isLoading: state.typeCpuSocket.isLoading,
 });
 
-export default connect(mapStateToProps, {
-  setVisibility: setCpuSoketVisibility,
-  setErrorCode: setError,
-  setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentSocketCpu,
-})(CpuSocketUI);
+// export default connect(mapStateToProps, {
+//   setVisibility: setCpuSoketVisibility,
+//   setErrorCode: setError,
+//   setErrorMessage: setBackEndMessage,
+//   setCurrent: setCurrentSocketCpu,
+// })(CpuSocketUI);
+
+export default compose(
+  connect(mapStateToProps, {
+    setVisibility: setCpuSoketVisibility,
+    setErrorCode: setError,
+    setErrorMessage: setBackEndMessage,
+    setCurrent: setCurrentSocketCpu,
+  }),
+  withAuthRedirect
+)(CpuSocketUI);

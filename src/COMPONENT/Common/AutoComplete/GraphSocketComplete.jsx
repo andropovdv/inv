@@ -1,18 +1,21 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { PropTypes } from "prop-types";
-import { TextField, CircularProgress } from "@material-ui/core";
 import { connect } from "react-redux";
-import { getVendorAllData, getVendorsData } from "../../../BLL/vendorReducer";
+import { PropTypes } from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { CircularProgress, TextField } from "@material-ui/core";
+import {
+  getAllTypeOfGraphSlot,
+  getTypeOfGraphSlot,
+} from "../../../BLL/typeOfGraphSlotReducer";
 
 const useStyles = makeStyles((theme) => ({
   buttonArea: theme.spacing(2),
 }));
 
-const VendorComplete = (props) => {
-  const { vendors, getVendor, getVendorSearch } = props;
+const GraphSocketComplete = (props) => {
+  const { sockets, getSocket, socketSearch } = props;
 
   const classes = useStyles();
 
@@ -20,23 +23,23 @@ const VendorComplete = (props) => {
 
   React.useEffect(() => {
     if (open) {
-      getVendor();
+      getSocket();
     }
   }, [open]);
 
-  const mapsFields = (ven) => {
-    const newRows = ven.map((e) => {
+  const mapsFieled = (soc) => {
+    const newRows = soc.map((e) => {
       let row = [];
-      row = e.vendor;
+      row = e.socketGraph;
       return row;
     });
     return newRows;
   };
 
-  const vendorOption = mapsFields(vendors);
-  vendorOption.push("");
+  const socketOption = mapsFieled(sockets);
+  socketOption.push("");
 
-  const loading = open && vendorOption.length === 0;
+  const loading = open && socketOption.length === 0;
 
   return (
     <>
@@ -51,10 +54,10 @@ const VendorComplete = (props) => {
         }}
         loading={loading}
         onChange={(event, newValue) => {
-          getVendorSearch(null, newValue);
+          socketSearch(null, newValue);
         }}
-        id="controllable-states-demo"
-        options={vendorOption}
+        id="socketGraph"
+        options={socketOption}
         style={{ width: 300 }}
         renderInput={(params) => (
           <TextField
@@ -80,23 +83,22 @@ const VendorComplete = (props) => {
   );
 };
 
-VendorComplete.propTypes = {
-  vendors: PropTypes.arrayOf(
+GraphSocketComplete.propTypes = {
+  getSocket: PropTypes.func.isRequired,
+  socketSearch: PropTypes.func.isRequired,
+  sockets: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
-      label: PropTypes.string,
+      socketGraph: PropTypes.string,
     })
   ).isRequired,
-  getVendor: PropTypes.func.isRequired,
-  getVendorSearch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  vendors: state.vendor.vendorsAll,
-  isLoading: state.vendor.isLoading,
+  sockets: state.typeOfGraphSlot.typeOfGraphSlot,
 });
 
 export default connect(mapStateToProps, {
-  getVendor: getVendorAllData,
-  getVendorSearch: getVendorsData,
-})(React.memo(VendorComplete));
+  getSocket: getAllTypeOfGraphSlot,
+  socketSearch: getTypeOfGraphSlot,
+})(React.memo(GraphSocketComplete));

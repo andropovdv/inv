@@ -12,11 +12,7 @@ import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import VendorComplete from "../Common/AutoComplete/VendorComplete";
-import {
-  setCurrentVendor,
-  changeSearch,
-  getVendorsData,
-} from "../../BLL/vendorReducer";
+import { setCurrentVendor } from "../../BLL/vendorReducer";
 import { setError, setBackEndMessage } from "../../BLL/errorReducer";
 import { setVendorVisibility } from "../../BLL/modalWindowReducer";
 import VendorTable from "./VendorTable";
@@ -180,8 +176,6 @@ export default compose(
     setErrorMessage: setBackEndMessage,
     setCurrent: setCurrentVendor,
     setVisibility: setVendorVisibility,
-    clearSearch: changeSearch,
-    getVendor: getVendorsData,
   }),
   withAuthRedirect
 )(VendorUI);

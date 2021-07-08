@@ -1,25 +1,39 @@
+/* eslint-disable no-param-reassign */
 import Axios from "axios";
 
-const instance = Axios.create({
-  baseURL: "http://localhost:4000/api/socketGraph",
-  withCredentials: true,
-});
+const setToken = (config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+  return config;
+};
+
+const baseUrl = "http://localhost:4000/api/socketGraph/";
+
+Axios.interceptors.request.use(setToken);
+// const instance = Axios.create({
+//   baseURL: "http://localhost:4000/api/socketGraph",
+//   withCredentials: true,
+// });
 
 const typeOfGraphSlotAPI = {
   all(page, text) {
-    return instance.get(`?page=${page}&text=${text}`);
+    return Axios.get(`${baseUrl}?page=${page}&text=${text}`);
   },
   add(typeOfGraphSlot) {
-    return instance.post("/add", typeOfGraphSlot);
+    return Axios.post(baseUrl, typeOfGraphSlot);
   },
   update(typeOfGraphSlot) {
-    return instance.put("/update", typeOfGraphSlot);
+    return Axios.put(baseUrl, typeOfGraphSlot);
   },
-  delete(id) {
-    return instance.post("/delete", id);
+  delete(socket) {
+    return Axios.delete(baseUrl, { data: socket });
   },
   allToScroll() {
-    return instance.get("/all");
+    return Axios.get(`${baseUrl}all`);
   },
 };
 

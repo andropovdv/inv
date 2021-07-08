@@ -59,6 +59,8 @@ export const signin = (email, pass) => async (dispatch) => {
     localStorage.setItem("token", res.data.token);
     dispatch(setBackEndMessage(""));
     dispatch(getAuthData());
+  } else {
+    dispatch(setBackEndMessage(res.data.message));
   }
   // } else {
   //   const message =
