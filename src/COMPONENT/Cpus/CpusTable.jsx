@@ -1,10 +1,10 @@
-import { IconButton } from "@material-ui/core";
-import React, { useEffect } from "react";
+import { Box, IconButton, LinearProgress } from "@material-ui/core";
+import React from "react";
 import { PropTypes } from "prop-types";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { connect } from "react-redux";
-import { DataGrid } from "@material-ui/data-grid";
+import { DataGrid, ruRU } from "@material-ui/data-grid";
 import { getCpusData, setCurrentCpu } from "../../BLL/cpuReducer";
 import { setCpuVisibility } from "../../BLL/modalWindowReducer";
 import CpuDelete from "./CpuDelete";
@@ -20,19 +20,18 @@ const CpusTable = (props) => {
     searchFileld,
   } = props;
 
-  useEffect(() => {
+  React.useEffect(() => {
     getCpus(pagination.current, searchFileld);
   }, []);
 
-  const [open, setOpen] = React.useState(false);
-  const [page, setPage] = React.useState(1);
+  const [openDelete, setDelete] = React.useState(false);
 
   const clickDelete = () => {
-    setOpen(true);
+    setDelete(true);
   };
 
   const onClose = () => {
-    setOpen(false);
+    setDelete(false);
   };
 
   const clickEdit = () => {
@@ -41,15 +40,6 @@ const CpusTable = (props) => {
       header: "Редактировать процессор",
       visibility: true,
     });
-  };
-
-  const handlePageChange = (params) => {
-    if (params.page > page) {
-      getCpus(pagination.current + 1, searchFileld);
-    } else {
-      getCpus(pagination.current - 1, searchFileld);
-    }
-    setPage(params.page);
   };
 
   const columns = [
@@ -62,45 +52,48 @@ const CpusTable = (props) => {
       width: 120,
       headerName: "Действия",
       renderCell: () => (
-        <strong>
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexGrow: 1,
+          }}
+        >
           <IconButton color="primary" size="small" onClick={clickEdit}>
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton color="secondary" size="small" onClick={clickDelete}>
             <DeleteIcon fontSize="small" />
           </IconButton>
-        </strong>
+        </Box>
       ),
     },
   ];
 
-  const setRow = (idRow) => {
-    const res = cpus.find((e) => e.id === parseInt(idRow, 10));
-    setCurrent(res);
-  };
-
   return (
-    <div style={{ height: 300, width: "100%" }}>
-      <div style={{ display: "flex", height: "100%" }}>
-        <div style={{ flexGrow: 1 }}>
-          <DataGrid
-            rows={cpus}
-            columns={columns}
-            loading={isLoading}
-            autoHeight
-            density="compact"
-            onSelectionChange={(select) => {
-              setRow(select.rowIds);
-            }}
-            paginationMode="server"
-            onPageChange={handlePageChange}
-            rowCount={pagination.total}
-            pageSize={pagination.perPage}
-          />
-          <CpuDelete open={open} onClose={onClose} />
+    <>
+      <CpuDelete open={openDelete} onClose={onClose} />
+      {cpus.length === 0 ? (
+        <div>
+          <LinearProgress />
         </div>
-      </div>
-    </div>
+      ) : (
+        <DataGrid
+          localeText={ruRU.props.MuiDataGrid.localeText}
+          rows={cpus}
+          columns={columns}
+          loading={isLoading}
+          autoHeight
+          density="compact"
+          onRowClick={(rowData) => setCurrent(rowData.row)}
+          paginationMode="server"
+          onPageChange={(params) => getCpus(params.page, searchFileld)}
+          rowCount={pagination.total}
+          pageSize={pagination.perPage}
+        />
+      )}
+    </>
   );
 };
 

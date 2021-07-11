@@ -1,25 +1,35 @@
+/* eslint-disable no-param-reassign */
 import Axios from "axios";
 
-const instance = Axios.create({
-  baseURL: "http://localhost:4000/api/cpus",
-  withCredentials: true,
-});
+const setToken = (config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+  return config;
+};
+
+const baseUrl = "http://localhost:4000/api/cpus";
+
+Axios.interceptors.request.use(setToken);
 
 const cpuAPI = {
   all(page, text) {
-    return instance.get(`?page=${page}&text=${text}`);
+    return Axios.get(`${baseUrl}?page=${page}&text=${text}`);
   },
   update(cpu) {
-    return instance.put("/update", cpu);
+    return Axios.put(baseUrl, cpu);
   },
-  delete(id) {
-    return instance.post(`/delete`, id);
+  delete(cpu) {
+    return Axios.delete(baseUrl, { data: cpu });
   },
   add(cpu) {
-    return instance.post("/add", cpu);
+    return Axios.post(baseUrl, cpu);
   },
-  searchItem(text, page) {
-    return instance.get(`/searchItem?page=${page}&text=${text}`);
+  allToScroll() {
+    return Axios.get(`${baseUrl}all`);
   },
 };
 

@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
 import cpuAPI from "../DAL/cpuApi";
+import { setBackEndMessage, setError } from "./errorReducer";
+import { setAuthData } from "./authReducer";
 
 const SET_CPUS = "SET_CPUS";
 const CPUS_IS_LOADIND = "CPUS_IS_LOADIND";
 const SET_CURRENT_CPU = "SET_CURRENT_CPU";
-const SET_ERROR_CPU = "SET_ERROR_CPU";
-const SET_CPU_MESSAGE = "SET_CPU_MESSAGE";
 const SEARCH_CPU = "SEARCH_CPU";
 
 const initialState = {
@@ -39,18 +39,6 @@ const cpuReducer = (state = initialState, action) => {
         currentCpu: { ...action.currentCpu },
       };
     }
-    case SET_ERROR_CPU: {
-      return {
-        ...state,
-        errorCode: action.code,
-      };
-    }
-    case SET_CPU_MESSAGE: {
-      return {
-        ...state,
-        backEndMessage: action.message,
-      };
-    }
     case SEARCH_CPU: {
       return {
         ...state,
@@ -79,13 +67,6 @@ export const toggleIsLoading = (isLoading) => {
   return { type: CPUS_IS_LOADIND, isLoading };
 };
 
-export const setError = (code) => {
-  return { type: SET_ERROR_CPU, code };
-};
-
-export const setBackEndMessage = (message) => {
-  return { type: SET_CPU_MESSAGE, message };
-};
 // THUNK
 
 const mapsFields = (cpu) => {
@@ -117,14 +98,22 @@ const unMapsField = (cpu) => {
 };
 
 export const getCpusData = (page, text) => async (dispatch) => {
+  let search;
+  if (text) {
+    search = text;
+  }
+  dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await cpuAPI.all(page, text);
+    const res = await cpuAPI.all(page, search);
     if (res.data.status) {
       const finalRes = mapsFields(res.data.result);
       dispatch(setCpusData(finalRes, res.data.pagination));
     } else {
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -154,15 +143,18 @@ export const updateCpusData = (cpu, page, text) => async (dispatch) => {
   }
 };
 
-export const deleteCpusData = (id_cpu, page, text) => async (dispatch) => {
+export const deleteCpusData = (idCpu, page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
+  const response = { id_cpu: idCpu };
   try {
-    const res = await cpuAPI.delete(id_cpu);
+    const res = await cpuAPI.delete(response);
     if (res.data.status) {
       dispatch(getCpusData(page, text)); // FIXME занулить current
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -173,51 +165,23 @@ export const deleteCpusData = (id_cpu, page, text) => async (dispatch) => {
 };
 
 export const addCpusData = (cpu, page, text) => async (dispatch) => {
-  const newObj = {
-    vendor: cpu.vendor,
-    model: cpu.model,
-    name_typeSocketCpu: cpu.socket,
-    frequency: cpu.freq,
-  };
+  const finalRes = unMapsField(cpu);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await cpuAPI.add(newObj);
+    const res = await cpuAPI.add(finalRes);
     if (res.data.status) {
       dispatch(getCpusData(page, text));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
   } finally {
     dispatch(toggleIsLoading(false));
-  }
-};
-
-export const getSearchCpu = (text, page) => async (dispatch) => {
-  if (text.length >= 3) {
-    dispatch(toggleIsLoading(true));
-    try {
-      const res = await cpuAPI.all(page, text);
-      if (res.data.status) {
-        const finalRes = mapsFields(res.data.result);
-        dispatch(setCpusData(finalRes, res.data.pagination));
-        dispatch(changeSearch(text));
-      } else {
-        dispatch(setError(res.data.errorCode));
-        dispatch(setBackEndMessage(res.data.message));
-      }
-    } catch (e) {
-      dispatch(setError(500));
-      dispatch(setBackEndMessage(e.message));
-    } finally {
-      dispatch(toggleIsLoading(false));
-    }
-  } else {
-    dispatch(changeSearch(text));
-    dispatch(getCpusData());
   }
 };
 

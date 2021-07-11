@@ -12,6 +12,7 @@ import { deleteCpusData, setCurrentCpu } from "../../BLL/cpuReducer";
 
 const CpuDelete = (props) => {
   const {
+    cpus,
     searchField,
     pagination,
     current,
@@ -22,8 +23,11 @@ const CpuDelete = (props) => {
   } = props;
 
   const submit = async () => {
-    const delCpu = { id_cpu: current.id };
-    await deleteCpu(delCpu, pagination.current, searchField);
+    let page = pagination.current;
+    if (cpus.length === 1 && pagination.current !== 0) {
+      page -= 1;
+    }
+    await deleteCpu(current.id, page, searchField);
     setCurrent(null, null, null, null);
     onClose();
   };
@@ -53,6 +57,14 @@ CpuDelete.propTypes = {
     model: PropTypes.string,
     socketCpu: PropTypes.string,
   }).isRequired,
+  cpus: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      model: PropTypes.string,
+      socketCpu: PropTypes.string,
+    })
+  ).isRequired,
   open: PropTypes.bool.isRequired,
   searchField: PropTypes.string.isRequired,
   pagination: PropTypes.shape({
@@ -71,6 +83,7 @@ const mapStateToProps = (state) => ({
   current: state.cpu.currentCpu,
   pagination: state.cpu.pagination,
   searchField: state.cpu.searchField,
+  cpus: state.cpu.cpus,
 });
 
 export default connect(mapStateToProps, {

@@ -46,7 +46,7 @@ const VendorDialog = (props) => {
     updateVendor,
   } = props;
 
-  const { handleSubmit, control, errors } = useForm();
+  const { handleSubmit, control, errors } = useForm({ mode: "onChange" });
 
   const onClose = () => {
     setErrorCode(null);

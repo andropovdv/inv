@@ -13,7 +13,7 @@ const initialState = {
   currentVendor: {},
   vendorsAll: [],
   pagination: {},
-  isLoading: true,
+  isLoading: false,
   searchField: "",
 };
 

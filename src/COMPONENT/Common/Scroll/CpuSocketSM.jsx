@@ -1,136 +1,155 @@
-/* eslint-disable react/prop-types */
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/jsx-wrap-multilines */
+/* eslint-disable react/prop-types */
 import React from "react";
-import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
+import { PropTypes } from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import { Controller } from "react-hook-form";
 import {
   Box,
+  Button,
   CircularProgress,
-  FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
+  TextField,
 } from "@material-ui/core";
 import AddBoxIcon from "@material-ui/icons/AddBox";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import { getAllSocketCpuData } from "../../../BLL/typeSocketCpuReducer";
 import { setCpuSoketVisibility } from "../../../BLL/modalWindowReducer";
 import CpuSocketDialog from "../../CpuSocket/CpuSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
+  buttonArea: theme.spacing(2),
   textField: {
     marginTop: theme.spacing(1),
   },
   button: {
     display: "inline-block",
-    padding: 0,
-    minHeight: "1.1876 em",
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: theme.spacing(1),
+    minHeight: "1.1875 em",
   },
 }));
 
 const CpuSocketSM = (props) => {
-  const {
-    isLoading,
-    cpuSocketsAll,
-    control,
-    current,
-    setVisibilitySocket,
-    getSocketAllCpu,
-  } = props;
+  const { sockets, current, getSocketCpu, setVisibility, control } = props;
 
   const classes = useStyles();
 
   React.useEffect(() => {
-    getSocketAllCpu();
+    getSocketCpu();
   }, []);
 
-  const clickSocket = () => {
-    setVisibilitySocket({
+  const clickSocketCpu = () => {
+    setVisibility({
       type: true,
-      header: "Добавить разъем",
+      header: "Добавить разъем процессора",
       visibility: true,
     });
   };
 
+  const mapsField = (data) => {
+    const newRows = data.map((e) => {
+      let row = [];
+      row = e.socketCpu;
+      return row;
+    });
+    return newRows;
+  };
+
+  const socketOption = mapsField(sockets);
+  socketOption.push("");
+
+  const loading = socketOption.length === 0;
+
   return (
     <>
-      {cpuSocketsAll.length === 0 ? (
-        <CircularProgress color="inherit" size={20} />
+      {sockets.length === 0 ? (
+        <div>
+          <CircularProgress color="inherit" size={20} />
+        </div>
       ) : (
-        <Box display="flex" alignItems="flex-end">
-          <Box flexGrow={1}>
-            <CpuSocketDialog step={false} />
-
-            <Controller
-              name="socketCpu"
-              control={control}
-              defaultValue={current.socketCpu || cpuSocketsAll[0].label}
-              render={({ onChange, value }) => (
-                <>
-                  <FormControl
-                    variant="outlined"
+        <>
+          <CpuSocketDialog step={false} />
+          <Box display="flex" alignItems="flex-end" justifyContent="center">
+            <Box flexGrow={1}>
+              <Controller
+                name="socketCpu"
+                control={control}
+                defaultValue={current.socketCpu || socketOption[0]}
+                onChange={(data) => data}
+                render={({ onChange }) => (
+                  <Autocomplete
+                    className={classes.buttonArea}
+                    loading={loading}
+                    onChange={(e, data) => onChange(data)}
+                    options={socketOption}
                     fullWidth
-                    className={classes.textField}
-                  >
-                    <InputLabel shrink id="socketCpu">
-                      Разъем процессора
-                    </InputLabel>
-                    <Select
-                      labelId="socketCpu"
-                      disabled={isLoading}
-                      fullWidth
-                      variant="outlined"
-                      margin="dense"
-                      label="Разъем процессора"
-                      value={value}
-                      onChange={(e) => onChange(e.target.value)}
-                    >
-                      {cpuSocketsAll.map((e) => (
-                        <MenuItem key={e.id} value={e.label}>
-                          {e.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </>
-              )}
-            />
+                    getOptionLabel={(options) => options}
+                    defaultValue={current.socketCpu || socketOption[0]}
+                    autoComplete
+                    noOptionsText={
+                      <Button
+                        onMouseDown={() => clickSocketCpu()}
+                        size="small"
+                        color="primary"
+                      >
+                        Не найдено, нажмите что-бы добавить
+                      </Button>
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Разъем процессора"
+                        variant="outlined"
+                        margin="dense"
+                        InputLabelProps={{ shrink: true }}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                )}
+              />
+            </Box>
+            <Box alignItems="flex-end">
+              <IconButton className={classes.button} onClick={clickSocketCpu}>
+                <AddBoxIcon fontSize="large" />
+              </IconButton>
+            </Box>
           </Box>
-          <Box alignItems="flex-end">
-            <IconButton className={classes.button} onClick={clickSocket}>
-              <AddBoxIcon fontSize="large" />
-            </IconButton>
-          </Box>
-        </Box>
+        </>
       )}
     </>
   );
 };
 
 CpuSocketSM.propTypes = {
-  cpuSocketsAll: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      label: PropTypes.string,
-    })
-  ).isRequired,
-  isLoading: PropTypes.bool.isRequired,
+  getSocketCpu: PropTypes.func.isRequired,
+  setVisibility: PropTypes.func.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
     socketCpu: PropTypes.string,
   }).isRequired,
-  getSocketAllCpu: PropTypes.func.isRequired,
-  setVisibilitySocket: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  cpuSocketsAll: state.typeCpuSocket.cpuSocketsAll,
-  isLoading: state.typeCpuSocket.isLoading,
+  sockets: state.typeCpuSocket.cpuSocketsAll,
 });
 
 export default connect(mapStateToProps, {
-  getSocketAllCpu: getAllSocketCpuData,
-  setVisibilitySocket: setCpuSoketVisibility,
+  getSocketCpu: getAllSocketCpuData,
+  setVisibility: setCpuSoketVisibility,
 })(CpuSocketSM);

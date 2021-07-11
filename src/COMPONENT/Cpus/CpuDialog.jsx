@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-wrap-multilines */
 import {
   Button,
   Dialog,
@@ -13,20 +12,22 @@ import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
 import VendorSM from "../Common/Scroll/VendorSM";
 import { setCpuVisibility } from "../../BLL/modalWindowReducer";
-import CpuSocketSM from "../Common/Scroll/CpuSocketSM";
 import TextFieldSM from "../Common/Scroll/TextFieldSM";
 import CheckBoxSM from "../Common/Scroll/CheckBoxSM";
-import {
-  setError,
-  setBackEndMessage,
-  addCpusData,
-  updateCpusData,
-} from "../../BLL/cpuReducer";
+import { addCpusData, updateCpusData } from "../../BLL/cpuReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
+import CpuSocketSM from "../Common/Scroll/CpuSocketSM";
 
 const useStyles = makeStyles(() => ({
   actionButton: {
     paddingRight: 24,
     paddingBottom: 24,
+  },
+  dialog: {
+    position: "absolute",
+    left: "53%",
+    top: "53%",
+    transform: "translate(-53%, -53%)",
   },
 }));
 
@@ -34,9 +35,10 @@ const CpuDialog = (props) => {
   const classes = useStyles();
   const {
     modal,
-    currentGlobal,
+    current,
     searchField,
     pagination,
+    step,
 
     setVisibilityCpu,
     setErrorCode,
@@ -54,13 +56,12 @@ const CpuDialog = (props) => {
   };
 
   const onSubmit = async (data) => {
-    // FIXME подготовить данные формы для отправки
     if (modal.type) {
       await addCpu(data, pagination.current, searchField);
     } else {
       const res = {
         ...data,
-        id: currentGlobal.id,
+        id: current.id,
         freq: parseInt(data.freq, 10),
       };
       await updateCpu(res, pagination.current, searchField);
@@ -68,48 +69,60 @@ const CpuDialog = (props) => {
     setVisibilityCpu({ type: false, header: "", visibility: false });
   };
 
-  // FIXME
-  // Failed prop type: Invalid prop `currentGlobal.freq` of type `number`
-  // supplied to `CpuDialog`, expected `string`.
+  let location;
+  if (!step) {
+    location = { paper: classes.dialog };
+  }
 
   return (
-    <Dialog open={modal.visibility} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={modal.visibility}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      classes={location}
+    >
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <TextFieldSM
             control={control}
-            current={currentGlobal.model}
+            current={current.model}
             errors={errors}
             nameField="model"
             desc="Модель"
           />
 
-          <VendorSM control={control} current={currentGlobal} />
+          <VendorSM control={control} current={current} />
 
           <TextFieldSM
             control={control}
-            current={currentGlobal.freq}
+            current={current.freq}
             errors={errors}
             nameField="freq"
             num
             desc="Частота"
           />
 
-          <CpuSocketSM control={control} current={currentGlobal} />
+          <CpuSocketSM control={control} current={current} />
 
           <CheckBoxSM
             nameField="graphKernel"
             control={control}
             desc="Графическое ядро"
-            current={currentGlobal.graphKernel}
+            current={current.graphKernel}
           />
         </DialogContent>
         <DialogActions className={classes.actionButton}>
           <Button color="primary" onClick={onClose} variant="outlined">
             Отмена
           </Button>
-          <Button color="secondary" type="submit" variant="outlined">
+          <Button
+            color="secondary"
+            type="submit"
+            variant="outlined"
+            disabled={Object.keys(errors).length > 0}
+          >
             Записать
           </Button>
         </DialogActions>
@@ -126,12 +139,13 @@ CpuDialog.propTypes = {
   setErrorMessage: PropTypes.func.isRequired,
   searchField: PropTypes.string.isRequired,
 
+  step: PropTypes.bool,
   modal: PropTypes.shape({
     type: PropTypes.bool,
     header: PropTypes.string,
     visibility: PropTypes.bool,
   }).isRequired,
-  currentGlobal: PropTypes.shape({
+  current: PropTypes.shape({
     id: PropTypes.number,
     vendor: PropTypes.string,
     model: PropTypes.string,
@@ -147,9 +161,13 @@ CpuDialog.propTypes = {
   }).isRequired,
 };
 
+CpuDialog.defaultProps = {
+  step: true,
+};
+
 const mapStateToProps = (state) => ({
   modal: state.modalWindow.cpuVisibility,
-  currentGlobal: state.cpu.currentCpu,
+  current: state.cpu.currentCpu,
   pagination: state.cpu.pagination,
   searchField: state.cpu.searchField,
 });
