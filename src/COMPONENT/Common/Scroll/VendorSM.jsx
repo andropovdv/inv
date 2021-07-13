@@ -76,7 +76,9 @@ const VendorSM = (props) => {
   return (
     <>
       {isLoading || vendors.length === 0 ? (
-        <div>Пусто</div>
+        <div>
+          <CircularProgress color="inherit" size={20} />
+        </div>
       ) : (
         <>
           <VendorDialog step={false} />
@@ -89,13 +91,15 @@ const VendorSM = (props) => {
                 onChange={(data) => data}
                 render={({ onChange }) => (
                   <Autocomplete
-                    className={classes.buttonArea}
+                    className={classes.textField}
+                    size="small"
                     loading={loading}
                     onChange={(e, data) => onChange(data)}
                     options={vendorOption}
                     fullWidth
                     getOptionLabel={(options) => options}
-                    defaultValue={current.vendor || vendorOption[0]}
+                    // defaultValue={current.vendor || vendorOption[0]}
+                    value={current.vendor || vendorOption[0]}
                     autoComplete
                     noOptionsText={
                       <Button
@@ -111,7 +115,7 @@ const VendorSM = (props) => {
                         {...params}
                         label="Производитель"
                         variant="outlined"
-                        margin="dense"
+                        // margin="dense"
                         InputLabelProps={{ shrink: true }}
                         InputProps={{
                           ...params.InputProps,
