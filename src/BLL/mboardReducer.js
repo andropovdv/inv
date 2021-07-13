@@ -1,11 +1,13 @@
 import mboardAPI from "../DAL/mboardAPI";
+import { setBackEndMessage, setError } from "./errorReducer";
+import { setAuthData } from "./authReducer";
 
 const SET_MBOARD = "SET_MBOARD";
 const MBOARD_IS_LOADING = "MBOARD_IS_LOADING";
 const SET_CURRENT_MBOARD = "SET_CURRENT_MBOARD";
-const SET_ERROR_MBOARD = "SET_ERROR_MBOARD";
+// const SET_ERROR_MBOARD = "SET_ERROR_MBOARD";
 const SET_ALL_MBOARD = "SET_ALL_MBOARD";
-const SET_MBOARD_MESSAGE = "SET_MBOARD_MESSAGE";
+// const SET_MBOARD_MESSAGE = "SET_MBOARD_MESSAGE";
 const SEARCH_MBOARD = "SEARCH_MBOARD";
 
 const initialState = {
@@ -14,8 +16,8 @@ const initialState = {
   pagination: {},
   current: {},
   isLoading: false,
-  errorCode: 0,
-  backEndMessage: "",
+  // errorCode: 0,
+  // backEndMessage: "",
   searchField: "",
 };
 
@@ -40,24 +42,24 @@ const mboardReducer = (state = initialState, action) => {
         current: { ...action.current },
       };
     }
-    case SET_ERROR_MBOARD: {
-      return {
-        ...state,
-        errorCode: action.error,
-      };
-    }
+    // case SET_ERROR_MBOARD: {
+    //   return {
+    //     ...state,
+    //     errorCode: action.error,
+    //   };
+    // }
     case SET_ALL_MBOARD: {
       return {
         ...state,
         allMboard: [...action.mboard],
       };
     }
-    case SET_MBOARD_MESSAGE: {
-      return {
-        ...state,
-        backEndMessage: action.message,
-      };
-    }
+    // case SET_MBOARD_MESSAGE: {
+    //   return {
+    //     ...state,
+    //     backEndMessage: action.message,
+    //   };
+    // }
     case SEARCH_MBOARD: {
       return {
         ...state,
@@ -85,20 +87,20 @@ export const setCurrentMboard = (current) => ({
   current,
 });
 
-export const setError = (error) => ({
-  type: SET_ERROR_MBOARD,
-  error,
-});
+// export const setError = (error) => ({
+//   type: SET_ERROR_MBOARD,
+//   error,
+// });
 
 export const setAllMboard = (mboard) => ({
   type: SET_ALL_MBOARD,
   mboard,
 });
 
-export const setBackEndMessage = (message) => ({
-  type: SET_MBOARD_MESSAGE,
-  message,
-});
+// export const setBackEndMessage = (message) => ({
+//   type: SET_MBOARD_MESSAGE,
+//   message,
+// });
 
 export const changeSearch = (text) => ({
   type: SEARCH_MBOARD,
@@ -157,15 +159,21 @@ const unMapsFields = (mboard) => {
 };
 
 export const getMboardData = (page, text) => async (dispatch) => {
+  let search;
+  if (text) {
+    search = text;
+  }
   dispatch(toggleIsLoading(true));
   try {
-    const res = await mboardAPI.all(page, text);
+    const res = await mboardAPI.all(page, search);
     if (res.data.status) {
       const finalRes = mapsField(res.data.result);
       dispatch(setMboard(finalRes, res.data.pagination));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -182,6 +190,11 @@ export const getAllMboardData = () => async (dispatch) => {
     if (res.data.status) {
       const finalRes = mapsField(res.data.result);
       dispatch(setAllMboard(finalRes));
+    } else {
+      dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -191,17 +204,19 @@ export const getAllMboardData = () => async (dispatch) => {
   }
 };
 
-export const deleteMboardData = (id, page, text) => async (dispatch) => {
-  const delItem = { idmBoard: id.id };
+export const deleteMboardData = (idMboard, page, text) => async (dispatch) => {
   dispatch(toggleIsLoading(true));
+  const responce = { idmBoard: idMboard };
   try {
-    const res = await mboardAPI.delete(delItem);
+    const res = await mboardAPI.delete(responce);
     if (res.data.status) {
       dispatch(getMboardData(page, text));
       dispatch(getAllMboardData());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -220,8 +235,10 @@ export const addMboardData = (mboard, page, text) => async (dispatch) => {
       dispatch(getMboardData(page, text));
       dispatch(getAllMboardData());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -250,8 +267,10 @@ export const updateMboardData = (mboard, page, text) => async (dispatch) => {
         })
       );
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -261,29 +280,29 @@ export const updateMboardData = (mboard, page, text) => async (dispatch) => {
   }
 };
 
-export const getSearchMboard = (text, page) => async (dispatch) => {
-  if (text.length >= 3) {
-    dispatch(toggleIsLoading(true));
-    try {
-      const res = await mboardAPI.all(page, text);
-      if (res.data.status) {
-        const finalRes = mapsField(res.data.result);
-        dispatch(setMboard(finalRes, res.data.pagination));
-        dispatch(changeSearch(text));
-      } else {
-        dispatch(setError(res.data.errorCode));
-        dispatch(setBackEndMessage(res.data.message));
-      }
-    } catch (e) {
-      dispatch(setError(500));
-      dispatch(setBackEndMessage(e.message));
-    } finally {
-      dispatch(toggleIsLoading(false));
-    }
-  } else {
-    dispatch(changeSearch(text));
-    dispatch(getMboardData());
-  }
-};
+// export const getSearchMboard = (text, page) => async (dispatch) => {
+//   if (text.length >= 3) {
+//     dispatch(toggleIsLoading(true));
+//     try {
+//       const res = await mboardAPI.all(page, text);
+//       if (res.data.status) {
+//         const finalRes = mapsField(res.data.result);
+//         dispatch(setMboard(finalRes, res.data.pagination));
+//         dispatch(changeSearch(text));
+//       } else {
+//         dispatch(setError(res.data.errorCode));
+//         dispatch(setBackEndMessage(res.data.message));
+//       }
+//     } catch (e) {
+//       dispatch(setError(500));
+//       dispatch(setBackEndMessage(e.message));
+//     } finally {
+//       dispatch(toggleIsLoading(false));
+//     }
+//   } else {
+//     dispatch(changeSearch(text));
+//     dispatch(getMboardData());
+//   }
+// };
 
 export default mboardReducer;

@@ -1,60 +1,86 @@
 import React from "react";
 import { PropTypes } from "prop-types";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import {
-  Table,
-  TableBody,
-  // TableCell,
-  TableContainer,
-  TableRow,
-} from "@material-ui/core";
-import MuiTableCell from "@material-ui/core/TableCell";
-
-const CustomTableCell = withStyles({
-  root: {
-    borderBottom: "none",
-    paddingTop: 0,
-    paddingBottom: 0,
-  },
-})(MuiTableCell);
-
-const useStyles = makeStyles(() => ({
-  row: {
-    border: "none",
-    height: 28,
-    fontSize: 16,
-  },
-  root: {
-    overflowX: "auto",
-  },
-}));
+import { Box } from "@material-ui/core";
 
 const InfoBlock = (props) => {
-  const { rowInfo } = props;
-  const classes = useStyles();
+  const mapsValue = new Map();
+
+  mapsValue.set("vendor", "Производитель");
+  mapsValue.set("full", "Полное наименование");
+  mapsValue.set("url", "Сайт");
+  mapsValue.set("model", "Модель");
+  mapsValue.set("socketCpu", "Разъем процессора");
+  mapsValue.set("intGraph", "Встроенное видео");
+  mapsValue.set("socketRam", "Разъем RAM");
+  mapsValue.set("quantitySocketRam", "Количество слотов RAM");
+  mapsValue.set("socketGraph", "Разъем видео карты");
+  mapsValue.set("quantityPCI", "Кол-во слотов PCI");
+  mapsValue.set("quantityPCIE", "Кол-во слотов PCIE");
+  mapsValue.set("quantityIDE", "Кол-во разъемов IDE");
+  mapsValue.set("quantitySATA", "Кол-во разъемов SATA");
+  mapsValue.set("formFactor", "Форм-фактор");
+  mapsValue.set("intLAN", "Встроенный сетевой адаптер");
+  mapsValue.set("intSound", "Встроенная звуковая карта");
+
+  const { current } = props;
+
+  const curr = { ...current };
+  delete curr.id;
+
+  const convertBool = (data) => {
+    if (data) return "Есть";
+    return "Нет";
+  };
+
+  console.log(curr);
+  console.log(Object.entries(curr).map(([key, value]) => [key, value]));
+
   return (
-    <TableContainer className={classes.root}>
-      <Table size="small">
-        <TableBody>
-          {rowInfo.map((row) => (
-            <TableRow key={row.name} className={classes.row}>
-              <CustomTableCell>{row.name}</CustomTableCell>
-              <CustomTableCell align="right">{row.val}</CustomTableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      {Object.entries(curr)
+        .map(([key, value]) => (
+          <Box display="flex">
+            <Box
+              flexGrow={1}
+              textOverflow="ellipsis"
+              overflow="hidden"
+              borderBottom={1}
+            >
+              {mapsValue.get(key)}
+            </Box>
+            <Box
+              textOverflow="ellipsis"
+              overflow="hidden"
+              borderBottom={1}
+              borderColor="grey"
+            >
+              {typeof value === "boolean" ? convertBool(value) : value}
+            </Box>
+          </Box>
+        ))
+        .sort()}
+    </>
   );
 };
 
 InfoBlock.propTypes = {
-  rowInfo: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      val: PropTypes.string,
-    })
-  ).isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    vendor: PropTypes.string,
+    model: PropTypes.string,
+    socketCpu: PropTypes.string,
+    intGraph: PropTypes.bool,
+    socketRam: PropTypes.string,
+    quantitySocketRam: PropTypes.number,
+    socketGraph: PropTypes.string,
+    quantityPCI: PropTypes.number,
+    quantityPCIE: PropTypes.number,
+    quantityIDE: PropTypes.number,
+    quantitySATA: PropTypes.number,
+    formFactor: PropTypes.string,
+    intLAN: PropTypes.bool,
+    intSound: PropTypes.bool,
+  }).isRequired,
 };
 
 export default InfoBlock;

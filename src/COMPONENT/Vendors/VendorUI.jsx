@@ -75,12 +75,6 @@ const VendorUI = (props) => {
     });
   };
 
-  const rowInfo = [
-    { name: "Наименование", val: current.vendor },
-    { name: "Полное", val: current.full },
-    { name: "Сайт", val: current.url },
-  ];
-
   return (
     <>
       <VendorDialog current={current} />
@@ -127,7 +121,7 @@ const VendorUI = (props) => {
                 Подробно:
               </Typography>
               {Object.keys(current).length !== 0 ? (
-                <InfoBlock rowInfo={rowInfo} />
+                <InfoBlock current={current} />
               ) : null}
             </Paper>
           </Grid>
@@ -140,7 +134,7 @@ const VendorUI = (props) => {
                 Подробно:
               </Typography>
               {Object.keys(current).length !== 0 ? (
-                <InfoBlock rowInfo={rowInfo} />
+                <InfoBlock current={current} />
               ) : null}
             </Paper>
           </Grid>

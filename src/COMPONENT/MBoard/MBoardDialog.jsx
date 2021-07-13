@@ -17,10 +17,11 @@ import TextFieldSM from "../Common/Scroll/TextFieldSM";
 import CheckBoxSM from "../Common/Scroll/CheckBoxSM";
 import {
   addMboardData,
-  setBackEndMessage,
-  setError,
+  // setBackEndMessage,
+  // setError,
   updateMboardData,
 } from "../../BLL/mboardReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 import { setMboardVisibility } from "../../BLL/modalWindowReducer";
 import VendorSM from "../Common/Scroll/VendorSM";
 import CpuSocketSM from "../Common/Scroll/CpuSocketSM";
@@ -61,7 +62,7 @@ const MBoardDialog = (props) => {
 
   const classes = useStyles();
 
-  const { handleSubmit, control, errors } = useForm({ mode: "onChange" });
+  const { handleSubmit, control, errors } = useForm();
 
   let location;
   if (!step) location = { paper: classes.dialog };
@@ -78,6 +79,7 @@ const MBoardDialog = (props) => {
 
   const onSubmit = async (data) => {
     if (modal.type) {
+      console.log("Data", data);
       await addMboard(data, pagination.current, searchField);
     } else {
       const res = {

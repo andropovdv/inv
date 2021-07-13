@@ -1,104 +1,132 @@
-/* eslint-disable react/prop-types */
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/jsx-wrap-multilines */
 import React from "react";
 import { connect } from "react-redux";
-import { PropTypes } from "prop-types";
-import { Controller } from "react-hook-form";
 import {
   Box,
+  Button,
   CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   IconButton,
+  makeStyles,
+  TextField,
 } from "@material-ui/core";
+import { PropTypes } from "prop-types";
+import { Controller } from "react-hook-form";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import AddBoxIcon from "@material-ui/icons/AddBox";
-import { makeStyles } from "@material-ui/core/styles";
-import RamSocketDialog from "../../RamSocket/RamSocketDialog";
 import { getAllTypeOfRam } from "../../../BLL/typeOfRamReducer";
 import { setTypeOfRamVisibility } from "../../../BLL/modalWindowReducer";
+import RamSocketDialog from "../../RamSocket/RamSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
+  buttonArea: theme.spacing(2),
   textField: {
     marginTop: theme.spacing(1),
   },
   button: {
     display: "inline-block",
-    padding: 0,
-    minHeight: "1.1876 em",
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: theme.spacing(1),
+    minHeight: "1.1875 em",
   },
 }));
 
 const RamSocketSM = (props) => {
-  const {
-    current,
-    isLoading,
-    socketRamSC,
-    getSocketRam,
-    control,
-    setVisibilityRamSocket,
-  } = props;
+  // eslint-disable-next-line react/prop-types
+  const { current, socket, getSocket, setVisibility, control } = props;
 
   const classes = useStyles();
 
   React.useEffect(() => {
-    getSocketRam();
+    getSocket();
   }, []);
 
-  const handleSocketRam = () => {
-    setVisibilityRamSocket({
+  const clickSocketRam = () => {
+    setVisibility({
       type: true,
       header: "Добавить разъем RAM",
       visibility: true,
     });
   };
 
+  const mapsField = (soc) => {
+    const newRows = soc.map((e) => {
+      let row = [];
+      row = e.socketRam;
+      return row;
+    });
+    return newRows;
+  };
+
+  const socketOption = mapsField(socket);
+
+  socketOption.push("");
+
+  const loading = socketOption.length === 0;
+
   return (
     <>
-      {socketRamSC.length === 0 ? (
-        <CircularProgress color="inherit" size={20} />
+      {socketOption.length === 0 ? (
+        <div>
+          <CircularProgress color="inherit" size={20} />
+        </div>
       ) : (
         <>
           <RamSocketDialog step={false} />
-          <Box display="flex" alignItems="flex-end">
+          <Box display="flex" alignItems="flex-end" justifyContent="center">
             <Box flexGrow={1}>
               <Controller
                 name="socketRam"
                 control={control}
-                defaultValue={current.socketRam || socketRamSC[0].socketRam}
-                render={({ onChange, value }) => (
-                  <>
-                    <FormControl
-                      variant="outlined"
-                      fullWidth
-                      className={classes.textField}
-                    >
-                      <InputLabel shrink id="labelSocketRam">
-                        Разъем оперативной памяти
-                      </InputLabel>
-                      <Select
-                        labelId="labelSocketRam"
-                        disabled={isLoading}
-                        fullWidth
-                        variant="outlined"
-                        margin="dense"
-                        label="Разъем оперативной памяти"
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
+                defaultValue={current.socketRam || socketOption[0]}
+                onChange={(data) => data}
+                render={({ onChange }) => (
+                  <Autocomplete
+                    className={classes.textField}
+                    size="small"
+                    loading={loading}
+                    onChange={(e, data) => onChange(data)}
+                    options={socketOption}
+                    fullWidth
+                    getOptionLabel={(options) => options}
+                    value={current.socketRam || socketOption[0]}
+                    autoComplete
+                    noOptionsText={
+                      <Button
+                        onMouseDown={() => clickSocketRam()}
+                        size="small"
+                        color="primary"
                       >
-                        {socketRamSC.map((e) => (
-                          <MenuItem key={e.id} value={e.socketRam}>
-                            {e.socketRam}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </>
+                        Не найдено, нажмите что-бы добавить
+                      </Button>
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Разъем RAM"
+                        variant="outlined"
+                        InputLabelProps={{ shrink: true }}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loading ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
                 )}
               />
             </Box>
             <Box alignItems="flex-end">
-              <IconButton className={classes.button} onClick={handleSocketRam}>
+              <IconButton className={classes.button} onClick={clickSocketRam}>
                 <AddBoxIcon fontSize="large" />
               </IconButton>
             </Box>
@@ -110,8 +138,9 @@ const RamSocketSM = (props) => {
 };
 
 RamSocketSM.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  socketRamSC: PropTypes.arrayOf(
+  getSocket: PropTypes.func.isRequired,
+  setVisibility: PropTypes.func.isRequired,
+  socket: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
       socketRam: PropTypes.string,
@@ -121,16 +150,14 @@ RamSocketSM.propTypes = {
     id: PropTypes.number,
     socketRam: PropTypes.string,
   }).isRequired,
-  getSocketRam: PropTypes.func.isRequired,
-  setVisibilityRamSocket: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  socketRamSC: state.typeOfRam.typeOfRamAll,
-  isLoading: state.typeOfRam.isLoading,
+  socket: state.typeOfRam.typeOfRamAll,
+  current: state.typeOfRam.currentType,
 });
 
 export default connect(mapStateToProps, {
-  getSocketRam: getAllTypeOfRam,
-  setVisibilityRamSocket: setTypeOfRamVisibility,
+  getSocket: getAllTypeOfRam,
+  setVisibility: setTypeOfRamVisibility,
 })(RamSocketSM);

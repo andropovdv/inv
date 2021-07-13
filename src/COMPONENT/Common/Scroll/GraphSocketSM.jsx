@@ -1,110 +1,130 @@
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable react/prop-types */
 import React from "react";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import {
-  CircularProgress,
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Button,
+  CircularProgress,
   IconButton,
+  TextField,
 } from "@material-ui/core";
-import { Controller } from "react-hook-form";
 import AddBoxIcon from "@material-ui/icons/AddBox";
+import { Controller } from "react-hook-form";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import { getAllTypeOfGraphSlot } from "../../../BLL/typeOfGraphSlotReducer";
-import { setTypeOfGraphSlotVisibility } from "../../../BLL/modalWindowReducer";
+import { setGraphCardVisibility } from "../../../BLL/modalWindowReducer";
 import GraphSocketDialog from "../../GraphSocket/GraphSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
+  buttonArea: theme.spacing(2),
   textField: {
     marginTop: theme.spacing(1),
   },
   button: {
     display: "inline-block",
-    padding: 0,
-    minHeight: "1.1876 em",
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: theme.spacing(1),
+    minHeight: "1.1875 em",
   },
 }));
 
 const GraphSocketSM = (props) => {
-  const {
-    isLoading,
-    socketGraphSC,
-    control,
-    current,
-    getSocketGraph,
-    setVisibilityGraphSocket,
-  } = props;
+  const { current, sockets, getSocket, setVisibility, control } = props;
 
   const classes = useStyles();
 
   React.useEffect(() => {
-    getSocketGraph();
+    getSocket();
   }, []);
 
-  const handleSocketGraph = () => {
-    setVisibilityGraphSocket({
+  const clickSocketGraph = () => {
+    setVisibility({
       type: true,
-      header: "Добавить разъем видео карты",
+      header: "Добавить разъем графических карт",
       visibility: true,
     });
   };
 
+  const mapField = (soc) => {
+    const newRows = soc.map((e) => {
+      let row = [];
+      row = e.socketGraph;
+      return row;
+    });
+    return newRows;
+  };
+
+  const socketOption = mapField(sockets);
+
+  const loading = socketOption.length === 0;
+
   return (
     <>
-      {isLoading ? (
-        <CircularProgress color="inherit" size={20} />
+      {socketOption.length === 0 ? (
+        <div>
+          <CircularProgress color="inherit" size={20} />
+        </div>
       ) : (
         <>
           <GraphSocketDialog step={false} />
-
-          <Box display="flex" alignItems="flex-end">
+          <Box display="flex" alignItems="flex-end" justifyContent="center">
             <Box flexGrow={1}>
               <Controller
                 name="socketGraph"
                 control={control}
-                defaultValue={
-                  current.socketGraph || socketGraphSC[0].socketGraph
-                }
-                render={({ onChange, value }) => (
-                  <>
-                    <FormControl
-                      variant="outlined"
-                      fullWidth
-                      className={classes.textField}
-                    >
-                      <InputLabel shrink id="labelSocketGraph">
-                        Разъем видеокарты
-                      </InputLabel>
-                      <Select
-                        labelId="labelSocketGraph"
-                        disabled={isLoading}
-                        fullWidth
-                        variant="outlined"
-                        margin="dense"
-                        label="Разъем видеокарты"
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
+                defaultValue={current.socketGraph || socketOption[0]}
+                onChange={(data) => data}
+                render={({ onChange }) => (
+                  <Autocomplete
+                    className={classes.textField}
+                    size="small"
+                    loading={loading}
+                    onChange={(e, data) => onChange(data)}
+                    options={socketOption}
+                    fullWidth
+                    getOptionLabel={(options) => options}
+                    value={current.socketGraph || socketOption[0]}
+                    autoComplete
+                    noOptionsText={
+                      <Button
+                        onMouseDown={() => clickSocketGraph()}
+                        size="small"
+                        color="primary"
                       >
-                        {socketGraphSC.map((e) => (
-                          <MenuItem key={e.id} value={e.socketGraph}>
-                            {e.socketGraph}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </>
+                        Не найдено, нажмите что-бы добавить
+                      </Button>
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Разъем графической карты"
+                        variant="outlined"
+                        InputLabelProps={{ shrink: true }}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loading ? (
+                                <CircularProgress color="primary" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
                 )}
               />
             </Box>
             <Box alignItems="flex-end">
-              <IconButton
-                className={classes.button}
-                onClick={handleSocketGraph}
-              >
+              <IconButton className={classes.button} onClick={clickSocketGraph}>
                 <AddBoxIcon fontSize="large" />
               </IconButton>
             </Box>
@@ -116,7 +136,9 @@ const GraphSocketSM = (props) => {
 };
 
 GraphSocketSM.propTypes = {
-  socketGraphSC: PropTypes.arrayOf(
+  getSocket: PropTypes.func.isRequired,
+  setVisibility: PropTypes.func.isRequired,
+  sockets: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
       socketGraph: PropTypes.string,
@@ -126,16 +148,14 @@ GraphSocketSM.propTypes = {
     id: PropTypes.number,
     socketGraph: PropTypes.string,
   }).isRequired,
-  getSocketGraph: PropTypes.func.isRequired,
-  setVisibilityGraphSocket: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  socketGraphSC: state.typeOfGraphSlot.typeAllOfGraphSlot,
-  isLoading: state.typeOfGraphSlot.isLoading,
+  sockets: state.typeOfGraphSlot.typeAllOfGraphSlot,
+  current: state.typeOfGraphSlot.currentType,
 });
 
 export default connect(mapStateToProps, {
-  getSocketGraph: getAllTypeOfGraphSlot,
-  setVisibilityGraphSocket: setTypeOfGraphSlotVisibility,
+  getSocket: getAllTypeOfGraphSlot,
+  setVisibility: setGraphCardVisibility,
 })(GraphSocketSM);

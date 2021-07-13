@@ -20,7 +20,7 @@ import { setCpuSoketVisibility } from "../../../BLL/modalWindowReducer";
 import CpuSocketDialog from "../../CpuSocket/CpuSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
-  buttonArea: theme.spacing(2),
+  buttonArea: theme.spacing(1),
   textField: {
     marginTop: theme.spacing(1),
   },
@@ -83,13 +83,15 @@ const CpuSocketSM = (props) => {
                 onChange={(data) => data}
                 render={({ onChange }) => (
                   <Autocomplete
-                    className={classes.buttonArea}
+                    className={classes.textField}
+                    size="small"
                     loading={loading}
                     onChange={(e, data) => onChange(data)}
                     options={socketOption}
                     fullWidth
                     getOptionLabel={(options) => options}
-                    defaultValue={current.socketCpu || socketOption[0]}
+                    value={current.socketCpu || socketOption[0]}
+                    // defaultValue={current.socketCpu || socketOption[0]}
                     autoComplete
                     noOptionsText={
                       <Button
@@ -105,7 +107,7 @@ const CpuSocketSM = (props) => {
                         {...params}
                         label="Разъем процессора"
                         variant="outlined"
-                        margin="dense"
+                        // margin="dense"
                         InputLabelProps={{ shrink: true }}
                         InputProps={{
                           ...params.InputProps,

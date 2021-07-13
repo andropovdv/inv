@@ -159,7 +159,7 @@ export const deleteVendorData = (idVendor, page, text) => async (dispatch) => {
   try {
     const res = await vendorAPI.delete(responce);
     if (res.data.status) {
-      dispatch(getVendorsData(page, text));
+      dispatch(getVendorsData(page, text)); // TODO почему необновляешь VendorAll
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -204,7 +204,7 @@ export const updateVendorData = (vendor, page, text) => async (dispatch) => {
     const res = await vendorAPI.update(finalRes);
     if (res.data.status) {
       dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
+      dispatch(getVendorAllData()); // FIXME Обновить current
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {

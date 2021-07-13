@@ -1,8 +1,8 @@
 import React from "react";
 import { PropTypes } from "prop-types";
 import { connect } from "react-redux";
-import { DataGrid } from "@material-ui/data-grid";
-import { IconButton } from "@material-ui/core";
+import { DataGrid, ruRU } from "@material-ui/data-grid";
+import { Box, IconButton, LinearProgress } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { getMboardData, setCurrentMboard } from "../../BLL/mboardReducer";
@@ -32,30 +32,14 @@ const MBoardTable = (props) => {
     });
   };
 
-  const [open, setOpen] = React.useState(false);
+  const [openDelete, setDelete] = React.useState(false);
 
   const clickDelete = () => {
-    setOpen(true);
+    setDelete(true);
   };
 
   const onClose = () => {
-    setOpen(false);
-  };
-
-  const [page, setPage] = React.useState(1);
-
-  const handlePageChange = (params) => {
-    if (params.page > page) {
-      getMboard(pagination.current + 1, searchField);
-    } else {
-      getMboard(pagination.current - 1, searchField);
-    }
-    setPage(params.page);
-  };
-
-  const setRow = (idRow) => {
-    const res = mboard.find((e) => e.id === parseInt(idRow, 10));
-    setCurrent(res);
+    setDelete(false);
   };
 
   const columns = [
@@ -67,40 +51,48 @@ const MBoardTable = (props) => {
       width: 120,
       headerName: "Действия",
       renderCell: () => (
-        <strong>
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexGrow: 1,
+          }}
+        >
           <IconButton color="primary" size="small" onClick={clickEdit}>
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton color="secondary" size="small" onClick={clickDelete}>
             <DeleteIcon fontSize="small" />
           </IconButton>
-        </strong>
+        </Box>
       ),
     },
   ];
 
   return (
-    <div style={{ height: 300, width: "100%" }}>
-      <div style={{ display: "flex", height: "100%" }}>
-        <div style={{ flexGrow: 1 }}>
-          <DataGrid
-            loading={isLoading}
-            rows={mboard}
-            columns={columns}
-            autoHeight
-            density="compact"
-            onSelectionChange={(select) => {
-              setRow(select.rowIds);
-            }}
-            paginationMode="server"
-            onPageChange={handlePageChange}
-            rowCount={pagination.error ? 0 : pagination.total}
-            pageSize={pagination.perPage}
-          />
-          <MBoardDelete open={open} onClose={onClose} />
+    <>
+      <MBoardDelete open={openDelete} onClose={onClose} />
+      {mboard.length === 0 ? (
+        <div>
+          <LinearProgress />
         </div>
-      </div>
-    </div>
+      ) : (
+        <DataGrid
+          localeText={ruRU.props.MuiDataGrid.localeText}
+          loading={isLoading}
+          rows={mboard}
+          columns={columns}
+          autoHeight
+          density="compact"
+          onRowClick={(rowData) => setCurrent(rowData.row)}
+          paginationMode="server"
+          onPageChange={(params) => getMboard(params.page, searchField)}
+          rowCount={pagination.error ? 0 : pagination.total}
+          pageSize={pagination.perPage}
+        />
+      )}
+    </>
   );
 };
 
