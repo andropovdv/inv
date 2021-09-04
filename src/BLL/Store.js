@@ -14,6 +14,8 @@ import formFactorReducer from "./formFactorReducer";
 import graphCardReducer from "./graphCardReducer";
 import mboardReducer from "./mboardReducer";
 import errorReducer from "./errorReducer";
+import typeOfSocketSdReducer from "./typeOfSocketSdReducer";
+import formFactorSdReducer from "./formFactorSdReducer";
 
 const reducers = combineReducers({
   app: appReducer,
@@ -28,6 +30,8 @@ const reducers = combineReducers({
   graphCard: graphCardReducer,
   mboard: mboardReducer,
   // form: formReducer,
+  socketSd: typeOfSocketSdReducer,
+  formFactorSd: formFactorSdReducer,
   error: errorReducer,
 });
 

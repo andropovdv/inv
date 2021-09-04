@@ -38,6 +38,16 @@ const items = {
               name: "Форм-фактор",
               to: "/FormFactor",
             },
+            {
+              id: "0115",
+              name: "Разъем подключения storage devices",
+              to: "/SdSocket",
+            },
+            {
+              id: "0116",
+              name: "Форм-фактор storage devices",
+              to: "/SdFactor",
+            },
           ],
         },
         {

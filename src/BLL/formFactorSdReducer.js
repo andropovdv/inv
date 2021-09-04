@@ -1,50 +1,50 @@
-import vendorAPI from "../DAL/vendorAPI";
+import formFactorSdAPI from "../DAL/formFactorSdAPI";
 import { setAuthData } from "./authReducer";
 import { setBackEndMessage, setError } from "./errorReducer";
 
-const VENDOR_IS_LOADING = "VENDOR_IS_LOADING";
-const SET_VENDORS = "SET_VENDORS";
-const SET_VENDORS_ALL = "SET_VENDORS_ALL";
-const SET_CURRENT_VENDOR = "SET_CURRENT_VENDOR";
-const SET_SEARCH_FIELD = "SET_SEARCH_FIELD";
+const SET_FFACTOR_SD = "SET_FFACTOR_SD";
+const SET_ALL_FFACTOR_SD = "SET_ALL_FFACTOR_SD";
+const SET_CURRENT_FFACTOR_SD = "SET_CURRENT_FFOCTOR_SD";
+const LOADING_FFACTOR_SD = "LOADING_FFACTOR_SD";
+const SEARCH_FFACTOR_SD = "SEARCH_FFACTOR_SD";
 
 const initialState = {
-  vendors: [],
-  currentVendor: {},
-  vendorsAll: [],
+  formFactorSD: [],
+  formFactorSDAll: [],
   pagination: {},
+  current: {},
   isLoading: false,
   searchField: "",
 };
 
-const vendorReducer = (state = initialState, action) => {
+const formFactorSdReducer = (state = initialState, action) => {
   switch (action.type) {
-    case VENDOR_IS_LOADING: {
+    case LOADING_FFACTOR_SD: {
       return {
         ...state,
         isLoading: action.isLoading,
       };
     }
-    case SET_VENDORS: {
+    case SET_FFACTOR_SD: {
       return {
         ...state,
-        vendors: [...action.vendors],
+        formFactorSD: [...action.formFactorSD],
         pagination: { ...action.pagination },
       };
     }
-    case SET_VENDORS_ALL: {
+    case SET_ALL_FFACTOR_SD: {
       return {
         ...state,
-        vendorsAll: [...action.vendors],
+        formFactorSDAll: [...action.formFactorSDAll],
       };
     }
-    case SET_CURRENT_VENDOR: {
+    case SET_CURRENT_FFACTOR_SD: {
       return {
         ...state,
-        currentVendor: { ...action.currentVendor },
+        current: { ...action.current },
       };
     }
-    case SET_SEARCH_FIELD: {
+    case SEARCH_FFACTOR_SD: {
       return {
         ...state,
         searchField: action.text,
@@ -55,69 +55,62 @@ const vendorReducer = (state = initialState, action) => {
   }
 };
 
-// AS
-
-export const toggleIsLoading = (isLoading) => ({
-  type: VENDOR_IS_LOADING,
-  isLoading,
-});
-
-export const setVendorsData = (vendors, pagination) => ({
-  type: SET_VENDORS,
-  vendors,
+export const setFormFactorSD = (formFactorSD, pagination) => ({
+  type: SET_FFACTOR_SD,
+  formFactorSD,
   pagination,
 });
 
-export const setVendorsAllData = (vendors) => ({
-  type: SET_VENDORS_ALL,
-  vendors,
+export const setFormFactorSDAll = (formFactorSDAll) => ({
+  type: SET_ALL_FFACTOR_SD,
+  formFactorSDAll,
 });
 
-export const setCurrentVendor = (currentVendor) => ({
-  type: SET_CURRENT_VENDOR,
-  currentVendor,
+export const setCurrentFormFactorSD = (current) => ({
+  type: SET_CURRENT_FFACTOR_SD,
+  current,
 });
 
-export const changeSearch = (text) => ({ type: SET_SEARCH_FIELD, text });
+export const toggleIsLoading = (isLoading) => ({
+  type: LOADING_FFACTOR_SD,
+  isLoading,
+});
 
-// THUNK
+export const changeSearch = (text) => ({
+  type: SEARCH_FFACTOR_SD,
+  text,
+});
 
-const mapsFields = (resApi) => {
+const mapsField = (resApi) => {
   const newRows = resApi.map((e) => {
     const row = {};
-    row.id = e.id_vendor;
-    row.vendor = e.name;
-    row.full = e.full_name;
-    row.url = e.url;
+    row.id = e.idFormFactorSD;
+    row.formFactorSD = e.formFactorSD;
     return row;
   });
   return newRows;
 };
 
-const unMapsField = (vendor) => {
+const unMapsField = (formFactor) => {
   const toApi = {
-    id_vendor: vendor.id,
-    name: vendor.vendor,
-    full_name: vendor.full,
-    url: vendor.url,
+    idFormFactorSD: formFactor.id,
+    formFactorSD: formFactor.formFactorSD,
   };
   return toApi;
 };
 
-export const getVendorsData = (page, text) => async (dispatch) => {
+export const getFactorSD = (page, text) => async (dispatch) => {
   let search;
   if (text) {
     search = text;
-  } else {
-    search = undefined;
   }
   dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.all(page, search);
+    const res = await formFactorSdAPI.all(page, search);
     if (res.data.status) {
-      const finalRes = mapsFields(res.data.result);
-      dispatch(setVendorsData(finalRes, res.data.pagination));
+      const finalRes = mapsField(res.data.result);
+      dispatch(setFormFactorSD(finalRes, res.data.pagination));
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -132,13 +125,13 @@ export const getVendorsData = (page, text) => async (dispatch) => {
   }
 };
 
-export const getVendorAllData = () => async (dispatch) => {
+export const getAllFactorSD = () => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.allToScroll();
-    if (res.data.status) {
-      const finalRes = mapsFields(res.data.result);
-      await dispatch(setVendorsAllData(finalRes));
+    const res = await formFactorSdAPI.allToScroll();
+    if (res.data.result) {
+      const finalRes = mapsField(res.data.result);
+      dispatch(setFormFactorSDAll(finalRes));
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -147,43 +140,20 @@ export const getVendorAllData = () => async (dispatch) => {
     }
   } catch (e) {
     dispatch(setError(500));
-    dispatch(setBackEndMessage(e.message));
+    dispatch(setBackEndMessage(e.messge));
   } finally {
     dispatch(toggleIsLoading(false));
   }
 };
 
-export const deleteVendorData = (idVendor, page, text) => async (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  const responce = { id_vendor: idVendor };
-  try {
-    const res = await vendorAPI.delete(responce);
-    if (res.data.status) {
-      dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
-    } else {
-      dispatch(setBackEndMessage(res.data.message));
-      if (res.data.message === "Не авторизован") {
-        dispatch(setAuthData(null, null, null, false));
-      }
-    }
-  } catch (e) {
-    dispatch(setError(500));
-    dispatch(setBackEndMessage(e.message));
-  } finally {
-    dispatch(changeSearch(""));
-    dispatch(toggleIsLoading(false));
-  }
-};
-
-export const addVendorData = (vendor, page, text) => async (dispatch) => {
-  const finalRes = unMapsField(vendor);
+export const addFactorSD = (factor, page, text) => async (dispatch) => {
+  const finalRes = unMapsField(factor);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.add(finalRes);
+    const res = await formFactorSdAPI.add(finalRes);
     if (res.data.status) {
-      dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
+      dispatch(getFactorSD(page, text));
+      dispatch(getAllFactorSD());
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -198,14 +168,35 @@ export const addVendorData = (vendor, page, text) => async (dispatch) => {
   }
 };
 
-export const updateVendorData = (vendor, page, text) => async (dispatch) => {
-  const finalRes = unMapsField(vendor);
+export const updateFactorSD = (factor, page, text) => async (dispatch) => {
+  const finalRes = unMapsField(factor);
+  try {
+    const res = await formFactorSdAPI.update(finalRes);
+    if (res.data.status) {
+      dispatch(getFactorSD(page, text));
+      dispatch(getAllFactorSD());
+      dispatch(setCurrentFormFactorSD(factor));
+    } else {
+      dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export const deleteFactorSD = (id, page, text) => async (dispatch) => {
+  const finalRes = { idFormFactorSD: id };
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.update(finalRes);
+    const res = await formFactorSdAPI.delete(finalRes);
     if (res.data.status) {
-      dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
+      dispatch(getFactorSD(page, text));
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -216,9 +207,8 @@ export const updateVendorData = (vendor, page, text) => async (dispatch) => {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
   } finally {
-    dispatch(changeSearch(""));
     dispatch(toggleIsLoading(false));
   }
 };
 
-export default vendorReducer;
+export default formFactorSdReducer;

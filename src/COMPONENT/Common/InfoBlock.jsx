@@ -21,6 +21,9 @@ const InfoBlock = (props) => {
   mapsValue.set("formFactor", "Форм-фактор");
   mapsValue.set("intLAN", "Встроенный сетевой адаптер");
   mapsValue.set("intSound", "Встроенная звуковая карта");
+  mapsValue.set("volume", "Объем");
+  mapsValue.set("socket", "Разъем");
+  mapsValue.set("formFactorSD", "Форм-фактор SD");
 
   const { current } = props;
 
@@ -32,14 +35,11 @@ const InfoBlock = (props) => {
     return "Нет";
   };
 
-  console.log(curr);
-  console.log(Object.entries(curr).map(([key, value]) => [key, value]));
-
   return (
     <>
       {Object.entries(curr)
         .map(([key, value]) => (
-          <Box display="flex">
+          <Box display="flex" key={mapsValue.get(key)}>
             <Box
               flexGrow={1}
               textOverflow="ellipsis"

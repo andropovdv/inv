@@ -15,6 +15,7 @@ import {
 
 const GraphCardDelete = (props) => {
   const {
+    graphCard,
     open,
     current,
     pagination,
@@ -25,9 +26,12 @@ const GraphCardDelete = (props) => {
   } = props;
 
   const submit = async () => {
-    const delItem = { id: current.id };
-    await deleteGraph(delItem, pagination.current, searchField);
-    setCurrent({});
+    let page = pagination.current;
+    if (graphCard.length === 1 && pagination.current !== 0) {
+      page -= 1;
+    }
+    await deleteGraph(current.id, page, searchField);
+    setCurrent(null);
     onClose();
   };
 
@@ -53,7 +57,7 @@ const GraphCardDelete = (props) => {
 
 GraphCardDelete.propTypes = {
   open: PropTypes.bool.isRequired,
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
   current: PropTypes.shape({
     id: PropTypes.number,
     vendor: PropTypes.string,
@@ -67,15 +71,29 @@ GraphCardDelete.propTypes = {
     numPages: PropTypes.isRequired,
     perPage: PropTypes.number,
   }).isRequired,
+  graphCard: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      vendor: PropTypes.string,
+      model: PropTypes.string,
+      socketGraph: PropTypes.string,
+      volume: PropTypes.number,
+    })
+  ).isRequired,
   onClose: PropTypes.func.isRequired,
   deleteGraph: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
+};
+
+GraphCardDelete.defaultProps = {
+  searchField: "",
 };
 
 const mapStateToProps = (state) => ({
   current: state.graphCard.current,
   pagination: state.graphCard.pagination,
   searchField: state.graphCard.searchField,
+  graphCard: state.graphCard.graphCard,
 });
 
 export default connect(mapStateToProps, {

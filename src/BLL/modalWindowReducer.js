@@ -6,6 +6,8 @@ const SET_VISIBILITY_FORM_FACTOR = "SET_VISIBILITY_FORM_FACTOR";
 const SET_VISIBILITY_GRAPH_CARD = "SET_VISIBILITY_GRAPH_CARD";
 const SET_VISIBILITY_CPU = "SET_VISIBILITY_CPU";
 const SET_VISIBILITY_MBOARD = "SET_VISIBILITY_MBOARD";
+const SET_VISIBILITY_SOCKETSD = "SET_VISIBILITY_SOCKETSD";
+const SET_VISIBILITY_F_FACTORSD = "SET_VISIBILITY_F_FACTORSD";
 
 const initialState = {
   cpuSocketVisibility: { type: null, header: null, visibility: false },
@@ -16,6 +18,8 @@ const initialState = {
   formFactorVisibility: { type: null, header: null, visibility: false },
   graphCardVisibility: { type: null, header: null, visibility: false },
   mboardVisibility: { type: null, header: null, visibility: false },
+  socketSdVisibility: { type: null, header: null, visibility: false },
+  formFactorSDVisibility: { type: null, header: null, visibility: false },
 };
 
 const modalWindowReducer = (state = initialState, action) => {
@@ -68,6 +72,18 @@ const modalWindowReducer = (state = initialState, action) => {
         mboardVisibility: { ...action.modal },
       };
     }
+    case SET_VISIBILITY_SOCKETSD: {
+      return {
+        ...state,
+        socketSdVisibility: { ...action.modal },
+      };
+    }
+    case SET_VISIBILITY_F_FACTORSD: {
+      return {
+        ...state,
+        formFactorSDVisibility: { ...action.modal },
+      };
+    }
     default:
       return state;
   }
@@ -110,6 +126,16 @@ export const setFormFactorVisibility = (modal) => ({
 
 export const setCpuVisibility = (modal) => ({
   type: SET_VISIBILITY_CPU,
+  modal,
+});
+
+export const setSocketSdVisibility = (modal) => ({
+  type: SET_VISIBILITY_SOCKETSD,
+  modal,
+});
+
+export const setFormFactorSDVisibility = (modal) => ({
+  type: SET_VISIBILITY_F_FACTORSD,
   modal,
 });
 

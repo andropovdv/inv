@@ -101,7 +101,7 @@ const MBoardUI = (props) => {
   //   getMboard();
   //   clearSearch("");
   // };
-
+  // FIXME Проверь
   return (
     <>
       <MBoardDialog step />

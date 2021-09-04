@@ -1,11 +1,13 @@
 import graphCardApi from "../DAL/graphCardAPI";
+import { setBackEndMessage, setError } from "./errorReducer";
+import { setAuthData } from "./authReducer";
 
 const SET_GRAPH_CARD = "SET_GRAPH_CARD";
 const SET_CURRENT_GRAPH_CARD = "SET_CURRENT_GRAPH_CARD";
 const GRAPH_CARD_IS_LOADING = "GRAPH_CARD_IS_LOADING";
-const SET_ERROR_GRAPHCARD = "SET_ERROR_GRAPHCARD";
+// const SET_ERROR_GRAPHCARD = "SET_ERROR_GRAPHCARD";
 const SET_ALL_GRAPHCARD = "SET_ALL_GRAPHCARD";
-const SET_MESSAGE_GRAPHCARD = "SET_MESSAGE_GRAPHCARD";
+// const SET_MESSAGE_GRAPHCARD = "SET_MESSAGE_GRAPHCARD";
 const SEARCH_GRAPHCARD = "SEARCH_GRAPHCARD";
 
 const initialState = {
@@ -14,8 +16,8 @@ const initialState = {
   pagination: {},
   current: {},
   isLoading: false,
-  errorCode: 0,
-  backEndMessage: "",
+  // errorCode: 0,
+  // backEndMessage: "",
   searchField: "",
 };
 
@@ -41,24 +43,24 @@ const graphCardReducer = (state = initialState, action) => {
       };
     }
 
-    case SET_ERROR_GRAPHCARD: {
-      return {
-        ...state,
-        errorCode: action.error,
-      };
-    }
+    // case SET_ERROR_GRAPHCARD: {
+    //   return {
+    //     ...state,
+    //     errorCode: action.error,
+    //   };
+    // }
     case SET_ALL_GRAPHCARD: {
       return {
         ...state,
         allGraphCard: [...action.graphCard],
       };
     }
-    case SET_MESSAGE_GRAPHCARD: {
-      return {
-        ...state,
-        backEndMessage: action.message,
-      };
-    }
+    // case SET_MESSAGE_GRAPHCARD: {
+    //   return {
+    //     ...state,
+    //     backEndMessage: action.message,
+    //   };
+    // }
     case SEARCH_GRAPHCARD: {
       return {
         ...state,
@@ -89,17 +91,17 @@ export const setCurrentGraphCard = (current) => ({
   current,
 });
 
-export const setError = (error) => ({ type: SET_ERROR_GRAPHCARD, error });
+// export const setError = (error) => ({ type: SET_ERROR_GRAPHCARD, error });
 
 export const setAllGraphCard = (graphCard) => ({
   type: SET_ALL_GRAPHCARD,
   graphCard,
 });
 
-export const setBackEndMessage = (message) => ({
-  type: SET_MESSAGE_GRAPHCARD,
-  message,
-});
+// export const setBackEndMessage = (message) => ({
+//   type: SET_MESSAGE_GRAPHCARD,
+//   message,
+// });
 
 export const changeSearch = (text) => ({
   type: SEARCH_GRAPHCARD,
@@ -132,15 +134,22 @@ const unMapsField = (graphCard) => {
 };
 
 export const getGraphCardData = (page, text) => async (dispatch) => {
+  let search;
+  if (text) {
+    search = text;
+  }
+  dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await graphCardApi.all(page, text);
+    const res = await graphCardApi.all(page, search);
     if (res.data.result) {
       const finalRes = mapsField(res.data.result);
       dispatch(setGraphCard(finalRes, res.data.pagination));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -158,8 +167,10 @@ export const getAllGraphCard = () => async (dispatch) => {
       const finalRes = mapsField(res.data.result);
       dispatch(setAllGraphCard(finalRes));
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -177,8 +188,10 @@ export const addGraphCardData = (graphCard, page, text) => async (dispatch) => {
       dispatch(getGraphCardData(page, text));
       dispatch(getAllGraphCard());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -204,8 +217,10 @@ export const updateGraphCardData = (graphCard, page, text) => async (
         })
       );
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));
@@ -216,7 +231,7 @@ export const updateGraphCardData = (graphCard, page, text) => async (
 };
 
 export const deleteGraphCard = (id, page, text) => async (dispatch) => {
-  const delItem = { idGraph: id.id };
+  const delItem = { idGraph: id };
   dispatch(toggleIsLoading(true));
   try {
     const res = await graphCardApi.delete(delItem);
@@ -224,8 +239,10 @@ export const deleteGraphCard = (id, page, text) => async (dispatch) => {
       dispatch(getGraphCardData(page, text));
       dispatch(getAllGraphCard());
     } else {
-      dispatch(setError(res.data.errorCode));
       dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
     }
   } catch (e) {
     dispatch(setError(500));

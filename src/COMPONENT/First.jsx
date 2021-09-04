@@ -13,6 +13,8 @@ import FormFactorUI from "./FormFactor/FormFactorUI";
 import MBoardUI from "./MBoard/MBoardUI";
 import GraphCardUI from "./GraphCard/GraphCardUI";
 import Login from "./Login/Login";
+import SdSocketUI from "./SdSocket/SdSocketUI";
+import FormFactorSDUI from "./FormFactorSD/FormFactorSDUI";
 
 const drawerWidth = 250;
 
@@ -69,6 +71,8 @@ const First = () => {
         <Route path="/MBoard" render={() => <MBoardUI />} />
         <Route path="/GraphCard" render={() => <GraphCardUI />} />
         <Route path="/Login" render={() => <Login />} />
+        <Route path="/SdSocket" render={() => <SdSocketUI />} />
+        <Route path="/SdFactor" render={() => <FormFactorSDUI />} />
       </main>
     </div>
   );

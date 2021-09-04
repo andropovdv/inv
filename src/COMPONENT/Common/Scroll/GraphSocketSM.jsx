@@ -16,7 +16,7 @@ import AddBoxIcon from "@material-ui/icons/AddBox";
 import { Controller } from "react-hook-form";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { getAllTypeOfGraphSlot } from "../../../BLL/typeOfGraphSlotReducer";
-import { setGraphCardVisibility } from "../../../BLL/modalWindowReducer";
+import { setTypeOfGraphSlotVisibility } from "../../../BLL/modalWindowReducer";
 import GraphSocketDialog from "../../GraphSocket/GraphSocketDialog";
 
 const useStyles = makeStyles((theme) => ({
@@ -157,5 +157,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps, {
   getSocket: getAllTypeOfGraphSlot,
-  setVisibility: setGraphCardVisibility,
+  setVisibility: setTypeOfGraphSlotVisibility,
 })(GraphSocketSM);

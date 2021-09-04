@@ -17,21 +17,18 @@ import GraphSocketSM from "../Common/Scroll/GraphSocketSM";
 import { setGraphCardVisibility } from "../../BLL/modalWindowReducer";
 import {
   addGraphCardData,
-  setBackEndMessage,
-  setError,
+  // setBackEndMessage,
+  // setError,
   updateGraphCardData,
 } from "../../BLL/graphCardReducer";
+import { setBackEndMessage, setError } from "../../BLL/errorReducer";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   dialig: {
     position: "absolute",
     left: "53%",
     top: "53%",
     transform: "translate(-53%, -53%)",
-  },
-  paper: {
-    textAlign: "left",
-    color: theme.palette.text.secondary,
   },
   actionButton: {
     paddingRight: 24,
@@ -136,7 +133,7 @@ const GraphCardDialog = (props) => {
 
 GraphCardDialog.propTypes = {
   step: PropTypes.bool,
-  searchField: PropTypes.string.isRequired,
+  searchField: PropTypes.string,
   modal: PropTypes.shape({
     type: PropTypes.bool,
     header: PropTypes.string,
@@ -164,6 +161,7 @@ GraphCardDialog.propTypes = {
 
 GraphCardDialog.defaultProps = {
   step: true,
+  searchField: "",
   current: {
     id: undefined,
     vendor: undefined,

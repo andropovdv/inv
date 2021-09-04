@@ -1,20 +1,19 @@
+import React from "react";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  makeStyles,
 } from "@material-ui/core";
-import React from "react";
 import { useForm } from "react-hook-form";
-import { makeStyles } from "@material-ui/core/styles";
-import { PropTypes } from "prop-types";
-import { connect } from "react-redux";
-import { addVendorData, updateVendorData } from "../../BLL/vendorReducer";
 import { setError, setBackEndMessage } from "../../BLL/errorReducer";
-import { setVendorVisibility } from "../../BLL/modalWindowReducer";
+import { setFormFactorSDVisibility } from "../../BLL/modalWindowReducer";
+import { addFactorSD, updateFactorSD } from "../../BLL/formFactorSdReducer";
 import TextFieldSM from "../Common/Scroll/TextFieldSM";
-import TextFieldRM from "../Common/Scroll/TextFieldRM";
 
 const useStyles = makeStyles(() => ({
   dialog: {
@@ -29,24 +28,26 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const VendorDialog = (props) => {
-  const classes = useStyles();
-
+const FormFactorSDDialog = (props) => {
   const {
-    step,
-    modal,
     current,
     searchField,
     pagination,
-
-    setErrorCode,
+    modal,
+    step,
     setErrorMessage,
+    setErrorCode,
     setVisibility,
-    addVendor,
-    updateVendor,
+    addFactor,
+    updateFactor,
   } = props;
 
+  const classes = useStyles();
+
   const { handleSubmit, control, errors } = useForm({ mode: "onChange" });
+
+  let location;
+  if (!step) location = { paper: classes.dialog };
 
   const onClose = () => {
     setErrorCode(null);
@@ -54,26 +55,16 @@ const VendorDialog = (props) => {
     setVisibility({ type: false, header: "", visibility: false });
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (modal.type) {
-      addVendor(data, pagination.current, searchField);
+      await addFactor(data, pagination.current, searchField);
     } else {
-      const upVendor = {
-        // FIXME убрать в редьюсер
-        id: current.id,
-        vendor: data.vendor,
-        full: data.full,
-        url: data.url,
-      };
-      updateVendor(upVendor, pagination.current, searchField);
+      const res = { ...data, id: current.id };
+      await updateFactor(res, pagination.current, searchField);
     }
     setVisibility({ type: false, header: "", visibility: false });
   };
 
-  let location;
-  if (!step) {
-    location = { paper: classes.dialog };
-  }
   return (
     <Dialog
       open={modal.visibility}
@@ -85,28 +76,12 @@ const VendorDialog = (props) => {
       <DialogTitle>{modal.header}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
-          {/* Vendor */}
           <TextFieldSM
             control={control}
             errors={errors}
-            current={current.vendor}
-            nameField="vendor"
-            desc="Наименование"
-          />
-          {/* Full Vendor */}
-          <TextFieldRM
-            control={control}
-            errors={errors}
-            current={current.full}
-            nameField="full"
-            desc="Полное наименование"
-          />
-          <TextFieldRM
-            control={control}
-            errors={errors}
-            current={current.full}
-            nameField="url"
-            desc="Сайт"
+            current={current.formFactorSD}
+            nameField="formFactorSD"
+            desc="Форм-фактор storage device"
           />
         </DialogContent>
         <DialogActions className={classes.actionButton}>
@@ -117,7 +92,7 @@ const VendorDialog = (props) => {
             color="secondary"
             type="submit"
             variant="outlined"
-            disabled={Object.keys(errors).length > 0}
+            disabled={Object.keys(errors) > 0}
           >
             Записать
           </Button>
@@ -127,56 +102,51 @@ const VendorDialog = (props) => {
   );
 };
 
-VendorDialog.propTypes = {
+FormFactorSDDialog.propTypes = {
+  searchField: PropTypes.string,
   step: PropTypes.bool,
   modal: PropTypes.shape({
     type: PropTypes.bool,
     header: PropTypes.string,
     visibility: PropTypes.bool,
   }).isRequired,
-  current: PropTypes.shape({
-    id: PropTypes.number,
-    vendor: PropTypes.string,
-    full: PropTypes.string,
-    url: PropTypes.string,
-  }),
-
-  searchField: PropTypes.string,
   pagination: PropTypes.shape({
     total: PropTypes.number,
     current: PropTypes.number,
     numPages: PropTypes.number,
     perPage: PropTypes.number,
   }).isRequired,
-
-  setErrorCode: PropTypes.func.isRequired,
+  current: PropTypes.shape({
+    id: PropTypes.number,
+    formFactorSD: PropTypes.string,
+  }),
   setErrorMessage: PropTypes.func.isRequired,
+  setErrorCode: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  addVendor: PropTypes.func.isRequired,
-  updateVendor: PropTypes.func.isRequired,
+  addFactor: PropTypes.func.isRequired,
+  updateFactor: PropTypes.func.isRequired,
 };
 
-VendorDialog.defaultProps = {
-  current: {
-    id: undefined,
-    vendor: undefined,
-    full: undefined,
-    url: undefined,
-  },
+FormFactorSDDialog.defaultProps = {
   step: true,
   searchField: "",
+  current: {
+    id: undefined,
+    formFactorSD: undefined,
+  },
 };
 
 const mapStateToProps = (state) => ({
-  modal: state.modalWindow.vendorVisibility,
-  searchField: state.vendor.searchField,
-  pagination: state.vendor.pagination,
+  modal: state.modalWindow.formFactorSDVisibility,
+  pagination: state.formFactorSd.pagination,
+  searchField: state.formFactorSd.searchField,
+  current: state.formFactorSd.current,
 });
 
 export default connect(mapStateToProps, {
   setErrorCode: setError,
   setErrorMessage: setBackEndMessage,
-  setVisibility: setVendorVisibility,
-  addVendor: addVendorData,
-  updateVendor: updateVendorData,
-})(VendorDialog);
+  setVisibility: setFormFactorSDVisibility,
+  addFactor: addFactorSD,
+  updateFactor: updateFactorSD,
+})(FormFactorSDDialog);

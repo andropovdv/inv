@@ -1,50 +1,50 @@
-import vendorAPI from "../DAL/vendorAPI";
+import socketSdAPI from "../DAL/typeOfSocketSdAPI";
 import { setAuthData } from "./authReducer";
 import { setBackEndMessage, setError } from "./errorReducer";
 
-const VENDOR_IS_LOADING = "VENDOR_IS_LOADING";
-const SET_VENDORS = "SET_VENDORS";
-const SET_VENDORS_ALL = "SET_VENDORS_ALL";
-const SET_CURRENT_VENDOR = "SET_CURRENT_VENDOR";
-const SET_SEARCH_FIELD = "SET_SEARCH_FIELD";
+const SET_SOCKETSD = "SET_SOCKETSD";
+const SET_ALL_SOCKETSD = "SET_ALL_SOCKETSD";
+const SET_CURRENT_SOCKETSD = "SET_CURRENT_SOCKETSD";
+const LOADING_SOACKETSD = "LOADING_SOACKETSD";
+const SEARCH_SOCKETSD = "SEARCH_SOCKETSD";
 
 const initialState = {
-  vendors: [],
-  currentVendor: {},
-  vendorsAll: [],
+  socketSd: [],
+  socketSdAll: [],
   pagination: {},
+  current: {},
   isLoading: false,
   searchField: "",
 };
 
-const vendorReducer = (state = initialState, action) => {
+const typeOfSocketSdReducer = (state = initialState, action) => {
   switch (action.type) {
-    case VENDOR_IS_LOADING: {
+    case LOADING_SOACKETSD: {
       return {
         ...state,
         isLoading: action.isLoading,
       };
     }
-    case SET_VENDORS: {
+    case SET_SOCKETSD: {
       return {
         ...state,
-        vendors: [...action.vendors],
+        socketSd: [...action.socketSd],
         pagination: { ...action.pagination },
       };
     }
-    case SET_VENDORS_ALL: {
+    case SET_ALL_SOCKETSD: {
       return {
         ...state,
-        vendorsAll: [...action.vendors],
+        socketSdAll: [...action.socketSdAll],
       };
     }
-    case SET_CURRENT_VENDOR: {
+    case SET_CURRENT_SOCKETSD: {
       return {
         ...state,
-        currentVendor: { ...action.currentVendor },
+        current: { ...action.current },
       };
     }
-    case SET_SEARCH_FIELD: {
+    case SEARCH_SOCKETSD: {
       return {
         ...state,
         searchField: action.text,
@@ -55,69 +55,62 @@ const vendorReducer = (state = initialState, action) => {
   }
 };
 
-// AS
-
-export const toggleIsLoading = (isLoading) => ({
-  type: VENDOR_IS_LOADING,
-  isLoading,
-});
-
-export const setVendorsData = (vendors, pagination) => ({
-  type: SET_VENDORS,
-  vendors,
+export const setSocketSd = (socketSd, pagination) => ({
+  type: SET_SOCKETSD,
+  socketSd,
   pagination,
 });
 
-export const setVendorsAllData = (vendors) => ({
-  type: SET_VENDORS_ALL,
-  vendors,
+export const setSocketSdAll = (socketSdAll) => ({
+  type: SET_ALL_SOCKETSD,
+  socketSdAll,
 });
 
-export const setCurrentVendor = (currentVendor) => ({
-  type: SET_CURRENT_VENDOR,
-  currentVendor,
+export const setCurrentSocketSd = (current) => ({
+  type: SET_CURRENT_SOCKETSD,
+  current,
 });
 
-export const changeSearch = (text) => ({ type: SET_SEARCH_FIELD, text });
+export const toggleIsLoading = (isLoading) => ({
+  type: LOADING_SOACKETSD,
+  isLoading,
+});
 
-// THUNK
+export const changeSearch = (text) => ({
+  type: SEARCH_SOCKETSD,
+  text,
+});
 
-const mapsFields = (resApi) => {
+const mapsField = (resApi) => {
   const newRows = resApi.map((e) => {
     const row = {};
-    row.id = e.id_vendor;
-    row.vendor = e.name;
-    row.full = e.full_name;
-    row.url = e.url;
+    row.id = e.idSocket;
+    row.socket = e.socketSD;
     return row;
   });
   return newRows;
 };
 
-const unMapsField = (vendor) => {
+const unMapsField = (socket) => {
   const toApi = {
-    id_vendor: vendor.id,
-    name: vendor.vendor,
-    full_name: vendor.full,
-    url: vendor.url,
+    idSocket: socket.id,
+    socketSD: socket.socket,
   };
   return toApi;
 };
 
-export const getVendorsData = (page, text) => async (dispatch) => {
+export const getSocketSdData = (page, text) => async (dispatch) => {
   let search;
   if (text) {
     search = text;
-  } else {
-    search = undefined;
   }
   dispatch(changeSearch(text));
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.all(page, search);
+    const res = await socketSdAPI.all(page, search);
     if (res.data.status) {
-      const finalRes = mapsFields(res.data.result);
-      dispatch(setVendorsData(finalRes, res.data.pagination));
+      const finalRes = mapsField(res.data.result);
+      dispatch(setSocketSd(finalRes, res.data.pagination));
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -132,13 +125,13 @@ export const getVendorsData = (page, text) => async (dispatch) => {
   }
 };
 
-export const getVendorAllData = () => async (dispatch) => {
+export const getAllSocketSd = () => async (dispatch) => {
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.allToScroll();
+    const res = await socketSdAPI.alltoScroll();
     if (res.data.status) {
-      const finalRes = mapsFields(res.data.result);
-      await dispatch(setVendorsAllData(finalRes));
+      const finalRes = mapsField(res.data.result);
+      dispatch(setSocketSdAll(finalRes));
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -153,37 +146,14 @@ export const getVendorAllData = () => async (dispatch) => {
   }
 };
 
-export const deleteVendorData = (idVendor, page, text) => async (dispatch) => {
-  dispatch(toggleIsLoading(true));
-  const responce = { id_vendor: idVendor };
-  try {
-    const res = await vendorAPI.delete(responce);
-    if (res.data.status) {
-      dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
-    } else {
-      dispatch(setBackEndMessage(res.data.message));
-      if (res.data.message === "Не авторизован") {
-        dispatch(setAuthData(null, null, null, false));
-      }
-    }
-  } catch (e) {
-    dispatch(setError(500));
-    dispatch(setBackEndMessage(e.message));
-  } finally {
-    dispatch(changeSearch(""));
-    dispatch(toggleIsLoading(false));
-  }
-};
-
-export const addVendorData = (vendor, page, text) => async (dispatch) => {
-  const finalRes = unMapsField(vendor);
+export const addSocketSdData = (socket, page, text) => async (dispatch) => {
+  const finalRes = unMapsField(socket);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.add(finalRes);
+    const res = await socketSdAPI.add(finalRes);
     if (res.data.status) {
-      dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
+      dispatch(getSocketSdData(page, text));
+      dispatch(getAllSocketSd());
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -198,14 +168,15 @@ export const addVendorData = (vendor, page, text) => async (dispatch) => {
   }
 };
 
-export const updateVendorData = (vendor, page, text) => async (dispatch) => {
-  const finalRes = unMapsField(vendor);
+export const updateSocketSdData = (socket, page, text) => async (dispatch) => {
+  const finalRes = unMapsField(socket);
   dispatch(toggleIsLoading(true));
   try {
-    const res = await vendorAPI.update(finalRes);
+    const res = await socketSdAPI.update(finalRes);
     if (res.data.status) {
-      dispatch(getVendorsData(page, text));
-      dispatch(getVendorAllData());
+      dispatch(getSocketSdData(page, text));
+      dispatch(getAllSocketSd());
+      dispatch(setCurrentSocketSd(socket));
     } else {
       dispatch(setBackEndMessage(res.data.message));
       if (res.data.message === "Не авторизован") {
@@ -216,9 +187,29 @@ export const updateVendorData = (vendor, page, text) => async (dispatch) => {
     dispatch(setError(500));
     dispatch(setBackEndMessage(e.message));
   } finally {
-    dispatch(changeSearch(""));
     dispatch(toggleIsLoading(false));
   }
 };
 
-export default vendorReducer;
+export const deleteSocketSdData = (id, page, text) => async (dispatch) => {
+  const finalRes = { idSocket: id };
+  dispatch(toggleIsLoading(true));
+  try {
+    const res = await socketSdAPI.delete(finalRes);
+    if (res.data.status) {
+      dispatch(getSocketSdData(page, text));
+    } else {
+      dispatch(setBackEndMessage(res.data.message));
+      if (res.data.message === "Не авторизован") {
+        dispatch(setAuthData(null, null, null, false));
+      }
+    }
+  } catch (e) {
+    dispatch(setError(500));
+    dispatch(setBackEndMessage(e.message));
+  } finally {
+    dispatch(toggleIsLoading(false));
+  }
+};
+
+export default typeOfSocketSdReducer;

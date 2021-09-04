@@ -79,7 +79,6 @@ const MBoardDialog = (props) => {
 
   const onSubmit = async (data) => {
     if (modal.type) {
-      console.log("Data", data);
       await addMboard(data, pagination.current, searchField);
     } else {
       const res = {

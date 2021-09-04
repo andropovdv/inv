@@ -1,35 +1,25 @@
 import React from "react";
 import { connect } from "react-redux";
-import { PropTypes } from "prop-types";
+import { compose } from "redux";
 import { makeStyles } from "@material-ui/core/styles";
+import { PropTypes } from "prop-types";
 import {
   Box,
   Button,
   Grid,
-  // IconButton,
-  // InputAdornment,
-  Paper,
-  // Snackbar,
-  // TextField,
-  Typography,
   Hidden,
+  Paper,
+  Typography,
 } from "@material-ui/core";
-// import Alert from "@material-ui/lab/Alert";
-// import CancelIcon from "@material-ui/icons/Cancel";
-import {
-  // setBackEndMessage,
-  setCurrentGraphCard,
-  // setError,
-  // getGraphCardData,
-  // changeSearch,
-} from "../../BLL/graphCardReducer";
+import withAuthRedirect from "../HOC/withAuthRedirect";
 import { setBackEndMessage, setError } from "../../BLL/errorReducer";
-import { setGraphCardVisibility } from "../../BLL/modalWindowReducer";
-import GraphCardTable from "./GraphCardTable";
-import GraphCardDialog from "./GraphCardDialog";
+import { setCurrentFormFactorSD } from "../../BLL/formFactorSdReducer";
+import { setFormFactorSDVisibility } from "../../BLL/modalWindowReducer";
 import SoldOut from "../Common/SoldOut";
-import GraphCardComplete from "../Common/AutoComplete/GraphCardComplete";
+import FormFactorSDDialog from "./FormFactorSDDialog";
+import FormFactorSDTable from "./FormFactorSDTable";
 import InfoBlock from "../Common/InfoBlock";
+import FormFactorSDComplete from "../Common/AutoComplete/FormFactorSDComplete";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -47,17 +37,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const GraphCardUI = (props) => {
+const FormFactorSDUI = (props) => {
   const {
     current,
     errorMessage,
-    // searchField,
     setErrorCode,
     setErrorMessage,
     setCurrent,
     setVisibility,
-    // getGraphCard,
-    // clearSearch,
   } = props;
 
   const classes = useStyles();
@@ -79,48 +66,28 @@ const GraphCardUI = (props) => {
     setOpen(false);
   };
 
-  const addClick = () => {
-    setCurrent(null);
+  const handleClick = () => {
+    setCurrent(null, null);
     setVisibility({
       type: true,
-      header: "Добавить графическую карту",
+      header: "Добавить форм-фактор Storage Device",
       visibility: true,
     });
   };
 
-  // const onSearch = (e) => {
-  //   console.log("Search", e);
-  //   // getSearch(e.target.value);
-  // };
-
-  // const onClear = () => {
-  //   getGraphCard();
-  //   clearSearch("");
-  // };
-
   return (
     <>
-      <GraphCardDialog current={current} />
+      <FormFactorSDDialog current={current} />
       <SoldOut
         open={open}
         errorMessage={errorMessage}
         handleClose={handleClose}
       />
-      {/* <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-      >
-        <Alert onClose={handleClose} severity="error">
-          {errorMessage}
-        </Alert>
-      </Snackbar> */}
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
             <Typography variant="h6" align="left">
-              Справочники: / Графические карты
+              Справочники:/ Форм фактор storage device
             </Typography>
           </Paper>
         </Grid>
@@ -132,25 +99,25 @@ const GraphCardUI = (props) => {
                 color="primary"
                 variant="contained"
                 className={classes.buttonArea}
-                onClick={addClick}
+                onClick={handleClick}
               >
                 Добавить
               </Button>
-              <GraphCardComplete />
+              <FormFactorSDComplete />
             </Box>
           </Paper>
         </Grid>
 
         <Grid item xs={12} lg={9}>
           <Paper className={classes.paper}>
-            <GraphCardTable />
+            <FormFactorSDTable />
           </Paper>
         </Grid>
 
         <Hidden mdDown>
           <Grid item xs={3}>
             <Paper className={classes.paper}>
-              <Typography variant="h6" align="left">
+              <Typography variant="h6" align="left" component="span">
                 Подробно:
               </Typography>
               {Object.keys(current).length !== 0 ? (
@@ -163,12 +130,8 @@ const GraphCardUI = (props) => {
         <Hidden lgUp>
           <Grid item xs={12}>
             <Paper className={classes.paper}>
-              <Typography variant="h6" align="left">
-                {Object.keys(current).length !== 0 ? (
-                  <div>{`Подробно о: ${current.model}`}</div>
-                ) : (
-                  <div>Подробно:</div>
-                )}
+              <Typography variant="h6" align="left" component="span">
+                Подробно:
               </Typography>
               {Object.keys(current).length !== 0 ? (
                 <InfoBlock current={current} />
@@ -181,35 +144,29 @@ const GraphCardUI = (props) => {
   );
 };
 
-GraphCardUI.propTypes = {
+FormFactorSDUI.propTypes = {
+  errorMessage: PropTypes.string.isRequired,
   current: PropTypes.shape({
     id: PropTypes.number,
-    vendor: PropTypes.string,
-    model: PropTypes.string,
-    socketGraph: PropTypes.string,
-    volume: PropTypes.number,
+    formFactorSD: PropTypes.string,
   }).isRequired,
-  errorMessage: PropTypes.string.isRequired,
-  // searchField: PropTypes.string.isRequired,
   setErrorCode: PropTypes.func.isRequired,
   setErrorMessage: PropTypes.func.isRequired,
   setCurrent: PropTypes.func.isRequired,
   setVisibility: PropTypes.func.isRequired,
-  // getGraphCard: PropTypes.func.isRequired,
-  // clearSearch: PropTypes.func.isRequired,
 };
 
-const mapsStateToProps = (state) => ({
+const mapStateToProps = (state) => ({
   errorMessage: state.error.backEndMessage,
-  searchField: state.graphCard.searchField,
-  current: state.graphCard.current,
+  current: state.formFactorSd.current,
 });
 
-export default connect(mapsStateToProps, {
-  setErrorCode: setError,
-  setErrorMessage: setBackEndMessage,
-  setCurrent: setCurrentGraphCard,
-  setVisibility: setGraphCardVisibility,
-  // getGraphCard: getGraphCardData,
-  // clearSearch: changeSearch,
-})(GraphCardUI);
+export default compose(
+  connect(mapStateToProps, {
+    setErrorCode: setError,
+    setErrorMessage: setBackEndMessage,
+    setCurrent: setCurrentFormFactorSD,
+    setVisibility: setFormFactorSDVisibility,
+  }),
+  withAuthRedirect
+)(FormFactorSDUI);

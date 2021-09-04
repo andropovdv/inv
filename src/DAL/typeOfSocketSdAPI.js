@@ -11,31 +11,26 @@ const setToken = (conf) => {
   return config;
 };
 
-const baseUrl = "http://localhost:4000/api/GraphCard/";
+const baseUrl = "http://localhost:4000/api/socketSD/";
 
 Axios.interceptors.request.use(setToken);
 
-// const instance = Axios.create({
-//   baseURL: "http://localhost:4000/api/GraphCard",
-//   withCredentials: true,
-// });
-
-const graphCardApi = {
+const socketSdAPI = {
   all(page, text) {
     return Axios.get(`${baseUrl}?page=${page}&text=${text}`);
   },
-  add(graphCard) {
-    return Axios.post(baseUrl, graphCard);
+  update(socketSd) {
+    return Axios.put(baseUrl, socketSd);
   },
-  update(graphCard) {
-    return Axios.put(baseUrl, graphCard);
+  delete(socketSd) {
+    return Axios.delete(baseUrl, { data: socketSd });
   },
-  delete(graphCard) {
-    return Axios.delete(baseUrl, { data: graphCard });
+  add(socketSd) {
+    return Axios.post(baseUrl, socketSd);
   },
-  allToScroll() {
+  alltoScroll() {
     return Axios.get(`${baseUrl}all`);
   },
 };
 
-export default graphCardApi;
+export default socketSdAPI;
