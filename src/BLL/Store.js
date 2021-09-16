@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { applyMiddleware, combineReducers, createStore } from "redux";
 import thunkMiddleware from "redux-thunk";
 // import { reducer as formReducer } from "redux-form";
@@ -16,6 +17,7 @@ import mboardReducer from "./mboardReducer";
 import errorReducer from "./errorReducer";
 import typeOfSocketSdReducer from "./typeOfSocketSdReducer";
 import formFactorSdReducer from "./formFactorSdReducer";
+import storageDeviceReducer from "./storageDeviceReducer";
 
 const reducers = combineReducers({
   app: appReducer,
@@ -33,6 +35,7 @@ const reducers = combineReducers({
   socketSd: typeOfSocketSdReducer,
   formFactorSd: formFactorSdReducer,
   error: errorReducer,
+  storageDevice: storageDeviceReducer,
 });
 
 const store = createStore(reducers, applyMiddleware(thunkMiddleware));

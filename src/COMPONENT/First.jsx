@@ -15,6 +15,7 @@ import GraphCardUI from "./GraphCard/GraphCardUI";
 import Login from "./Login/Login";
 import SdSocketUI from "./SdSocket/SdSocketUI";
 import FormFactorSDUI from "./FormFactorSD/FormFactorSDUI";
+import StorageDeviceUI from "./StorageDevice/StorageDeviceUI";
 
 const drawerWidth = 250;
 
@@ -73,6 +74,7 @@ const First = () => {
         <Route path="/Login" render={() => <Login />} />
         <Route path="/SdSocket" render={() => <SdSocketUI />} />
         <Route path="/SdFactor" render={() => <FormFactorSDUI />} />
+        <Route path="/StorageDevice" render={() => <StorageDeviceUI />} />
       </main>
     </div>
   );

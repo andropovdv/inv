@@ -8,6 +8,7 @@ const SET_VISIBILITY_CPU = "SET_VISIBILITY_CPU";
 const SET_VISIBILITY_MBOARD = "SET_VISIBILITY_MBOARD";
 const SET_VISIBILITY_SOCKETSD = "SET_VISIBILITY_SOCKETSD";
 const SET_VISIBILITY_F_FACTORSD = "SET_VISIBILITY_F_FACTORSD";
+const SET_VISIBILITY_STORAGE_DEVICE = "SET_VISIBILITY_STORAGE_DEVICE";
 
 const initialState = {
   cpuSocketVisibility: { type: null, header: null, visibility: false },
@@ -20,6 +21,7 @@ const initialState = {
   mboardVisibility: { type: null, header: null, visibility: false },
   socketSdVisibility: { type: null, header: null, visibility: false },
   formFactorSDVisibility: { type: null, header: null, visibility: false },
+  storageDeviceVisibility: { type: null, header: null, visibility: false },
 };
 
 const modalWindowReducer = (state = initialState, action) => {
@@ -84,6 +86,12 @@ const modalWindowReducer = (state = initialState, action) => {
         formFactorSDVisibility: { ...action.modal },
       };
     }
+    case SET_VISIBILITY_STORAGE_DEVICE: {
+      return {
+        ...state,
+        storageDeviceVisibility: { ...action.modal },
+      };
+    }
     default:
       return state;
   }
@@ -136,6 +144,11 @@ export const setSocketSdVisibility = (modal) => ({
 
 export const setFormFactorSDVisibility = (modal) => ({
   type: SET_VISIBILITY_F_FACTORSD,
+  modal,
+});
+
+export const setStorageDeviceVisibility = (modal) => ({
+  type: SET_VISIBILITY_STORAGE_DEVICE,
   modal,
 });
 

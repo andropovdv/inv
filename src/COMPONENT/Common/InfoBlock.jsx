@@ -24,10 +24,18 @@ const InfoBlock = (props) => {
   mapsValue.set("volume", "Объем");
   mapsValue.set("socket", "Разъем");
   mapsValue.set("formFactorSD", "Форм-фактор SD");
+  mapsValue.set("create", "Создано");
 
   const { current } = props;
 
-  const curr = { ...current };
+  const createDate = new Date(current.create);
+
+  const curr = {
+    ...current,
+    create: `${createDate.getDate()}-${
+      createDate.getMonth() + 1
+    }-${createDate.getFullYear()} ${createDate.getHours()}:${createDate.getMinutes()}`,
+  };
   delete curr.id;
 
   const convertBool = (data) => {
@@ -80,6 +88,7 @@ InfoBlock.propTypes = {
     formFactor: PropTypes.string,
     intLAN: PropTypes.bool,
     intSound: PropTypes.bool,
+    create: PropTypes.string,
   }).isRequired,
 };
 

@@ -71,9 +71,9 @@ const items = {
           to: "/GraphCard",
         },
         {
-          id: "abc_172.22.22.214.if.2",
-          name: "Процессоры",
-          to: "/Vendors",
+          id: "06",
+          name: "Устройства хранения",
+          to: "/StorageDevice",
         },
       ],
     },
